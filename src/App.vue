@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <file-uploader
+      <handy-uploader
         :setDocumentAttachment="setInsertedFile"
         :documentAttachment.sync="registryDocFile"
         :fileUploaderType="'thumbnail'"
@@ -12,19 +12,19 @@
         :badgeCounter="true"
         ref="fileUploader"
       >
-      </file-uploader>
+      </handy-uploader>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import fileUploader from "./components/vueFileUploader";
+import handyUploader from "./components/handyUploader";
 
 export default {
   name: "App",
 
   components: {
-    fileUploader
+    handyUploader
   },
 
   data: () => ({

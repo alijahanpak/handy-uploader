@@ -1,7 +1,7 @@
 ![vue-file-uploader](https://img.techpowerup.org/200626/vue-file-uploader038.png)
 
 
-# vue-file-uploader
+# handy-uploader
 
 > Complete and simple file uploader with image compressor in Vue.js
 
@@ -24,5 +24,5 @@
 ## Install
 ```bash
 # install 
-$ npm install vue-file-uploader
+$ npm install handy-uploader
 

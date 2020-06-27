@@ -1,13 +1,15 @@
 {
-  "name": "vue-file-uploader",
+  "name": "handy-uploader",
   "version": "0.1.0",
+  "author": "ali jahanpak",
+  "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-package": "vue-cli-service build --target lib --name vueFileUploader ./src/components/index.js"
+    "build-package": "vue-cli-service build --target lib --name handyUploader ./src/components/index.js"
   },
-  "main": "dist/vueFileUploader.common.js",
+  "main": "dist/handyUploader.common.js",
   "dependencies": {
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
@@ -32,7 +34,9 @@
   "files": [
     "dist/*",
     "src/*",
-    "*.json"
+    "public/*",
+    "*.json",
+    "*.js"
   ],
   "keywords": [
     "vue.js",
@@ -40,8 +44,14 @@
     "fileUploader",
     "upload",
     "component",
-    "compressor"
+    "compressor",
+    "user-friendly",
+    "easy-to-use",
+    "user-friendly",
+    "handy"
   ],
-  "author": "ali jahanpak",
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alijahanpak/vue-file-uploader.git"
+  }
 }
