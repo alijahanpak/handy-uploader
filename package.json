@@ -1,12 +1,13 @@
 {
   "name": "vue-file-uploader",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build-package": "vue-cli-service build --target lib --name vueFileUploader ./src/components/index.js"
   },
+  "main": "dist/vueFileUploader.common.js",
   "dependencies": {
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
@@ -27,5 +28,20 @@
     "vue-cli-plugin-vuetify": "~2.0.6",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.3.0"
-  }
+  },
+  "files": [
+    "dist/*",
+    "src/*",
+    "*.json"
+  ],
+  "keywords": [
+    "vue.js",
+    "vue",
+    "fileUploader",
+    "upload",
+    "component",
+    "compressor"
+  ],
+  "author": "ali jahanpak",
+  "license": "MIT"
 }

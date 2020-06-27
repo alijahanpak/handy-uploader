@@ -1100,9 +1100,9 @@ export default {
     selectedLang: {}
   }),
   watch: {
-    documentAttachment: function() {
+    /*documentAttachment: function() {
       this.$emit("update:documentAttachment", this.documentAttachment);
-    },
+    },*/
     cardType: function() {
       this.$emit("update:cardType", this.cardType);
       this.setCardTheme();
@@ -1275,8 +1275,9 @@ export default {
             tempFile.format = strTemp[0].replace("data:", "");
             file.file = tempFile;
             this.registryDocFile.push(file);
-            this.$emit("setDocumentAttachment", this.registryDocFile);
-            this.documentAttachment = this.registryDocFile;
+            //this.$emit("setDocumentAttachment", this.registryDocFile);
+            //this.documentAttachment = this.registryDocFile;
+            this.$emit("update:documentAttachment", this.registryDocFile);
           }
         } else {
           this.fileUploaderSnackBarAlertColor = "red";
