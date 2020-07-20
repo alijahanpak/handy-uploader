@@ -2,7 +2,6 @@
   <v-app>
     <v-main>
       <handy-uploader
-        :setDocumentAttachment="setInsertedFile"
         :documentAttachment.sync="registryDocFile"
         :fileUploaderType="'thumbnail'"
         :maxFileSize="10240"
@@ -10,7 +9,10 @@
         :imageCompressLevel="0.8"
         :maxFileCount="10"
         :badgeCounter="true"
-        ref="fileUploader"
+        :changeFileName="true"
+        :addFileDescription="true"
+        :addFileTag="true"
+        :tags= "['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
       >
       </handy-uploader>
     </v-main>
@@ -31,9 +33,6 @@ export default {
     registryDocFile: []
   }),
   methods: {
-    setInsertedFile(item) {
-      this.registryDocFile = item;
-    }
   }
 };
 </script>

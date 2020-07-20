@@ -1,6 +1,7 @@
 {
   "name": "handy-uploader",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Complete and simple file uploader with image compressor in Vue.js. Choice Theme : Thumbnail, Simple, Table, Add custom fields, Image compressor, Manage files count, Manage files size, Multi language support , ...",
   "author": "ali jahanpak",
   "license": "MIT",
   "scripts": {
@@ -12,10 +13,12 @@
   "main": "dist/handyUploader.common.js",
   "dependencies": {
     "core-js": "^3.6.5",
+    "css-loader": "^3.6.0",
     "vue": "^2.6.11",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {
+    "@mdi/font": "^5.3.45",
     "@vue/cli-plugin-babel": "~4.4.0",
     "@vue/cli-plugin-eslint": "~4.4.0",
     "@vue/cli-service": "~4.4.0",
@@ -39,19 +42,32 @@
     "*.js"
   ],
   "keywords": [
+    "javascript",
     "vue.js",
     "vue",
+    "nuxt",
+    "file",
+    "image",
+    "responsive",
     "fileUploader",
+    "vue-file-uploader",
+    "vue-file-component",
+    "vue-image-uploader",
     "upload",
+    "uploader",
+    "easy-uploader",
     "component",
+    "vue-component",
+    "multiple",
     "compressor",
-    "user-friendly",
-    "easy-to-use",
-    "user-friendly",
-    "handy"
+    "easy-to-use"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alijahanpak/vue-file-uploader.git"
-  }
+    "url": "git+https://github.com/alijahanpak/handy-uploader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alijahanpak/handy-uploader/issues"
+  },
+  "homepage": "https://github.com/alijahanpak/handy-uploader#readme"
 }
