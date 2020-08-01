@@ -12,6 +12,8 @@
         :changeFileName="true"
         :addFileDescription="true"
         :addFileTag="true"
+        :lang= "'custom'"
+        :customLang="customLang"
         :tags= "['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
       >
       </handy-uploader>
@@ -30,7 +32,38 @@ export default {
   },
 
   data: () => ({
-    registryDocFile: []
+    registryDocFile: [],
+    customLang : {
+      custom : {
+        insertFile: 'Insert File1',
+        insertNewFile: 'Insert New File1',
+        add: 'Add',
+        delete: 'Delete',
+        deleteDialog: {
+          message: 'Are you sure you want to delete the file?',
+          cancel: 'cancel',
+        },
+        table: {
+          thumb: 'Thumb',
+          name: 'Name',
+          size: 'Size',
+          tags: 'tags',
+          action: {
+            action: 'Action',
+            deleteTooltip: 'Delete'
+          }
+        },
+        size: {
+          kb: 'KB',
+          mb: 'MB',
+        },
+        maxFileSizeAlert: 'Max file Size is',
+        maxFileCountAlert: 'Max file Count is',
+        fileName: 'File Name',
+        fileDescription: 'File Description',
+        fileTags: 'File Tags',
+      }
+    },
   }),
   methods: {
   }

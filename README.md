@@ -12,7 +12,8 @@
 + Mange file extensions
 + Manage files count
 + Manage files size
-+ Multi language support
++ Multi languages support
++ Use custom language
 + Right to left support
 + Multi file upload
 + Responsive
