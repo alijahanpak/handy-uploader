@@ -13,7 +13,7 @@
 + Manage files count
 + Manage files size
 + Multi languages support
-+ Use custom language
++ Add custom language
 + Right to left support
 + Multi file upload
 + Responsive
