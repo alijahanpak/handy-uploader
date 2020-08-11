@@ -12,8 +12,7 @@
         :changeFileName="true"
         :addFileDescription="true"
         :addFileTag="true"
-        :lang= "'custom'"
-        :customLang="customLang"
+        :lang= "'en'"
         :tags= "['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
       >
       </handy-uploader>

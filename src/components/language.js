@@ -4,6 +4,7 @@ export default{
     insertNewFile: 'Insert New File',
     add: 'Add',
     delete: 'Delete',
+    edit: 'Edit',
     deleteDialog:{
       message: 'Are you sure you want to delete the file?',
       cancel: 'cancel',
@@ -33,6 +34,7 @@ export default{
     insertNewFile: 'افزودن فایل جدید',
     add: 'افزودن',
     delete: 'حذف',
+    edit: 'ویرایش',
     deleteDialog:{
       message: 'آیا برای حذف فایل اطمینان دارید؟',
       cancel: 'لغو',
@@ -61,6 +63,7 @@ export default{
     insertNewFile: 'Insérer un nouveau fichier',
     add: 'Ajouter',
     delete: 'Supprimer',
+    edit: 'Éditer',
     deleteDialog:{
       message: 'Voulez-vous vraiment supprimer le fichier?',
       cancel: 'Annuler',
@@ -89,6 +92,7 @@ export default{
     insertNewFile: '插入新文件',
     add: '加',
     delete: '删除',
+    edit: '编辑',
     deleteDialog:{
       message: '您确定要删除文件吗?',
       cancel: '取消',
@@ -117,6 +121,7 @@ export default{
     insertNewFile: 'إدراج ملف جديد',
     add: 'أضف',
     delete: 'حذف',
+    edit: 'تعديل',
     deleteDialog:{
       message: 'هل أنت متأكد أنك تريد حذف الملف؟',
       cancel: 'إلغاء',
