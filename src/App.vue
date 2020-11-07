@@ -12,8 +12,8 @@
         :changeFileName="true"
         :addFileDescription="true"
         :addFileTag="true"
-        :lang= "'en'"
-        :tags= "['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
+        :lang="'en'"
+        :tags="['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
       >
       </handy-uploader>
     </v-main>
@@ -32,39 +32,38 @@ export default {
 
   data: () => ({
     registryDocFile: [],
-    customLang : {
-      custom : {
-        insertFile: 'Insert File1',
-        insertNewFile: 'Insert New File1',
-        add: 'Add',
-        delete: 'Delete',
+    customLang: {
+      custom: {
+        insertFile: "Insert File1",
+        insertNewFile: "Insert New File1",
+        add: "Add",
+        delete: "Delete",
         deleteDialog: {
-          message: 'Are you sure you want to delete the file?',
-          cancel: 'cancel',
+          message: "Are you sure you want to delete the file?",
+          cancel: "cancel"
         },
         table: {
-          thumb: 'Thumb',
-          name: 'Name',
-          size: 'Size',
-          tags: 'tags',
+          thumb: "Thumb",
+          name: "Name",
+          size: "Size",
+          tags: "tags",
           action: {
-            action: 'Action',
-            deleteTooltip: 'Delete'
+            action: "Action",
+            deleteTooltip: "Delete"
           }
         },
         size: {
-          kb: 'KB',
-          mb: 'MB',
+          kb: "KB",
+          mb: "MB"
         },
-        maxFileSizeAlert: 'Max file Size is',
-        maxFileCountAlert: 'Max file Count is',
-        fileName: 'File Name',
-        fileDescription: 'File Description',
-        fileTags: 'File Tags',
+        maxFileSizeAlert: "Max file Size is",
+        maxFileCountAlert: "Max file Count is",
+        fileName: "File Name",
+        fileDescription: "File Description",
+        fileTags: "File Tags"
       }
-    },
+    }
   }),
-  methods: {
-  }
+  methods: {}
 };
 </script>
