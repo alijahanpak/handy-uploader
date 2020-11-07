@@ -1,5 +1,15 @@
-![vue-file-uploader](https://img.techpowerup.org/200626/vue-file-uploader038.png)
+<p align="center">
+  <img src="https://img.techpowerup.org/200626/vue-file-uploader038.png" alt="handy uplader"/>
+</p>
 
+<div>
+<a title="MadeWithVueJs.com Shield" href="https://madewithvuejs.com/p/handy-uploader/shield-link"> <img src="https://madewithvuejs.com/storage/repo-shields/2558-shield.svg"/></a>
+
+<img alt="npm" src="https://img.shields.io/npm/v/handy-uploader">
+
+
+<img alt="NPM" src="https://img.shields.io/npm/l/handy-uploader">
+</div>
 
 # handy-uploader
 
