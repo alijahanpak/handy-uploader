@@ -28,7 +28,7 @@
             {{ selectedLang[lang].insertFile }}
           </v-btn>
         </template>
-        <v-row v-if="fileUploaderType === 'simple'">
+        <v-row v-if="fileUploaderType === 'simple'" class="mt-5">
           <v-col
             v-for="(attachment, index) in documentAttachment"
             :key="`attachment-${index}`"
@@ -375,7 +375,7 @@
                     </v-chip-group>
                     <v-card-text
                       v-if="attachment.file.description != null"
-                      style="text-align: justify"
+                      style="text-align: justify; height: 200px; overflow-y: auto"
                     >
                       {{ attachment.file.description }}
                     </v-card-text>
@@ -385,7 +385,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row v-else-if="fileUploaderType === 'thumbnail'">
+        <v-row v-else-if="fileUploaderType === 'thumbnail'" class="mt-5">
           <v-col
             v-for="(attachment, index) in documentAttachment"
             :key="`attachment-${index}`"
@@ -439,7 +439,7 @@
                 <v-list-item-avatar
                   style="margin-top: 0"
                   tile
-                  width="345"
+                  width="100%"
                   height="192"
                   color="blue-grey lighten-5"
                 >
@@ -595,7 +595,7 @@
                 </v-list-item-avatar>
               </template>
 
-              <v-card-subtitle style="height: 70px">
+              <v-card-subtitle class="one-line">
                 {{ attachment.file.name }}
               </v-card-subtitle>
               <v-card-subtitle
@@ -704,7 +704,7 @@
                     </v-chip-group>
                     <v-card-text
                       v-if="attachment.file.description != null"
-                      style="text-align: justify"
+                      style="text-align: justify; height: 200px; overflow-y: auto"
                     >
                       {{ attachment.file.description }}
                     </v-card-text>
@@ -714,7 +714,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row v-if="fileUploaderType === 'table'">
+        <v-row v-if="fileUploaderType === 'table'" class="mt-5">
           <v-col cols="12" lg="12" md="12" xs="12">
             <v-simple-table
               :fixed-header="tableFixedHeader"
@@ -1026,7 +1026,7 @@
         v-model="insertDocumentDialog"
         :scrollable="false"
         persistent
-        width="50%"
+        width="600px"
       >
         <v-card>
           <v-card-title>
@@ -1057,9 +1057,11 @@
                   v-for="(attachment, index) in tempAttachmentChanged"
                   :key="`attachment-${index}`"
                 >
-                  <v-expansion-panel-header>{{
-                    attachment.name
-                  }}</v-expansion-panel-header>
+                  <v-expansion-panel-header>
+                    <div class="one-line">
+                      {{ attachment.name }}
+                    </div>
+                  </v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <v-row align="center" justify="center">
                       <v-col cols="12" lg="9" md="9" xs="12">
@@ -2095,3 +2097,13 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.one-line {
+  line-height: 1.5em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 93%;
+}
+</style>
