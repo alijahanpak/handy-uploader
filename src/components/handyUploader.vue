@@ -2,1022 +2,76 @@
   <v-container>
     <v-row>
       <v-col cols="12" md="12" xs="12">
-        <template v-if="badgeCounter">
-          <template v-if="documentAttachment.length > 0">
-            <v-badge
-              bordered
-              :color="
-                documentAttachment.length === maxFileCount ? 'error' : 'success'
-              "
-              overlap
-              :content="documentAttachment.length"
-            >
-              <v-btn :color="btnColor" @click="openInputDocumentModal">
-                {{ selectedLang[lang].insertFile }}
-              </v-btn>
-            </v-badge>
-          </template>
-          <template v-else>
-            <v-btn :color="btnColor" @click="openInputDocumentModal">
-              {{ selectedLang[lang].insertFile }}
-            </v-btn>
-          </template>
-        </template>
-        <template v-if="!badgeCounter">
-          <v-btn :color="btnColor" @click="openInputDocumentModal">
-            {{ selectedLang[lang].insertFile }}
-          </v-btn>
-        </template>
-        <v-row v-if="fileUploaderType === 'simple'" class="mt-5">
-          <v-col
-            v-for="(attachment, index) in documentAttachment"
-            :key="`attachment-${index}`"
-            cols="12"
-            :md="cols"
-            xs="12"
-          >
-            <v-card
-              :shaped="shaped"
-              :outlined="outlined"
-              :raised="raised"
-              :tile="tile"
-            >
-              <v-list-item three-line>
-                <v-list-item-content>
-                  <v-list-item-subtitle color="blue-grey darken-3">{{
-                    attachment.file.name
-                  }}</v-list-item-subtitle>
-                  <v-list-item-subtitle
-                    v-if="
-                      Number((attachment.file.size / 1000).toFixed(1)) < 1024
-                    "
-                  >
-                    <v-chip color="teal lighten-2" label text-color="white">
-                      {{
-                        Number((attachment.file.size / 1000).toFixed(1)) +
-                          "  " +
-                          selectedLang[lang].size.kb
-                      }}
-                      <v-icon right>mdi-harddisk</v-icon>
-                    </v-chip>
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle
-                    v-if="
-                      Number((attachment.file.size / 1000).toFixed(1)) > 1024
-                    "
-                  >
-                    <v-chip color="teal lighten-2" label text-color="white">
-                      {{
-                        Number(
-                          (attachment.file.size / 1000 / 1024).toFixed(1)
-                        ) +
-                          "  " +
-                          selectedLang[lang].size.mb
-                      }}
-                      <v-icon right>mdi-harddisk</v-icon>
-                    </v-chip>
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-avatar tile size="80" color="blue-grey lighten-5">
-                  <template
-                    v-if="
-                      attachment.file.name
-                        .split('.')
-                        .pop()
-                        .toLowerCase() === 'jpg' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'jpeg' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'png' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'tif' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'bmp'
-                    "
-                  >
-                    <v-img
-                      v-if="thumb"
-                      :src="
-                        'data:' +
-                          attachment.file.format +
-                          ',' +
-                          attachment.file.base64
-                      "
-                    ></v-img>
-                    <v-icon
-                      v-else
-                      style="margin-left: 10px"
-                      size="50"
-                      file-word-outline
-                      color="deep-purple darken-1"
-                      >mdi-file-image-outline</v-icon
-                    >
-                  </template>
-                  <template v-else>
-                    <v-icon
-                      v-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pdf'
-                      "
-                      x-large
-                      file-word-outline
-                      color="red darken-1"
-                      >mdi-file-pdf-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'doc' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'docx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'odt'
-                      "
-                      x-large
-                      file-word-outline
-                      color="blue darken-1"
-                      >mdi-file-word-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'jpg' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'jpeg' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'png' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'tif' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'bmp'
-                      "
-                      x-large
-                      file-word-outline
-                      color="deep-purple darken-1"
-                      >mdi-file-image-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'xls' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'xlsx'
-                      "
-                      x-large
-                      file-word-outline
-                      color="teal darken-1"
-                      >mdi-file-excel-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pptx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pptm' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'ppt'
-                      "
-                      x-large
-                      file-word-outline
-                      color="orange darken-3"
-                      >mdi-file-powerpoint-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'mp4' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'mov' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'flv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'wmv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'avi'
-                      "
-                      x-large
-                      file-word-outline
-                      color="red lighten-1"
-                      >mdi-file-video-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'dwg'
-                      "
-                      x-large
-                      file-word-outline
-                      color="indigo lighten-2"
-                      >mdi-file-cad</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'zip' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'rar' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === '7-zip'
-                      "
-                      x-large
-                      file-word-outline
-                      color="lime lighten-1"
-                      >mdi-folder-zip-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'txt'
-                      "
-                      x-large
-                      file-word-outline
-                      color="light-green darken-3"
-                      >mdi-script-text-outline</v-icon
-                    >
-                    <v-icon
-                      v-else
-                      x-large
-                      file-word-outline
-                      color="indigo lighten-1"
-                      >mdi-file-question-outline</v-icon
-                    >
-                  </template>
-                </v-list-item-avatar>
-              </v-list-item>
-              <v-divider class="mx-4"></v-divider>
-              <v-card-actions style="padding: 0">
-                <v-tooltip right>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-if="deletePermission"
-                      text
-                      fab
-                      v-on="on"
-                      @click="openDeleteDialog(index, '')"
-                      ><v-icon color="red">mdi-trash-can-outline</v-icon></v-btn
-                    >
-                  </template>
-                  <span class="BYekan">{{ selectedLang[lang].delete }}</span>
-                </v-tooltip>
-                <v-tooltip right>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-if="editPermission"
-                      text
-                      fab
-                      v-on="on"
-                      @click="openEditDocumentDialog(attachment, index)"
-                      ><v-icon color="green">mdi-pencil-outline</v-icon></v-btn
-                    >
-                  </template>
-                  <span class="BYekan">{{ selectedLang[lang].edit }}</span>
-                </v-tooltip>
-
-                <v-spacer></v-spacer>
-
-                <v-btn
-                  v-if="
-                    attachment.file.tags.length > 0 ||
-                      attachment.file.description !== ''
-                  "
-                  icon
-                  @click.prevent="
-                    attachment.file.showDetailState = !attachment.file
-                      .showDetailState
-                  "
-                >
-                  <v-icon>{{
-                    attachment.file.showDetailState
-                      ? "mdi-chevron-up"
-                      : "mdi-chevron-down"
-                  }}</v-icon>
-                </v-btn>
-              </v-card-actions>
-
-              <v-expand-transition>
-                <template
-                  v-if="
-                    attachment.file.tags.length > 0 ||
-                      attachment.file.description !== ''
-                  "
-                >
-                  <div v-show="attachment.file.showDetailState">
-                    <v-divider></v-divider>
-                    <v-chip-group
-                      v-if="attachment.file.tags.length > 0"
-                      multiple
-                      active-class="primary--text"
-                      style="padding: 8px"
-                    >
-                      <v-chip
-                        v-for="(tag, index) in attachment.file.tags"
-                        :key="`attachment-${index}`"
-                        style="margin: 5px"
-                      >
-                        {{ tag }}
-                      </v-chip>
-                    </v-chip-group>
-                    <v-card-text
-                      v-if="attachment.file.description != null"
-                      style="text-align: justify; height: 200px; overflow-y: auto"
-                    >
-                      {{ attachment.file.description }}
-                    </v-card-text>
-                  </div>
-                </template>
-              </v-expand-transition>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row v-else-if="fileUploaderType === 'thumbnail'" class="mt-5">
-          <v-col
-            v-for="(attachment, index) in documentAttachment"
-            :key="`attachment-${index}`"
-            cols="12"
-            md="4"
-            xs="12"
-          >
-            <v-card
-              :shaped="shaped"
-              :outlined="outlined"
-              :raised="raised"
-              :tile="tile"
-              class="mx-auto"
-              max-width="344"
-            >
-              <template
-                v-if="
-                  attachment.file.name
-                    .split('.')
-                    .pop()
-                    .toLowerCase() === 'jpg' ||
-                    attachment.file.name
-                      .split('.')
-                      .pop()
-                      .toLowerCase() === 'jpeg' ||
-                    attachment.file.name
-                      .split('.')
-                      .pop()
-                      .toLowerCase() === 'png' ||
-                    attachment.file.name
-                      .split('.')
-                      .pop()
-                      .toLowerCase() === 'tif' ||
-                    attachment.file.name
-                      .split('.')
-                      .pop()
-                      .toLowerCase() === 'bmp'
-                "
-              >
-                <v-img
-                  :src="
-                    'data:' +
-                      attachment.file.format +
-                      ',' +
-                      attachment.file.base64
-                  "
-                  height="200px"
-                ></v-img>
-              </template>
-              <template v-else>
-                <v-list-item-avatar
-                  style="margin-top: 0"
-                  tile
-                  width="100%"
-                  height="192"
-                  color="blue-grey lighten-5"
-                >
-                  <template>
-                    <v-icon
-                      v-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pdf'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="red darken-1"
-                      >mdi-file-pdf-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'doc' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'docx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'odt'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="blue darken-1"
-                      >mdi-file-word-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'xls' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'xlsx'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="teal darken-1"
-                      >mdi-file-excel-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pptx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pptm' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'ppt'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="orange darken-3"
-                      >mdi-file-powerpoint-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'mp4' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'mov' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'flv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'wmv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'avi'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="red lighten-1"
-                      >mdi-file-video-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'dwg'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="indigo lighten-2"
-                      >mdi-file-cad</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'zip' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'rar' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === '7-zip'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="lime lighten-1"
-                      >mdi-folder-zip-outline</v-icon
-                    >
-                    <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'txt'
-                      "
-                      size="120"
-                      file-word-outline
-                      color="light-green darken-3"
-                      >mdi-script-text-outline</v-icon
-                    >
-                    <v-icon
-                      v-else
-                      x-large
-                      file-word-outline
-                      color="indigo lighten-1"
-                      >mdi-file-question-outline</v-icon
-                    >
-                  </template>
-                </v-list-item-avatar>
-              </template>
-
-              <v-card-subtitle class="one-line">
-                {{ attachment.file.name }}
-              </v-card-subtitle>
-              <v-card-subtitle
-                v-if="Number((attachment.file.size / 1000).toFixed(1)) < 1024"
-                class="mt2"
-              >
-                <v-chip color="teal lighten-2" label text-color="white">
-                  {{
-                    Number((attachment.file.size / 1000).toFixed(1)) +
-                      "  " +
-                      selectedLang[lang].size.kb
-                  }}
-                  <v-icon right>mdi-harddisk</v-icon>
-                </v-chip>
-              </v-card-subtitle>
-              <v-card-subtitle
-                v-if="Number((attachment.file.size / 1000).toFixed(1)) > 1024"
-              >
-                <v-chip color="teal lighten-2" label text-color="white">
-                  {{
-                    Number((attachment.file.size / 1000 / 1024).toFixed(1)) +
-                      "  " +
-                      selectedLang[lang].size.mb
-                  }}
-                  <v-icon right>mdi-harddisk</v-icon>
-                </v-chip>
-              </v-card-subtitle>
-              <v-divider class="mx-4"></v-divider>
-              <v-spacer></v-spacer>
-              <!--<v-card-actions>
-                <v-btn text @click="openDeleteDialog(index , '')" >{{selectedLang[lang].delete}}</v-btn>
-                <v-spacer></v-spacer>
-
-              </v-card-actions>-->
-              <v-card-actions style="padding: 0">
-                <v-tooltip right>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-if="deletePermission"
-                      text
-                      fab
-                      v-on="on"
-                      @click="openDeleteDialog(index, '')"
-                      ><v-icon color="red">mdi-trash-can-outline</v-icon></v-btn
-                    >
-                  </template>
-                  <span class="BYekan">{{ selectedLang[lang].delete }}</span>
-                </v-tooltip>
-                <v-tooltip right>
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      v-if="editPermission"
-                      text
-                      fab
-                      v-on="on"
-                      @click="openEditDocumentDialog(attachment, index)"
-                      ><v-icon color="green">mdi-pencil-outline</v-icon></v-btn
-                    >
-                  </template>
-                  <span class="BYekan">{{ selectedLang[lang].edit }}</span>
-                </v-tooltip>
-
-                <v-spacer></v-spacer>
-
-                <v-btn
-                  v-if="
-                    attachment.file.tags.length > 0 ||
-                      attachment.file.description !== ''
-                  "
-                  icon
-                  @click.prevent="
-                    attachment.file.showDetailState = !attachment.file
-                      .showDetailState
-                  "
-                >
-                  <v-icon>{{
-                    attachment.file.showDetailState
-                      ? "mdi-chevron-up"
-                      : "mdi-chevron-down"
-                  }}</v-icon>
-                </v-btn>
-              </v-card-actions>
-
-              <v-expand-transition>
-                <template
-                  v-if="
-                    attachment.file.tags.length > 0 ||
-                      attachment.file.description !== ''
-                  "
-                >
-                  <div v-show="attachment.file.showDetailState">
-                    <v-divider></v-divider>
-                    <v-chip-group
-                      v-if="attachment.file.tags.length > 0"
-                      multiple
-                      active-class="primary--text"
-                      style="padding: 8px"
-                    >
-                      <v-chip
-                        v-for="(tag, index) in attachment.file.tags"
-                        :key="`attachment-${index}`"
-                        style="margin: 5px"
-                      >
-                        {{ tag }}
-                      </v-chip>
-                    </v-chip-group>
-                    <v-card-text
-                      v-if="attachment.file.description != null"
-                      style="text-align: justify; height: 200px; overflow-y: auto"
-                    >
-                      {{ attachment.file.description }}
-                    </v-card-text>
-                  </div>
-                </template>
-              </v-expand-transition>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row v-if="fileUploaderType === 'table'" class="mt-5">
-          <v-col cols="12" lg="12" md="12" xs="12">
-            <v-simple-table
-              :fixed-header="tableFixedHeader"
-              :height="tableHeight + 'px'"
-            >
-              <template v-slot:default>
-                <thead>
-                  <tr>
-                    <th v-if="tableThumbColumn">
-                      {{ selectedLang[lang].table.thumb }}
-                    </th>
-                    <th>
-                      {{ selectedLang[lang].table.name }}
-                    </th>
-                    <th>
-                      {{ selectedLang[lang].table.size }}
-                    </th>
-                    <th>
-                      {{ selectedLang[lang].table.action.action }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(attachment, index) in documentAttachment"
-                    :key="`attachment-${index}`"
-                  >
-                    <td v-if="tableThumbColumn">
-                      <template
-                        v-if="
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() == 'jpg' ||
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() == 'jpeg' ||
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() == 'png' ||
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() == 'tif' ||
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() == 'bmp'
-                        "
-                      >
-                        <v-img
-                          v-if="thumb"
-                          style="margin: 10px"
-                          :src="
-                            'data:' +
-                              attachment.file.format +
-                              ',' +
-                              attachment.file.base64
-                          "
-                          height="50px"
-                          width="50px"
-                        ></v-img>
-                        <v-icon
-                          v-else
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="deep-purple darken-1"
-                          >mdi-file-image-outline</v-icon
-                        >
-                      </template>
-                      <template v-else>
-                        <v-icon
-                          v-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'pdf'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="red darken-1"
-                          >mdi-file-pdf-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'doc' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'docx' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'odt'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="blue darken-1"
-                          >mdi-file-word-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'xls' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'xlsx'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="teal darken-1"
-                          >mdi-file-excel-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'pptx' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'pptm' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'ppt'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="orange darken-3"
-                          >mdi-file-powerpoint-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'mp4' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'mov' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'flv' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'wmv' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'avi'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="red lighten-1"
-                          >mdi-file-video-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'dwg'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="indigo lighten-2"
-                          >mdi-file-cad</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'zip' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === 'rar' ||
-                              attachment.file.name
-                                .split('.')
-                                .pop()
-                                .toLowerCase() === '7-zip'
-                          "
-                          size="120"
-                          file-word-outline
-                          color="lime lighten-1"
-                          >mdi-folder-zip-outline</v-icon
-                        >
-                        <v-icon
-                          v-else-if="
-                            attachment.file.name
-                              .split('.')
-                              .pop()
-                              .toLowerCase() === 'txt'
-                          "
-                          style="margin-left: 10px"
-                          size="50"
-                          file-word-outline
-                          color="light-green darken-3"
-                          >mdi-script-text-outline</v-icon
-                        >
-                        <v-icon
-                          v-else
-                          x-large
-                          file-word-outline
-                          color="indigo lighten-1"
-                          >mdi-file-question-outline</v-icon
-                        >
-                      </template>
-                    </td>
-                    <td>{{ attachment.file.name }}</td>
-                    <td>
-                      <v-card-subtitle
-                        v-if="
-                          Number((attachment.file.size / 1000).toFixed(1)) <
-                            1024
-                        "
-                        class="mt2"
-                      >
-                        <v-chip color="teal lighten-2" label text-color="white">
-                          {{
-                            Number((attachment.file.size / 1000).toFixed(1)) +
-                              selectedLang[lang].size.kb
-                          }}
-                          <v-icon right>mdi-harddisk</v-icon>
-                        </v-chip>
-                      </v-card-subtitle>
-                      <v-card-subtitle
-                        v-if="
-                          Number((attachment.file.size / 1000).toFixed(1)) >
-                            1024
-                        "
-                      >
-                        <v-chip color="teal lighten-2" label text-color="white">
-                          {{
-                            Number(
-                              (attachment.file.size / 1000 / 1024).toFixed(1)
-                            ) + selectedLang[lang].size.mb
-                          }}
-                          <v-icon right>mdi-harddisk</v-icon>
-                        </v-chip>
-                      </v-card-subtitle>
-                    </td>
-                    <td>
-                      <v-tooltip top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-if="deletePermission"
-                            icon
-                            color="red"
-                            v-on="on"
-                            @click="openDeleteDialog(index, '')"
-                            ><v-icon>mdi-delete</v-icon></v-btn
-                          >
-                        </template>
-                        <span>{{
-                          selectedLang[lang].table.action.deleteTooltip
-                        }}</span>
-                      </v-tooltip>
-                      <v-tooltip top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-if="editPermission"
-                            text
-                            fab
-                            v-on="on"
-                            @click="openEditDocumentDialog(attachment, index)"
-                            ><v-icon color="green"
-                              >mdi-pencil-outline</v-icon
-                            ></v-btn
-                          >
-                        </template>
-                        <span class="BYekan">{{
-                          selectedLang[lang].edit
-                        }}</span>
-                      </v-tooltip>
-                    </td>
-                  </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-col>
-        </v-row>
+        <InsertButton
+          :documentAttachment="documentAttachment"
+          :selectedLang="selectedLang"
+          :lang="lang"
+          :badgeCounter="badgeCounter"
+          :btnColor="btnColor"
+          :maxFileCount="maxFileCount"
+          @openInputDocumentModal="openInputDocumentModal"
+        >
+        </InsertButton>
+        <SimpleUploader
+          v-if="fileUploaderType === 'simple'"
+          :documentAttachment="documentAttachment"
+          :cols="cols"
+          :thumb="thumb"
+          :outlined="outlined"
+          :raised="raised"
+          :shaped="shaped"
+          :tile="tile"
+          :lang="lang"
+          :cardType="cardType"
+          :deletePermission="deletePermission"
+          :editPermission="editPermission"
+          :selectedLang="selectedLang"
+          @setCardTheme="setCardTheme"
+          @openDeleteDialog="openDeleteDialog"
+          @openEditDocumentDialog="openEditDocumentDialog"
+        >
+        </SimpleUploader>
+        <ThumbnailUploader
+          v-if="fileUploaderType === 'thumbnail'"
+          :documentAttachment="documentAttachment"
+          :cols="cols"
+          :thumb="thumb"
+          :outlined="outlined"
+          :raised="raised"
+          :shaped="shaped"
+          :tile="tile"
+          :lang="lang"
+          :cardType="cardType"
+          :deletePermission="deletePermission"
+          :editPermission="editPermission"
+          :selectedLang="selectedLang"
+          @setCardTheme="setCardTheme"
+          @openDeleteDialog="openDeleteDialog"
+          @openEditDocumentDialog="openEditDocumentDialog"
+        >
+        </ThumbnailUploader>
+        <TableUploader
+          v-if="fileUploaderType === 'table'"
+          :documentAttachment="documentAttachment"
+          :cols="cols"
+          :thumb="thumb"
+          :outlined="outlined"
+          :raised="raised"
+          :shaped="shaped"
+          :tile="tile"
+          :lang="lang"
+          :tableThumbColumn="tableThumbColumn"
+          :tableFixedHeader="tableFixedHeader"
+          :tableHeight="tableHeight"
+          :cardType="cardType"
+          :deletePermission="deletePermission"
+          :editPermission="editPermission"
+          :selectedLang="selectedLang"
+          @setCardTheme="setCardTheme"
+          @openDeleteDialog="openDeleteDialog"
+          @openEditDocumentDialog="openEditDocumentDialog"
+        >
+        </TableUploader>
       </v-col>
     </v-row>
     <!--Insert New Document Dialog Start-->
@@ -1026,7 +80,7 @@
         v-model="insertDocumentDialog"
         :scrollable="false"
         persistent
-        width="600px"
+        width="50%"
       >
         <v-card>
           <v-card-title>
@@ -1057,11 +111,9 @@
                   v-for="(attachment, index) in tempAttachmentChanged"
                   :key="`attachment-${index}`"
                 >
-                  <v-expansion-panel-header>
-                    <div class="one-line">
-                      {{ attachment.name }}
-                    </div>
-                  </v-expansion-panel-header>
+                  <v-expansion-panel-header>{{
+                    attachment.name
+                  }}</v-expansion-panel-header>
                   <v-expansion-panel-content>
                     <v-row align="center" justify="center">
                       <v-col cols="12" lg="9" md="9" xs="12">
@@ -1105,103 +157,11 @@
                           </v-card>
                         </template>
                         <template v-else>
-                          <v-icon
-                            v-if="attachment.format === 'pdf'"
-                            size="60"
-                            file-word-outline
-                            color="red darken-1"
-                            >mdi-file-pdf-outline</v-icon
+                          <select-file-icon-type
+                            :file-format="attachment.format"
+                            :size="60"
                           >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'doc' ||
-                                attachment.format === 'docx' ||
-                                attachment.format === 'odt'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="blue darken-1"
-                            >mdi-file-word-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'jpg' ||
-                                attachment.format === 'jpeg' ||
-                                attachment.format === 'png' ||
-                                attachment.format === 'tif' ||
-                                attachment.format === 'bmp'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="deep-purple darken-1"
-                            >mdi-file-image-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'xls' ||
-                                attachment.format === 'xlsx'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="teal darken-1"
-                            >mdi-file-excel-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'pptx' ||
-                                attachment.format === 'pptm' ||
-                                attachment.format === 'ppt'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="orange darken-3"
-                            >mdi-file-powerpoint-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'mp4' ||
-                                attachment.format === 'mov' ||
-                                attachment.format === 'flv' ||
-                                attachment.format === 'wmv' ||
-                                attachment.format === 'avi'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="red lighten-1"
-                            >mdi-file-video-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="attachment.format === 'dwg'"
-                            size="60"
-                            file-word-outline
-                            color="indigo lighten-2"
-                            >mdi-file-cad</v-icon
-                          >
-                          <v-icon
-                            v-else-if="
-                              attachment.format === 'zip' ||
-                                attachment.format === 'rar' ||
-                                attachment.format === '7-zip'
-                            "
-                            size="60"
-                            file-word-outline
-                            color="lime lighten-1"
-                            >mdi-folder-zip-outline</v-icon
-                          >
-                          <v-icon
-                            v-else-if="attachment.format === 'txt'"
-                            size="60"
-                            file-word-outline
-                            color="light-green darken-3"
-                            >mdi-script-text-outline</v-icon
-                          >
-                          <v-icon
-                            v-else
-                            size="60"
-                            file-word-outline
-                            color="indigo lighten-1"
-                            >mdi-file-question-outline</v-icon
-                          >
+                          </select-file-icon-type>
                         </template>
                       </v-col>
                     </v-row>
@@ -1216,103 +176,8 @@
                 >
                   <v-list-item-content>
                     <v-list-item-title>
-                      <v-icon
-                        v-if="attachment.format === 'pdf'"
-                        size="30"
-                        file-word-outline
-                        color="red darken-1"
-                        >mdi-file-pdf-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'doc' ||
-                            attachment.format === 'docx' ||
-                            attachment.format === 'odt'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="blue darken-1"
-                        >mdi-file-word-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'jpg' ||
-                            attachment.format === 'jpeg' ||
-                            attachment.format === 'png' ||
-                            attachment.format === 'tif' ||
-                            attachment.format === 'bmp'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="deep-purple darken-1"
-                        >mdi-file-image-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'xls' ||
-                            attachment.format === 'xlsx'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="teal darken-1"
-                        >mdi-file-excel-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'pptx' ||
-                            attachment.format === 'pptm' ||
-                            attachment.format === 'ppt'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="orange darken-3"
-                        >mdi-file-powerpoint-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'mp4' ||
-                            attachment.format === 'mov' ||
-                            attachment.format === 'flv' ||
-                            attachment.format === 'wmv' ||
-                            attachment.format === 'avi'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="red lighten-1"
-                        >mdi-file-video-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="attachment.format === 'dwg'"
-                        size="30"
-                        file-word-outline
-                        color="indigo lighten-2"
-                        >mdi-file-cad</v-icon
-                      >
-                      <v-icon
-                        v-else-if="
-                          attachment.format === 'zip' ||
-                            attachment.format === 'rar' ||
-                            attachment.format === '7-zip'
-                        "
-                        size="30"
-                        file-word-outline
-                        color="lime lighten-1"
-                        >mdi-folder-zip-outline</v-icon
-                      >
-                      <v-icon
-                        v-else-if="attachment.format === 'txt'"
-                        size="30"
-                        file-word-outline
-                        color="light-green darken-3"
-                        >mdi-script-text-outline</v-icon
-                      >
-                      <v-icon
-                        v-else
-                        size="30"
-                        file-word-outline
-                        color="indigo lighten-1"
-                        >mdi-file-question-outline</v-icon
-                      >
+                      <select-file-icon-type :file-format="attachment.format">
+                      </select-file-icon-type>
                       {{ attachment.name }}.{{ attachment.format }}
                     </v-list-item-title>
                   </v-list-item-content>
@@ -1412,108 +277,11 @@
                   </v-card>
                 </template>
                 <template v-else>
-                  <v-icon
-                    v-if="
-                      attachment.name
-                        .split('.')
-                        .pop()
-                        .toLowerCase() === 'pdf'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="red darken-1"
-                    >mdi-file-pdf-outline</v-icon
+                  <select-file-icon-type
+                    :file-format="attachment.format"
+                    :size="60"
                   >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'doc' ||
-                        attachment.format === 'docx' ||
-                        attachment.format === 'odt'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="blue darken-1"
-                    >mdi-file-word-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'jpg' ||
-                        attachment.format === 'jpeg' ||
-                        attachment.format === 'png' ||
-                        attachment.format === 'tif' ||
-                        attachment.format === 'bmp'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="deep-purple darken-1"
-                    >mdi-file-image-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'xls' ||
-                        attachment.format === 'xlsx'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="teal darken-1"
-                    >mdi-file-excel-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'pptx' ||
-                        attachment.format === 'pptm' ||
-                        attachment.format === 'ppt'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="orange darken-3"
-                    >mdi-file-powerpoint-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'mp4' ||
-                        attachment.format === 'mov' ||
-                        attachment.format === 'flv' ||
-                        attachment.format === 'wmv' ||
-                        attachment.format === 'avi'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="red lighten-1"
-                    >mdi-file-video-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="attachment.format === 'dwg'"
-                    size="60"
-                    file-word-outline
-                    color="indigo lighten-2"
-                    >mdi-file-cad</v-icon
-                  >
-                  <v-icon
-                    v-else-if="
-                      attachment.format === 'zip' ||
-                        attachment.format === 'rar' ||
-                        attachment.format === '7-zip'
-                    "
-                    size="60"
-                    file-word-outline
-                    color="lime lighten-1"
-                    >mdi-folder-zip-outline</v-icon
-                  >
-                  <v-icon
-                    v-else-if="attachment.format === 'txt'"
-                    size="60"
-                    file-word-outline
-                    color="light-green darken-3"
-                    >mdi-script-text-outline</v-icon
-                  >
-                  <v-icon
-                    v-else
-                    size="60"
-                    file-word-outline
-                    color="indigo lighten-1"
-                    >mdi-file-question-outline</v-icon
-                  >
+                  </select-file-icon-type>
                 </template>
               </v-col>
             </v-row>
@@ -1590,8 +358,20 @@
  * @author [ali jahanpak](https://github.com/alijahanpak)
  * @since Version 1.0
  */
+import InsertButton from "@/components/InsertButton.vue";
+import SimpleUploader from "@/components/SimpleUploader.vue";
+import ThumbnailUploader from "@/components/ThumbnailUploader.vue";
+import TableUploader from "@/components/TableUploader.vue";
+import SelectFileIconType from "@/components/SelectFileIconType.vue";
 import languages from "./language";
 export default {
+  components: {
+    InsertButton,
+    SimpleUploader,
+    ThumbnailUploader,
+    TableUploader,
+    SelectFileIconType
+  },
   props: {
     /**
      * Array contain files
@@ -1833,9 +613,6 @@ export default {
       this.$emit("update:lang", this.lang);
     }
   },
-  computed: {},
-  mounted() {},
-
   created() {
     if (this.rtlSupport) this.changeRTL();
     this.setLang();
@@ -1845,6 +622,12 @@ export default {
     this.registryDocFile = [];
   },
   methods: {
+    openInputDocumentModal() {
+      this.btnLoader = false;
+      this.tempAttachment = [];
+      this.insertDocumentDialog = true;
+    },
+
     setLang() {
       if (this.customLang !== null) this.selectedLang = this.customLang;
       else this.selectedLang = languages;
@@ -1887,12 +670,6 @@ export default {
       }
     },
 
-    openInputDocumentModal() {
-      this.btnLoader = false;
-      this.tempAttachment = [];
-      this.insertDocumentDialog = true;
-    },
-
     handleUpload(fileAttachment) {
       let reader = new FileReader();
       return new Promise(function(resolve) {
@@ -1925,6 +702,7 @@ export default {
             let tempFile = {};
             let file = {};
             try {
+              console.log(item);
               this.readerFile = await this.handleUpload(item);
             } catch (e) {
               console.log(e);
@@ -1977,9 +755,13 @@ export default {
 
             tempFile.format = strTemp[0].replace("data:", "");
             file.file = tempFile;
+            /* const convertedToFile = this.convertBase64ToFile(
+              imgFile,
+              tempFile.name
+            ); */
+            // console.log(convertedToFile)
             this.registryDocFile.push(file);
             this.$emit("update:documentAttachment", this.registryDocFile);
-            //console.log(JSON.stringify(this.registryDocFile));
           }
         } else {
           this.fileUploaderSnackBarAlertColor = "red";
@@ -2003,20 +785,6 @@ export default {
         img.onload = function() {
           let width = img.width;
           let height = img.height;
-          /*const maxHeight = 1250
-            const maxWidth = 1250
-
-            if (width > height) {
-              if (width > maxWidth) {
-                height = Math.round((height *= maxWidth / width))
-                width = maxWidth
-              }
-            } else {
-              if (height > maxHeight) {
-                width = Math.round((width *= maxHeight / height))
-                height = maxHeight
-              }
-            }*/
           canvas.width = width;
           canvas.height = height;
 
@@ -2032,6 +800,19 @@ export default {
       });
     },
 
+    convertBase64ToFile(base64, fileName) {
+      const byteString = atob(base64.split(",")[1]);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i += 1) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const newBlob = new Blob([ab], {
+        type: "image/jpeg"
+      });
+      return new File([newBlob], fileName);
+    },
+
     openDeleteDialog(index, deleteId) {
       this.btnLoader = false;
       this.selectedIndex = index;
@@ -2041,7 +822,7 @@ export default {
 
     deleteDocument() {
       this.registryDocFile.splice(this.selectedIndex, 1);
-      this.documentAttachment = this.registryDocFile;
+      this.$emit("update:documentAttachment", this.registryDocFile);
       this.deleteDocumentDialog = false;
     },
 
@@ -2078,10 +859,10 @@ export default {
       this.editDocumentDialog = false;
     },
 
-    getBinaryFile(attachment) {
-      let fileUrl = "/file/" + attachment.file.url;
-      window.open(process.env.apiBaseUrl + fileUrl);
-    },
+    /*getBinaryFile(attachment) {
+        let fileUrl = '/file/' + attachment.file.url;
+        window.open(process.env.apiBaseUrl +fileUrl );
+      },*/
 
     getShowDetailState(index) {
       this.showDetailState[index] = !this.showDetailState[index];
@@ -2097,13 +878,3 @@ export default {
   }
 };
 </script>
-
-<style scoped lang="scss">
-.one-line {
-  line-height: 1.5em;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 93%;
-}
-</style>
