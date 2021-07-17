@@ -358,11 +358,11 @@
  * @author [ali jahanpak](https://github.com/alijahanpak)
  * @since Version 1.0
  */
-import InsertButton from "@/components/InsertButton.vue";
-import SimpleUploader from "@/components/SimpleUploader.vue";
-import ThumbnailUploader from "@/components/ThumbnailUploader.vue";
-import TableUploader from "@/components/TableUploader.vue";
-import SelectFileIconType from "@/components/SelectFileIconType.vue";
+import InsertButton from "./InsertButton";
+import SimpleUploader from "./SimpleUploader";
+import ThumbnailUploader from "./ThumbnailUploader.vue";
+import TableUploader from "./TableUploader.vue";
+import SelectFileIconType from "./SelectFileIconType.vue";
 import languages from "./language";
 export default {
   components: {
@@ -618,6 +618,9 @@ export default {
     this.setLang();
     this.setCardTheme();
   },
+  mounted() {
+    this.registryDocFile = this.documentAttachment
+  },
   destroyed() {
     this.registryDocFile = [];
   },
@@ -702,7 +705,7 @@ export default {
             let tempFile = {};
             let file = {};
             try {
-              console.log(item);
+              // console.log(item);
               this.readerFile = await this.handleUpload(item);
             } catch (e) {
               console.log(e);
