@@ -618,6 +618,9 @@ export default {
     this.setLang();
     this.setCardTheme();
   },
+  mounted() {
+    this.registryDocFile = this.documentAttachment;
+  },
   destroyed() {
     this.registryDocFile = [];
   },
@@ -702,7 +705,7 @@ export default {
             let tempFile = {};
             let file = {};
             try {
-              console.log(item);
+              // console.log(item);
               this.readerFile = await this.handleUpload(item);
             } catch (e) {
               console.log(e);
