@@ -619,11 +619,7 @@ export default {
     this.setCardTheme();
   },
   mounted() {
-<<<<<<< HEAD
-    this.registryDocFile = this.documentAttachment
-=======
     this.registryDocFile = this.documentAttachment;
->>>>>>> 6176df9bf5ccb582f22aa41b216e6e2b47a3950a
   },
   destroyed() {
     this.registryDocFile = [];
