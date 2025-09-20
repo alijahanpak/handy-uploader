@@ -1,4 +1,4 @@
-# Handy Uploader Vue
+# Handy Uploader
 
 [![npm version](https://badge.fury.io/js/handy-uploader.svg)](https://badge.fury.io/js/handy-uploader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -387,16 +387,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/yourusername/handy-uploader)
+- [GitHub Repository](https://github.com/alijahanpak/handy-uploader)
 - [npm Package](https://www.npmjs.com/package/handy-uploader)
-- [Documentation](https://github.com/yourusername/handy-uploader#readme)
-- [Issues](https://github.com/yourusername/handy-uploader/issues)
+- [Documentation](https://github.com/alijahanpak/handy-uploader#readme)
+- [Issues](https://github.com/alijahanpak/handy-uploader/issues)
 
 ## 📊 Stats
 
 ![npm downloads](https://img.shields.io/npm/dm/handy-uploader.svg)
-![GitHub stars](https://img.shields.io/github/stars/yourusername/handy-uploader.svg)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/handy-uploader.svg)
+![GitHub stars](https://img.shields.io/github/stars/alijahanpak/handy-uploader.svg)
+![GitHub issues](https://img.shields.io/github/issues/alijahanpak/handy-uploader.svg)
 
 ---
 

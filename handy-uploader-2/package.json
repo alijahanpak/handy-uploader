@@ -30,11 +30,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/handy-uploader.git"
+    "url": "https://github.com/alijahanpak/handy-uploader.git"
   },
-  "homepage": "https://github.com/yourusername/handy-uploader#readme",
+  "homepage": "https://github.com/alijahanpak/handy-uploader#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/handy-uploader/issues"
+    "url": "https://github.com/alijahanpak/handy-uploader/issues"
   },
   "scripts": {
     "dev": "vite",
