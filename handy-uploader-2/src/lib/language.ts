@@ -1,5 +1,52 @@
-export default {
-  en: {
+enum LanguageEnum {
+  EN = 'en',
+  FA = 'fa',
+  FR = 'fr',
+  CH = 'ch',
+  AR = 'ar',
+
+}
+interface Translation {
+  insertFile: string;
+  insertNewFile: string;
+  add: string;
+  delete: string;
+  edit: string;
+  deleteDialog: {
+    message: string;
+    cancel: string;
+  };
+  table: {
+    thumb: string;
+    name: string;
+    size: string;
+    tags?: string;
+    action: {
+      action: string;
+      deleteTooltip: string;
+    };
+  };
+  size: {
+    kb: string;
+    mb: string;
+  };
+  maxFileSizeAlert?: string;
+  maxFileCountAlert: string;
+  fileName: string;
+  fileDescription: string;
+  fileTags: string;
+}
+
+interface Language {
+  en: Translation;
+  fa: Translation;
+  fr: Translation;
+  ch: Translation;
+  ar: Translation;
+}
+
+export const languages: Language = {
+   en: {
     insertFile: "Insert File",
     insertNewFile: "Insert New File",
     add: "Add",
@@ -52,7 +99,7 @@ export default {
       kb: "کیلو بایت",
       mb: "مگابایت"
     },
-    maxSizeAlert: "حداکثر حجم فایل انتحابی ",
+    maxFileSizeAlert: "حداکثر حجم فایل انتحابی ",
     maxFileCountAlert: "حداکثر تعداد فایل انتخابی",
     fileName: "نام فایل",
     fileDescription: "توضیحات فایل",
@@ -81,7 +128,7 @@ export default {
       kb: "KB",
       mb: "MB"
     },
-    maxSizeAlert: "La taille maximale du fichier est",
+    maxFileSizeAlert: "La taille maximale du fichier est",
     maxFileCountAlert: "Le nombre maximal de fichiers est",
     fileName: "Nom de fichier",
     fileDescription: "description du fichier",
@@ -110,7 +157,7 @@ export default {
       kb: "KB",
       mb: "MB"
     },
-    maxSizeAlert: "档案大小上限为",
+    maxFileSizeAlert: "档案大小上限为",
     maxFileCountAlert: "现“最大文件数”为",
     fileName: "文档名称",
     fileDescription: "文件描述",
@@ -139,7 +186,7 @@ export default {
       kb: "کیلو بایت",
       mb: "ميغا بايت"
     },
-    maxSizeAlert: "الحجم الأقصى للملف هو",
+    maxFileSizeAlert: "الحجم الأقصى للملف هو",
     maxFileCountAlert: "الحد الأقصى لعدد الملفات هو",
     fileName: "اسم الملف",
     fileDescription: "وصف الملف",

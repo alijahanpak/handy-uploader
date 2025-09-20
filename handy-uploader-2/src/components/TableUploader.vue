@@ -3,54 +3,38 @@
     <v-row>
       <v-col cols="12" lg="12" md="12" xs="12">
         <v-simple-table
-          :fixed-header="tableFixedHeader"
-          :height="tableHeight + 'px'"
+          :fixed-header="props.tableFixedHeader"
+          :height="props.tableHeight + 'px'"
         >
           <template v-slot:default>
             <thead>
               <tr>
-                <th v-if="tableThumbColumn" class="text-left">
-                  {{ selectedLang[lang].table.thumb }}
+                <th v-if="props.tableThumbColumn" class="text-left">
+                  {{ props.selectedLang[lang].table.thumb }}
                 </th>
-                <th class="text-left">{{ selectedLang[lang].table.name }}</th>
-                <th class="text-left">{{ selectedLang[lang].table.size }}</th>
+                <th class="text-left">{{ props.selectedLang[lang].table.name }}</th>
+                <th class="text-left">{{ props.selectedLang[lang].table.size }}</th>
                 <th class="text-left">
-                  {{ selectedLang[lang].table.action.action }}
+                  {{ props.selectedLang[lang].table.action.action }}
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="(attachment, index) in documentAttachment"
+                v-for="(attachment, index) in props.documentAttachment"
                 :key="`attachment-${index}`"
               >
-                <td v-if="tableThumbColumn">
+                <td v-if="props.tableThumbColumn">
                   <template
                     v-if="
-                      attachment.file.name
-                        .split('.')
-                        .pop()
-                        .toLowerCase() == 'jpg' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() == 'jpeg' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() == 'png' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() == 'tif' ||
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() == 'bmp'
+                      attachment.file.name && 
+                      ['jpg', 'jpeg', 'png', 'tif', 'bmp'].includes(
+                        attachment.file.name.split('.').pop()?.toLowerCase() || ''
+                      )
                     "
                   >
                     <v-img
-                      v-if="thumb"
+                      v-if="props.thumb"
                       style="margin: 10px"
                       :src="
                         'data:' +
@@ -72,12 +56,7 @@
                   </template>
                   <template v-else>
                     <v-icon
-                      v-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pdf'
-                      "
+                      v-if="safeGetFileExtension(attachment.file.name) === 'pdf'"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -85,20 +64,7 @@
                       >mdi-file-pdf-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'doc' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'docx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'odt'
-                      "
+                      v-else-if="['doc', 'docx', 'odt'].includes(safeGetFileExtension(attachment.file.name))"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -106,16 +72,7 @@
                       >mdi-file-word-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'xls' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'xlsx'
-                      "
+                      v-else-if="['xls', 'xlsx'].includes(safeGetFileExtension(attachment.file.name))"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -123,20 +80,7 @@
                       >mdi-file-excel-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'pptx' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'pptm' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'ppt'
-                      "
+                      v-else-if="['pptx', 'pptm', 'ppt'].includes(safeGetFileExtension(attachment.file.name))"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -144,28 +88,7 @@
                       >mdi-file-powerpoint-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'mp4' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'mov' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'flv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'wmv' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'avi'
-                      "
+                      v-else-if="['mp4', 'mov', 'flv', 'wmv', 'avi'].includes(safeGetFileExtension(attachment.file.name))"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -173,12 +96,7 @@
                       >mdi-file-video-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'dwg'
-                      "
+                      v-else-if="safeGetFileExtension(attachment.file.name) === 'dwg'"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -186,32 +104,14 @@
                       >mdi-file-cad</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'zip' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === 'rar' ||
-                          attachment.file.name
-                            .split('.')
-                            .pop()
-                            .toLowerCase() === '7-zip'
-                      "
+                      v-else-if="['zip', 'rar', '7-zip'].includes(safeGetFileExtension(attachment.file.name))"
                       size="120"
                       file-word-outline
                       color="lime lighten-1"
                       >mdi-folder-zip-outline</v-icon
                     >
                     <v-icon
-                      v-else-if="
-                        attachment.file.name
-                          .split('.')
-                          .pop()
-                          .toLowerCase() === 'txt'
-                      "
+                      v-else-if="safeGetFileExtension(attachment.file.name) === 'txt'"
                       style="margin-left: 10px"
                       size="50"
                       file-word-outline
@@ -260,12 +160,12 @@
                 </td>
                 <td>
                   <v-tooltip top>
-                    <template v-slot:activator="{ on }">
+                    <template v-slot:activator="{ props }">
                       <v-btn
                         v-if="deletePermission"
                         icon
                         color="red"
-                        v-on="on"
+                        v-bind="props"
                         @click="openDeleteDialog(index, '')"
                         ><v-icon>mdi-delete</v-icon></v-btn
                       >
@@ -275,12 +175,12 @@
                     }}</span>
                   </v-tooltip>
                   <v-tooltip top>
-                    <template v-slot:activator="{ on }">
+                    <template v-slot:activator="{ props }">
                       <v-btn
                         v-if="editPermission"
                         text
                         fab
-                        v-on="on"
+                        v-bind="props"
                         @click="openEditDocumentDialog(attachment, index)"
                         ><v-icon color="green"
                           >mdi-pencil-outline</v-icon
@@ -299,52 +199,52 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    documentAttachment: [Array],
-    thumb: {
-      type: Boolean,
-      default: true
-    },
-    lang: {
-      type: String,
-      default: "en"
-    },
-    cols: {
-      type: Number,
-      default: 4
-    },
-    editPermission: {
-      type: Boolean,
-      default: true
-    },
-    deletePermission: {
-      type: Boolean,
-      default: true
-    },
-    tableThumbColumn: Boolean,
-    tableFixedHeader: {
-      type: Boolean,
-      default: true
-    },
-    tableHeight: {
-      type: Number,
-      default: 400
-    },
-    selectedLang: {}
-  },
-  data: () => ({}),
-  methods: {
-    setCardTheme() {
-      this.$emit("setCardTheme");
-    },
-    openDeleteDialog(index, deleteId) {
-      this.$emit("openDeleteDialog", index, deleteId);
-    },
-    openEditDocumentDialog(item, index) {
-      this.$emit("openEditDocumentDialog", item, index);
-    }
-  }
+<script setup lang="ts">
+import type { DocumentAttachment, LanguageCollection } from '@/types';
+import { getFileIcon, isImageFile, getFileType } from '@/utils/fileUtils';
+
+interface Props {
+  documentAttachment: DocumentAttachment[],
+  thumb: boolean
+  lang: string,
+  cols: number,
+  editPermission: boolean
+  deletePermission: boolean,
+  tableThumbColumn: boolean,
+  tableFixedHeader: boolean,
+  tableHeight: number,
+  selectedLang: LanguageCollection
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  thumb: true,
+  lang: "en",
+  cols: 4,
+  editPermission: true,
+  deletePermission: true,
+  tableFixedHeader: true,
+  tableHeight: 400,
+})
+
+const emit = defineEmits(["openDeleteDialog", "openEditDocumentDialog"])
+
+// Helper functions for safe file type checking
+const safeIsImageFile = (fileName: string | undefined): boolean => {
+  return fileName ? isImageFile(fileName) : false;
+};
+
+const safeGetFileType = (fileName: string | undefined): string => {
+  return fileName ? getFileType(fileName) : 'file';
+};
+
+const safeGetFileExtension = (fileName: string | undefined): string => {
+  return fileName ? fileName.split('.').pop()?.toLowerCase() || '' : '';
+};
+
+const openDeleteDialog = (index: number, deleteId: string) => {
+  emit("openDeleteDialog", index, deleteId);
+};
+const openEditDocumentDialog = (item: any, index: number) => {
+  emit("openEditDocumentDialog", item, index);
 };
 </script>
