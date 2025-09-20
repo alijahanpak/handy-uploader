@@ -387,10 +387,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/alijahanpak/handy-uploader)
+- [GitHub Repository](https://github.com/alijahanpak/vue-file-uploader)
 - [npm Package](https://www.npmjs.com/package/handy-uploader)
-- [Documentation](https://github.com/alijahanpak/handy-uploader#readme)
-- [Issues](https://github.com/alijahanpak/handy-uploader/issues)
+- [Documentation](https://github.com/alijahanpak/vue-file-uploader#readme)
+- [Issues](https://github.com/alijahanpak/vue-file-uploader/issues)
 
 ## 📊 Stats
 
@@ -401,4 +401,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ❤️ for the Vue.js community**
-
