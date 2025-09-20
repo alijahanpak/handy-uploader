@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <handy-uploader
-        :documentAttachment.sync="registryDocFile"
+        :documentAttachment="registryDocFile"
         :fileUploaderType="'thumbnail'"
         :maxFileSize="10240"
         :imageCompressor="true"
@@ -20,50 +20,72 @@
   </v-app>
 </template>
 
-<script>
-import handyUploader from "./components/handyUploader";
+<script setup lang="ts">
+import { reactive } from 'vue';
+import handyUploader from './components/handyUploader.vue'
 
-export default {
-  name: "App",
-
-  components: {
-    handyUploader
-  },
-
-  data: () => ({
-    registryDocFile: [],
-    customLang: {
-      custom: {
-        insertFile: "Insert File1",
-        insertNewFile: "Insert New File1",
-        add: "Add",
-        delete: "Delete",
+interface Language {
+  custom: {
+        insertFile: string,
+        insertNewFile: string,
+        add: string,
+        delete: string,
         deleteDialog: {
-          message: "Are you sure you want to delete the file?",
-          cancel: "cancel"
+          message: string,
+          cancel: string,
         },
         table: {
-          thumb: "Thumb",
-          name: "Name",
-          size: "Size",
-          tags: "tags",
+          thumb: string,
+          name: string,
+          size: string,
+          tags: string,
           action: {
-            action: "Action",
-            deleteTooltip: "Delete"
+            action: string,
+            deleteTooltip: string
           }
         },
         size: {
-          kb: "KB",
-          mb: "MB"
+          kb: string,
+          mb: string
         },
-        maxFileSizeAlert: "Max file Size is",
-        maxFileCountAlert: "Max file Count is",
-        fileName: "File Name",
-        fileDescription: "File Description",
-        fileTags: "File Tags"
+        maxFileSizeAlert: string,
+        maxFileCountAlert: string,
+        fileName: string,
+        fileDescription: string,
+        fileTags: string
       }
+}
+
+const registryDocFile = reactive([])
+const customLang: Language = reactive({
+  custom: {
+      insertFile: "Insert File1",
+      insertNewFile: "Insert New File1",
+      add: "Add",
+      delete: "Delete",
+      deleteDialog: {
+        message: "Are you sure you want to delete the file?",
+        cancel: "cancel"
+      },
+      table: {
+        thumb: "Thumb",
+        name: "Name",
+        size: "Size",
+        tags: "tags",
+        action: {
+          action: "Action",
+          deleteTooltip: "Delete"
+        }
+      },
+      size: {
+        kb: "KB",
+        mb: "MB"
+      },
+      maxFileSizeAlert: "Max file Size is",
+      maxFileCountAlert: "Max file Count is",
+      fileName: "File Name",
+      fileDescription: "File Description",
+      fileTags: "File Tags"
     }
-  }),
-  methods: {}
-};
+})
 </script>
