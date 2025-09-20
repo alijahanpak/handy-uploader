@@ -33,7 +33,8 @@ export default defineConfig(({ mode }) => {
             }
           }
         },
-        cssCodeSplit: false
+        cssCodeSplit: false,
+        emptyOutDir: true
       }
     })
   }

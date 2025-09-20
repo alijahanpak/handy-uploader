@@ -1,4 +1,4 @@
-// Main library entry point for handy-uploader-vue npm package
+// Main library entry point for handy-uploader npm package
 
 // Import all components
 import ThumbnailUploader from '../components/ThumbnailUploader.vue'

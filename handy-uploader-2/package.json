@@ -1,15 +1,15 @@
 {
   "name": "handy-uploader",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles",
   "main": "dist/handy-uploader.umd.js",
   "module": "dist/handy-uploader.es.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/lib/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/handy-uploader.es.js",
       "require": "./dist/handy-uploader.umd.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/lib/index.d.ts"
     }
   },
   "files": [
@@ -30,16 +30,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/handy-uploader-vue.git"
+    "url": "https://github.com/yourusername/handy-uploader.git"
   },
-  "homepage": "https://github.com/yourusername/handy-uploader-vue#readme",
+  "homepage": "https://github.com/yourusername/handy-uploader#readme",
   "bugs": {
-    "url": "https://github.com/yourusername/handy-uploader-vue/issues"
+    "url": "https://github.com/yourusername/handy-uploader/issues"
   },
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check build-lib",
+    "build": "run-p type-check build-lib && npm run build-types",
     "build-lib": "vite build --mode lib",
+    "build-types": "vue-tsc --project tsconfig.build.json",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",

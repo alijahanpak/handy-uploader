@@ -1,9 +1,11 @@
 # Handy Uploader Vue
 
-[![npm version](https://badge.fury.io/js/handy-uploader-vue.svg)](https://badge.fury.io/js/handy-uploader-vue)
+[![npm version](https://badge.fury.io/js/handy-uploader.svg)](https://badge.fury.io/js/handy-uploader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+
+## 🚀 [Live Demo](https://friendly-varahamihira-45c09f.netlify.app)
 
 A comprehensive Vue 3 file uploader component library with advanced features including **automatic video thumbnail generation**, multiple upload styles, and extensive file type support.
 
@@ -37,15 +39,15 @@ A comprehensive Vue 3 file uploader component library with advanced features inc
 ## 📦 Installation
 
 ```bash
-npm install handy-uploader-vue
+npm install handy-uploader
 ```
 
 ```bash
-yarn add handy-uploader-vue
+yarn add handy-uploader
 ```
 
 ```bash
-pnpm add handy-uploader-vue
+pnpm add handy-uploader
 ```
 
 ## 🚀 Quick Start
@@ -75,8 +77,8 @@ npm install vue@^3.0.0 vuetify@^3.0.0
 </template>
 
 <script setup lang="ts">
-import { ThumbnailUploader } from 'handy-uploader-vue'
-import type { FileData } from 'handy-uploader-vue'
+import { ThumbnailUploader } from 'handy-uploader'
+import type { FileData } from 'handy-uploader'
 
 const handleFilesSelected = (files: FileData[]) => {
   console.log('Selected files:', files)
@@ -122,7 +124,7 @@ Perfect for media files with automatic video thumbnail generation:
 </template>
 
 <script setup>
-import { ThumbnailUploader } from 'handy-uploader-vue'
+import { ThumbnailUploader } from 'handy-uploader'
 
 const onFilesSelected = (files) => {
   // Video files will have thumbnails automatically generated
@@ -342,7 +344,7 @@ export default createVuetify({
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ThumbnailUploader, type FileData } from 'handy-uploader-vue'
+import { ThumbnailUploader, type FileData } from 'handy-uploader'
 
 const selectedFiles = ref<FileData[]>([])
 const currentLanguage = ref('en')
@@ -385,16 +387,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/yourusername/handy-uploader-vue)
-- [npm Package](https://www.npmjs.com/package/handy-uploader-vue)
-- [Documentation](https://github.com/yourusername/handy-uploader-vue#readme)
-- [Issues](https://github.com/yourusername/handy-uploader-vue/issues)
+- [GitHub Repository](https://github.com/yourusername/handy-uploader)
+- [npm Package](https://www.npmjs.com/package/handy-uploader)
+- [Documentation](https://github.com/yourusername/handy-uploader#readme)
+- [Issues](https://github.com/yourusername/handy-uploader/issues)
 
 ## 📊 Stats
 
-![npm downloads](https://img.shields.io/npm/dm/handy-uploader-vue.svg)
-![GitHub stars](https://img.shields.io/github/stars/yourusername/handy-uploader-vue.svg)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/handy-uploader-vue.svg)
+![npm downloads](https://img.shields.io/npm/dm/handy-uploader.svg)
+![GitHub stars](https://img.shields.io/github/stars/yourusername/handy-uploader.svg)
+![GitHub issues](https://img.shields.io/github/issues/yourusername/handy-uploader.svg)
 
 ---
 
