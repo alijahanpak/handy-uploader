@@ -5,97 +5,112 @@
         v-for="(attachment, index) in props.documentAttachment"
         :key="`attachment-${index}`"
         cols="12"
-        :md="props.cols"
-        xs="12"
+        sm="6"
+        md="4"
+        lg="3"
       >
         <v-card
+          class="file-card"
           :shaped="props.shaped"
           :outlined="props.outlined"
           :raised="props.raised"
           :tile="props.tile"
+          height="180"
         >
-          <v-list-item three-line>
-            <v-list-item-content>
-              <v-list-item-subtitle color="blue-grey darken-3">
+          <div class="d-flex align-center pa-3" style="height: 100%;">
+            <!-- Left Side - File Info -->
+            <div class="flex-grow-1 pr-4" style="max-width: 60%;">
+              <!-- File Name -->
+              <div class="text-subtitle-1 font-weight-medium mb-2" style="
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 100%;
+              ">
                 {{ attachment.file.name }}
-              </v-list-item-subtitle>
+              </div>
 
-              <!-- File Size Display -->
-              <v-list-item-subtitle>
-                <v-chip color="teal lighten-2" label text-color="white">
-                  {{ formatFileSize(attachment.file.size) }}
-                  <v-icon right>mdi-harddisk</v-icon>
-                </v-chip>
-              </v-list-item-subtitle>
-            </v-list-item-content>
+              <!-- File Size -->
+              <v-chip
+                color="teal"
+                variant="flat"
+                size="small"
+                class="text-white mb-2"
+              >
+                <v-icon start size="16">mdi-harddisk</v-icon>
+                {{ formatFileSize(attachment.file.size) }}
+              </v-chip>
+            </div>
 
-            <v-list-item>
-              <template #prepend>
-                <v-avatar size="80" color="blue-grey lighten-5">
-                  <v-img
-                    v-if="isImageFile(attachment.file.name) && props.thumb"
-                    :src="'data:' + attachment.file.format + ',' + attachment.file.base64"
-                  ></v-img>
-                  <v-icon
-                    v-else
-                    :color="getFileIconColor(attachment.file.name)"
-                    size="50"
-                  >
-                    {{ getFileIcon(attachment.file.name) }}
-                  </v-icon>
-                </v-avatar>
-              </template>
-              <v-list-item-title>File Title Here</v-list-item-title>
-            </v-list-item>
-          </v-list-item>
+            <!-- Right Side - Thumbnail/Icon -->
+            <div class="flex-shrink-0" style="min-width: 80px;">
+              <!-- Image Thumbnail -->
+              <div v-if="isImageFile(attachment.file.name) && props.thumb" class="thumbnail-container">
+                <v-img
+                  :src="getImageSrc(attachment.file)"
+                  height="80"
+                  width="80"
+                  cover
+                  class="rounded"
+                ></v-img>
+              </div>
 
-          <v-divider class="mx-4"></v-divider>
-          <v-card-actions style="padding: 0">
-            <!-- Delete Button with Tooltip -->
-            <v-tooltip right>
+              <!-- File Icon -->
+              <div
+                v-else
+                class="d-flex align-center justify-center"
+              >
+                <v-icon
+                  :color="getFileIconColor(attachment.file.name)"
+                  size="60"
+                >
+                  {{ getFileIcon(attachment.file.name) }}
+                </v-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <v-divider class="my-2"></v-divider>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 pb-1">
+            <!-- Delete Button -->
+            <v-tooltip bottom>
               <template #activator="{ props: tooltipProps }">
                 <v-btn
                   v-if="props.deletePermission"
-                  text
-                  fab
+                  icon
+                  variant="text"
+                  size="small"
                   v-bind="tooltipProps"
                   @click="openDeleteDialog(index, '')"
                 >
-                  <v-icon color="red">mdi-trash-can-outline</v-icon>
+                  <v-icon color="red" size="20">mdi-delete-outline</v-icon>
                 </v-btn>
               </template>
               <span>{{ props.selectedLang[lang].delete }}</span>
             </v-tooltip>
 
-            <!-- Edit Button with Tooltip -->
-            <v-tooltip right>
+            <!-- Edit Button -->
+            <v-tooltip bottom>
               <template #activator="{ props: tooltipProps }">
                 <v-btn
                   v-if="props.editPermission"
-                  text
-                  fab
+                  icon
+                  variant="text"
+                  size="small"
                   v-bind="tooltipProps"
                   @click="openEditDocumentDialog(attachment, index)"
                 >
-                  <v-icon color="green">mdi-pencil-outline</v-icon>
+                  <v-icon color="green" size="20">mdi-pencil-outline</v-icon>
                 </v-btn>
               </template>
               <span>{{ props.selectedLang[lang].edit }}</span>
             </v-tooltip>
+          </div>
 
-            <v-spacer></v-spacer>
-
-            <!-- Detail Toggle Button -->
-            <v-btn
-              v-if="attachment.file.tags.length > 0 || attachment.file.description"
-              icon
-              @click.prevent="attachment.file.showDetailState = !attachment.file.showDetailState"
-            >
-              <v-icon>{{ attachment.file.showDetailState ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-            </v-btn>
-          </v-card-actions>
-
-          <!-- Expandable Detail Section -->
+          <!-- Expandable Detail Section (if needed) -->
           <v-expand-transition>
             <div v-show="attachment.file.showDetailState">
               <v-divider></v-divider>
@@ -151,10 +166,22 @@ const formatFileSize = (size: number) => {
 
 const isImageFile = (filename: string) => ['jpg', 'jpeg', 'png', 'tif', 'bmp'].includes(filename.split('.').pop()?.toLowerCase() || '');
 
+const getImageSrc = (file: any) => {
+  if (file.base64) {
+    // Check if base64 already includes data URL prefix
+    if (file.base64.startsWith('data:')) {
+      return file.base64;
+    }
+    // Construct proper data URL
+    return `data:${file.format};base64,${file.base64}`;
+  }
+  return '';
+};
+
 const getFileIcon = (filename: string) => {
   const extension = filename.split('.').pop()?.toLowerCase();
   const iconMap: Record<string, string> = {
-    pdf: 'mdi-file-pdf-outline',
+    pdf: 'mdi-file-pdf-box',
     doc: 'mdi-file-word-outline',
     docx: 'mdi-file-word-outline',
     odt: 'mdi-file-word-outline',
@@ -217,3 +244,43 @@ const getFileIconColor = (filename: string) => {
 const openDeleteDialog = (index: number, deleteId: string) => emit("openDeleteDialog", index, deleteId);
 const openEditDocumentDialog = (item: any, index: number) => emit("openEditDocumentDialog", item, index);
 </script>
+
+<style scoped>
+.file-card {
+  transition: all 0.3s ease;
+  border-radius: 12px !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.thumbnail-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.v-card-title {
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.v-chip {
+  font-weight: 500;
+}
+
+.v-btn {
+  transition: all 0.2s ease;
+}
+
+.v-btn:hover {
+  transform: scale(1.1);
+}
+</style>

@@ -3,8 +3,9 @@
     <v-icon
       :size="props.size"
       :color="fileTypeData.color"
-      v-text="fileTypeData.icon"
-    ></v-icon>
+    >
+      {{ fileTypeData.icon }}
+    </v-icon>
   </div>
 </template>
 
