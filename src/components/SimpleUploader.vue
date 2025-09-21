@@ -64,7 +64,7 @@
                   :color="getFileIconColor(attachment.file.name)"
                   size="60"
                 >
-                  {{ getFileIcon(attachment.file.name) }}
+                  {{ getFileIconName(attachment.file.name) }}
                 </v-icon>
               </div>
             </div>
@@ -130,6 +130,7 @@
 
 <script setup lang="ts">
 import type { DocumentAttachment, LanguageCollection } from '@/types';
+import { getFileIconName, getFileIconColor } from '@/utils/fileUtils';
 
 interface Props {
   documentAttachment: DocumentAttachment[],
@@ -178,67 +179,7 @@ const getImageSrc = (file: any) => {
   return '';
 };
 
-const getFileIcon = (filename: string) => {
-  const extension = filename.split('.').pop()?.toLowerCase();
-  const iconMap: Record<string, string> = {
-    pdf: 'mdi-file-pdf-box',
-    doc: 'mdi-file-word-outline',
-    docx: 'mdi-file-word-outline',
-    odt: 'mdi-file-word-outline',
-    jpg: 'mdi-file-image-outline',
-    jpeg: 'mdi-file-image-outline',
-    png: 'mdi-file-image-outline',
-    tif: 'mdi-file-image-outline',
-    bmp: 'mdi-file-image-outline',
-    xls: 'mdi-file-excel-outline',
-    xlsx: 'mdi-file-excel-outline',
-    pptx: 'mdi-file-powerpoint-outline',
-    pptm: 'mdi-file-powerpoint-outline',
-    ppt: 'mdi-file-powerpoint-outline',
-    mp4: 'mdi-file-video-outline',
-    mov: 'mdi-file-video-outline',
-    flv: 'mdi-file-video-outline',
-    wmv: 'mdi-file-video-outline',
-    avi: 'mdi-file-video-outline',
-    dwg: 'mdi-file-cad',
-    zip: 'mdi-folder-zip-outline',
-    rar: 'mdi-folder-zip-outline',
-    '7-zip': 'mdi-folder-zip-outline',
-    txt: 'mdi-script-text-outline',
-  };
-  return extension ? iconMap[extension] || 'mdi-file-question-outline' : 'mdi-file-question-outline';
-};
-
-const getFileIconColor = (filename: string) => {
-  const extension = filename.split('.').pop()?.toLowerCase();
-  const colorMap: Record<string, string> = {
-    pdf: 'red darken-1',
-    doc: 'blue darken-1',
-    docx: 'blue darken-1',
-    odt: 'blue darken-1',
-    jpg: 'deep-purple darken-1',
-    jpeg: 'deep-purple darken-1',
-    png: 'deep-purple darken-1',
-    tif: 'deep-purple darken-1',
-    bmp: 'deep-purple darken-1',
-    xls: 'teal darken-1',
-    xlsx: 'teal darken-1',
-    pptx: 'orange darken-3',
-    pptm: 'orange darken-3',
-    ppt: 'orange darken-3',
-    mp4: 'red lighten-1',
-    mov: 'red lighten-1',
-    flv: 'red lighten-1',
-    wmv: 'red lighten-1',
-    avi: 'red lighten-1',
-    dwg: 'indigo lighten-2',
-    zip: 'lime lighten-1',
-    rar: 'lime lighten-1',
-    '7-zip': 'lime lighten-1',
-    txt: 'light-green darken-3',
-  };
-  return extension ? colorMap[extension] || 'indigo lighten-1' : 'indigo lighten-1';
-};
+// Icon functions are now imported from @/utils/fileUtils
 
 // Event Handlers
 const openDeleteDialog = (index: number, deleteId: string) => emit("openDeleteDialog", index, deleteId);

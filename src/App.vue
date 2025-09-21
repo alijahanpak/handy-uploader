@@ -3,7 +3,7 @@
     <v-main>
       <handy-uploader
         :documentAttachment="registryDocFile"
-        :fileUploaderType="'simple'"
+        :fileUploaderType="'thumbnail'"
         :maxFileSize="10240"
         :imageCompressor="true"
         :imageCompressLevel="0.8"

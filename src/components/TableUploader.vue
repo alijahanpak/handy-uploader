@@ -47,8 +47,8 @@
                   </template>
                   <template v-else>
                     <v-icon
-                      :icon="getFileIcon(safeGetFileExtension(attachment.file.name))"
-                      :color="getFileIconColor(safeGetFileExtension(attachment.file.name))"
+                  :icon="getFileIconName(attachment.file.name)"
+                  :color="getFileIconColor(attachment.file.name)"
                       size="24"
                     ></v-icon>
                   </template>
@@ -78,8 +78,8 @@
                       </template>
                       <template v-else>
                         <v-icon
-                          :icon="getFileIcon(safeGetFileExtension(attachment.file.name))"
-                          :color="getFileIconColor(safeGetFileExtension(attachment.file.name))"
+                  :icon="getFileIconName(attachment.file.name)"
+                  :color="getFileIconColor(attachment.file.name)"
                           size="40"
                         ></v-icon>
                       </template>
@@ -143,7 +143,7 @@
 
 <script setup lang="ts">
 import type { DocumentAttachment, LanguageCollection } from '@/types';
-import { isImageFile, getFileType } from '@/utils/fileUtils';
+import { isImageFile, getFileType, getFileIconName, getFileIconColor } from '@/utils/fileUtils';
 
 interface Props {
   documentAttachment: DocumentAttachment[],
@@ -183,73 +183,7 @@ const safeGetFileExtension = (fileName: string | undefined): string => {
   return fileName ? fileName.split('.').pop()?.toLowerCase() || '' : '';
 };
 
-// Get appropriate icon for file type
-const getFileIcon = (extension: string): string => {
-  const iconMap: Record<string, string> = {
-    pdf: 'mdi-file-pdf-outline',
-    doc: 'mdi-file-word-outline',
-    docx: 'mdi-file-word-outline',
-    odt: 'mdi-file-word-outline',
-    xls: 'mdi-file-excel-outline',
-    xlsx: 'mdi-file-excel-outline',
-    ppt: 'mdi-file-powerpoint-outline',
-    pptx: 'mdi-file-powerpoint-outline',
-    pptm: 'mdi-file-powerpoint-outline',
-    mp4: 'mdi-file-video-outline',
-    mov: 'mdi-file-video-outline',
-    flv: 'mdi-file-video-outline',
-    wmv: 'mdi-file-video-outline',
-    avi: 'mdi-file-video-outline',
-    dwg: 'mdi-file-cad',
-    zip: 'mdi-folder-zip-outline',
-    rar: 'mdi-folder-zip-outline',
-    '7z': 'mdi-folder-zip-outline',
-    txt: 'mdi-script-text-outline',
-    jpg: 'mdi-file-image-outline',
-    jpeg: 'mdi-file-image-outline',
-    png: 'mdi-file-image-outline',
-    gif: 'mdi-file-image-outline',
-    bmp: 'mdi-file-image-outline',
-    tif: 'mdi-file-image-outline',
-    tiff: 'mdi-file-image-outline'
-  };
-  
-  return iconMap[extension] || 'mdi-file-question-outline';
-};
-
-// Get appropriate color for file type
-const getFileIconColor = (extension: string): string => {
-  const colorMap: Record<string, string> = {
-    pdf: 'red',
-    doc: 'blue',
-    docx: 'blue',
-    odt: 'blue',
-    xls: 'green',
-    xlsx: 'green',
-    ppt: 'orange',
-    pptx: 'orange',
-    pptm: 'orange',
-    mp4: 'purple',
-    mov: 'purple',
-    flv: 'purple',
-    wmv: 'purple',
-    avi: 'purple',
-    dwg: 'indigo',
-    zip: 'amber',
-    rar: 'amber',
-    '7z': 'amber',
-    txt: 'grey',
-    jpg: 'deep-purple',
-    jpeg: 'deep-purple',
-    png: 'deep-purple',
-    gif: 'deep-purple',
-    bmp: 'deep-purple',
-    tif: 'deep-purple',
-    tiff: 'deep-purple'
-  };
-  
-  return colorMap[extension] || 'grey';
-};
+// Icon functions are now imported from @/utils/fileUtils
 
 // Format file size
 const formatFileSize = (bytes: number): string => {

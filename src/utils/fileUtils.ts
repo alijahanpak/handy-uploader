@@ -66,7 +66,73 @@ export function getFileType(fileName: string, mimeType?: string): string {
 }
 
 /**
- * Gets appropriate icon and color for file type
+ * Detailed icon mappings for specific file extensions
+ */
+const DETAILED_ICON_MAP: Record<string, { icon: string; color: string }> = {
+  // PDF
+  pdf: { icon: 'mdi-file-pdf-box', color: 'red darken-1' },
+  
+  // Word Documents
+  doc: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  docx: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  odt: { icon: 'mdi-file-word-outline', color: 'blue darken-1' },
+  
+  // Images
+  jpg: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  jpeg: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  png: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  gif: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  bmp: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  tif: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  tiff: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  svg: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  webp: { icon: 'mdi-file-image-outline', color: 'deep-purple darken-1' },
+  
+  // Excel/Spreadsheets
+  xls: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  xlsx: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  csv: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  ods: { icon: 'mdi-file-excel-outline', color: 'teal darken-1' },
+  
+  // PowerPoint/Presentations
+  ppt: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  pptx: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  pptm: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  odp: { icon: 'mdi-file-powerpoint-outline', color: 'orange darken-3' },
+  
+  // Videos
+  mp4: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  mov: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  flv: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  wmv: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  avi: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  webm: { icon: 'mdi-file-video-outline', color: 'red lighten-1' },
+  
+  // Audio
+  mp3: { icon: 'mdi-file-music-outline', color: 'purple darken-1' },
+  wav: { icon: 'mdi-file-music-outline', color: 'purple darken-1' },
+  flac: { icon: 'mdi-file-music-outline', color: 'purple darken-1' },
+  aac: { icon: 'mdi-file-music-outline', color: 'purple darken-1' },
+  ogg: { icon: 'mdi-file-music-outline', color: 'purple darken-1' },
+  
+  // CAD
+  dwg: { icon: 'mdi-file-cad', color: 'indigo lighten-2' },
+  
+  // Archives
+  zip: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  rar: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  '7z': { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  '7-zip': { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  tar: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  gz: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
+  
+  // Text
+  txt: { icon: 'mdi-script-text-outline', color: 'light-green darken-3' },
+  rtf: { icon: 'mdi-script-text-outline', color: 'light-green darken-3' },
+};
+
+/**
+ * Gets appropriate icon and color for file type (legacy function for backward compatibility)
  */
 export function getFileIcon(fileName: string, mimeType?: string): FileIconProps {
   const fileType = getFileType(fileName, mimeType);
@@ -83,6 +149,33 @@ export function getFileIcon(fileName: string, mimeType?: string): FileIconProps 
   };
   
   return iconMap[fileType] || iconMap.file;
+}
+
+/**
+ * Gets detailed icon and color for specific file extension
+ */
+export function getDetailedFileIcon(fileName: string): { icon: string; color: string } {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  
+  if (!extension) {
+    return { icon: 'mdi-file-question-outline', color: 'indigo lighten-1' };
+  }
+  
+  return DETAILED_ICON_MAP[extension] || { icon: 'mdi-file-question-outline', color: 'indigo lighten-1' };
+}
+
+/**
+ * Gets only the icon name for a file extension
+ */
+export function getFileIconName(fileName: string): string {
+  return getDetailedFileIcon(fileName).icon;
+}
+
+/**
+ * Gets only the color for a file extension
+ */
+export function getFileIconColor(fileName: string): string {
+  return getDetailedFileIcon(fileName).color;
 }
 
 /**
