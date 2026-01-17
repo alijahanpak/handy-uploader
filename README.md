@@ -5,7 +5,7 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 [Live Demo](https://friendly-varahamihira-45c09f.netlify.app)
+## 🚀 [Live Demo](https://illustrious-griffin-257b43.netlify.app)
 
 A comprehensive Vue 3 file uploader component library with advanced features including **automatic video thumbnail generation**, multiple upload styles, and extensive file type support.
 
