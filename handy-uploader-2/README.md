@@ -5,7 +5,7 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 [Live Demo](https://illustrious-griffin-257b43.netlify.app)
+## 🚀 [Live Demo](https://friendly-varahamihira-45c09f.netlify.app)
 
 A comprehensive Vue 3 file uploader component library with advanced features including **automatic video thumbnail generation**, multiple upload styles, and extensive file type support.
 
@@ -389,7 +389,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [GitHub Repository](https://github.com/alijahanpak/vue-file-uploader)
 - [npm Package](https://www.npmjs.com/package/handy-uploader)
-- [Documentation](https://github.com/alijahanpak/vue-file-uploader#readme)
 - [Issues](https://github.com/alijahanpak/vue-file-uploader/issues)
 
 ## 📊 Stats

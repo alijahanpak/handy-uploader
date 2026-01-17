@@ -3,7 +3,7 @@
     <v-main>
       <handy-uploader
         :documentAttachment="registryDocFile"
-        :fileUploaderType="'thumbnail'"
+        :fileUploaderType="'table'"
         :maxFileSize="10240"
         :imageCompressor="true"
         :imageCompressLevel="0.8"
@@ -14,6 +14,8 @@
         :addFileTag="true"
         :lang="'en'"
         :tags="['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4']"
+        :tableThumbColumn="false"
+        :thumb="true"
       >
       </handy-uploader>
     </v-main>
