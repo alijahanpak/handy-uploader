@@ -50,18 +50,19 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepublishOnly": "npm run build",
-    "release": "semantic-release",
-    "release:dry": "semantic-release --dry-run"
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && changeset publish",
+    "prepare": "husky"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
     "vuetify": "^3.0.0"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@mdi/font": "^7.4.47",
     "@rushstack/eslint-patch": "^1.7.2",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
     "@storybook/addon-links": "^8.6.14",
@@ -76,9 +77,9 @@
     "@vue/tsconfig": "^0.5.1",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.20.1",
+    "husky": "^9.1.7",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.4",
-    "semantic-release": "^22.0.12",
     "storybook": "^8.6.14",
     "typescript": "~5.3.3",
     "vite": "^5.0.12",
