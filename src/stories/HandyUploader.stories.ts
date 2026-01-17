@@ -11,8 +11,9 @@ const meta: Meta<typeof HandyUploader> = {
     docs: {
       description: {
         component: `
+A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles.
 
-The main file uploader component that combines all uploader types with comprehensive configuration options.
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/alijahanpak/handy-uploader) [![npm](https://img.shields.io/badge/npm-Package-CB3837?logo=npm)](https://www.npmjs.com/package/handy-uploader) [![GitHub stars](https://img.shields.io/github/stars/alijahanpak/handy-uploader?style=social)](https://github.com/alijahanpak/handy-uploader) [![CI](https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml/badge.svg)](https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml)
 
 ## Features
 - **Multiple Upload Types**: Simple, Table, and Thumbnail views
@@ -29,8 +30,10 @@ The main file uploader component that combines all uploader types with comprehen
 - **Table**: Detailed tabular view with sorting
 - **Thumbnail**: Grid-based visual preview
 
-## Usage
-The most versatile component for all file upload needs with extensive customization options.
+## Installation
+\`\`\`bash
+npm install handy-uploader
+\`\`\`
         `
       }
     }
