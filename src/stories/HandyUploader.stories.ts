@@ -343,7 +343,7 @@ export const RTLSupport: Story = {
   args: {
     ...Default.args,
     documentAttachment: sampleFiles,
-    lang: 'fr',
+    lang: 'fa',
     rtlSupport: true,
     fileUploaderType: 'thumbnail'
   },

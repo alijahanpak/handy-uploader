@@ -5,10 +5,6 @@ on:
     branches:
       - master
       - main
-  pull_request:
-    branches:
-      - master
-      - main
 
 jobs:
   deploy:
@@ -31,24 +27,11 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
-      - name: Deploy to Netlify (Production)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+      - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: './storybook-static'
           production-deploy: true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-      - name: Deploy to Netlify (Preview)
-        if: github.event_name == 'pull_request'
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: './storybook-static'
-          production-deploy: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Preview deploy from PR #${{ github.event.number }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
