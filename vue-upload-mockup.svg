@@ -1,0 +1,26 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2196F3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bg)" rx="8"/>
+  
+  <!-- Upload area -->
+  <rect x="50" y="50" width="300" height="200" fill="white" fill-opacity="0.9" rx="4" stroke="#ddd" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Upload icon -->
+  <circle cx="200" cy="120" r="25" fill="#4CAF50"/>
+  <path d="M190 120 L200 110 L210 120 M200 110 L200 135" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+  
+  <!-- Text -->
+  <text x="200" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#333">Vue Upload Mockup</text>
+  <text x="200" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">Drag & Drop Files Here</text>
+  
+  <!-- Vue.js logo style -->
+  <polygon points="200,220 185,245 215,245" fill="#4FC08D"/>
+  <polygon points="200,225 190,240 210,240" fill="#35495E"/>
+</svg>

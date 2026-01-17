@@ -9,7 +9,7 @@
         >
           <thead>
             <tr>
-              <th v-if="props.tableThumbColumn" class="text-left" style="width: 80px;">
+              <th class="text-left" style="width: 80px;">
                 {{ props.selectedLang[lang].table.thumb }}
               </th>
               <th class="text-center">{{ props.selectedLang[lang].table.name }}</th>
@@ -25,35 +25,6 @@
               :key="`attachment-${index}`"
               class="table-row"
             >
-              <td v-if="props.tableThumbColumn" class="text-center pa-2">
-                <div class="d-flex justify-center align-center" style="height: 60px; width: 40px; margin: 0 auto;">
-                  <template v-if="safeIsImageFile(attachment.file.name)">
-                    <v-img
-                      v-if="props.thumb && attachment.file.base64"
-                      :src="'data:' + attachment.file.format + ',' + attachment.file.base64"
-                      height="40"
-                      width="40"
-                      class="rounded"
-                      cover
-                      style="flex-shrink: 0;"
-                    ></v-img>
-                    <v-icon
-                      v-else
-                      size="40"
-                      color="deep-purple"
-                    >
-                      mdi-file-image-outline
-                    </v-icon>
-                  </template>
-                  <template v-else>
-                    <v-icon
-                  :icon="getFileIconName(attachment.file.name)"
-                  :color="getFileIconColor(attachment.file.name)"
-                      size="24"
-                    ></v-icon>
-                  </template>
-                </div>
-              </td>
               <td class="text-center pa-3">
                 <v-tooltip location="top">
                   <template v-slot:activator="{ props: tooltipProps }">
@@ -84,6 +55,21 @@
                         ></v-icon>
                       </template>
                     </div>
+                  </template>
+                  <span>{{ attachment.file.name }}</span>
+                </v-tooltip>
+              </td>
+              <td class="text-left pa-3">
+                <v-tooltip location="top">
+                  <template v-slot:activator="{ props: tooltipProps }">
+                    <span v-bind="tooltipProps">
+                      {{ (() => {
+                        const ext = attachment.file.name.split('.').pop();
+                        const base = attachment.file.name.slice(0, attachment.file.name.lastIndexOf('.'));
+                        const shortBase = base.length > 10 ? base.slice(0, 10) + '...' : base;
+                        return `${shortBase}.${ext}`;
+                      })() }}
+                    </span>
                   </template>
                   <span>{{ attachment.file.name }}</span>
                 </v-tooltip>

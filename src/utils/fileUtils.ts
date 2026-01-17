@@ -62,7 +62,7 @@ export function getFileType(fileName: string, mimeType?: string): string {
     return 'audio';
   }
   
-  return 'file';
+  return 'unknown';
 }
 
 /**
@@ -126,9 +126,12 @@ const DETAILED_ICON_MAP: Record<string, { icon: string; color: string }> = {
   tar: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
   gz: { icon: 'mdi-folder-zip-outline', color: 'lime lighten-1' },
   
-  // Text
+  // Text files
   txt: { icon: 'mdi-script-text-outline', color: 'light-green darken-3' },
   rtf: { icon: 'mdi-script-text-outline', color: 'light-green darken-3' },
+  
+  // Unknown/Default file type
+  unknown: { icon: 'mdi-file-question-outline', color: 'grey darken-1' },
 };
 
 /**
@@ -145,10 +148,11 @@ export function getFileIcon(fileName: string, mimeType?: string): FileIconProps 
     archive: { icon: 'mdi-folder-zip', color: 'purple' },
     video: { icon: 'mdi-file-video', color: 'pink' },
     audio: { icon: 'mdi-file-music', color: 'teal' },
-    file: { icon: 'mdi-file', color: 'grey' }
+    file: { icon: 'mdi-file', color: 'grey' },
+    unknown: { icon: 'mdi-file-question-outline', color: 'grey darken-1' }
   };
   
-  return iconMap[fileType] || iconMap.file;
+  return iconMap[fileType] || iconMap.unknown;
 }
 
 /**
@@ -158,10 +162,10 @@ export function getDetailedFileIcon(fileName: string): { icon: string; color: st
   const extension = fileName.split('.').pop()?.toLowerCase();
   
   if (!extension) {
-    return { icon: 'mdi-file-question-outline', color: 'indigo lighten-1' };
+    return DETAILED_ICON_MAP.unknown;
   }
   
-  return DETAILED_ICON_MAP[extension] || { icon: 'mdi-file-question-outline', color: 'indigo lighten-1' };
+  return DETAILED_ICON_MAP[extension] || DETAILED_ICON_MAP.unknown;
 }
 
 /**
@@ -239,13 +243,18 @@ export function getMimeTypeFromExtension(fileName: string): MimeType {
 /**
  * Constructs proper data URL for base64 image data
  */
-export function constructImageDataUrl(base64: string, format: string): string {
-  // Remove any existing data URL prefix
-  const cleanBase64 = base64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
-  
+export function constructImageDataUrl(base64: string | undefined, format: string | undefined): string {
+  if (!base64 || !format) {
+    console.warn('constructImageDataUrl: missing base64 or format', { hasBase64: !!base64, format });
+    return '';
+  }
+
+  // Remove any existing data URL prefix (handles svg+xml and other formats)
+  const cleanBase64 = base64.replace(/^data:[^;]+;base64,/, '');
+
   // Determine MIME type
   const mimeType = format.startsWith('image/') ? format : `image/${format}`;
-  
+
   return `data:${mimeType};base64,${cleanBase64}`;
 }
 

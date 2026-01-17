@@ -18,11 +18,13 @@
         >
           <!-- Image Preview Section -->
           <template v-if="isImageFile(attachment.file.name)">
-            <v-img
-              :src="getImageSrc(attachment.file)"
-              height="200px"
-              @error="onImageError(attachment.file)"
-            />
+            <div style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5; overflow: hidden;">
+              <img
+                :src="getImageSrc(attachment.file)"
+                style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                @error="onImageError(attachment.file)"
+              />
+            </div>
           </template>
 
           <!-- Video Preview Section -->
@@ -162,7 +164,14 @@ import type {
   UploaderEvents,
   LanguageCode 
 } from "@/types";
-import { formatFileSize, getFileIcon, isImageFile, constructImageDataUrl, getFileType, getMimeTypeFromExtension } from "@/utils/fileUtils";
+import { formatFileSize, getFileIconName, getFileIconColor, isImageFile as isImageFileUtil, constructImageDataUrl, getFileType, getMimeTypeFromExtension } from "@/utils/fileUtils";
+
+// Wrapper with debug logging
+const isImageFile = (fileName: string): boolean => {
+  const result = isImageFileUtil(fileName);
+  console.log('🔍 isImageFile check:', fileName, '→', result);
+  return result;
+};
 
 interface Props extends BaseUploaderProps, CardThemeProps {
   lang: LanguageCode;
@@ -186,7 +195,7 @@ const emit = defineEmits<{
 }>();
 
 const getFileTypeIcon = (format: string) => {
-  return getFileIcon('file.' + format);
+  return getFileIconName('file.' + format);
 };
 
 const isVideoFile = (fileName: string): boolean => {
@@ -196,7 +205,18 @@ const isVideoFile = (fileName: string): boolean => {
 };
 
 const getImageSrc = (file: DocumentAttachment['file']): string => {
-  return constructImageDataUrl(file.base64, file.format);
+  if (!file.base64 || !file.format) {
+    console.error('❌ Missing base64 or format for:', file.name, { base64: !!file.base64, format: file.format });
+    return '';
+  }
+  const src = constructImageDataUrl(file.base64, file.format);
+  console.log('🖼️ Image source for:', file.name, {
+    format: file.format,
+    base64Length: file.base64?.length || 0,
+    srcLength: src.length,
+    srcPreview: src.substring(0, 100) + '...'
+  });
+  return src;
 };
 
 const getVideoSrc = (file: DocumentAttachment['file']): string => {
@@ -432,7 +452,10 @@ const onVideoThumbnailError = (file: DocumentAttachment['file']) => {
 };
 
 const getFileIconProps = (fileName: string) => {
-  return getFileIcon(fileName);
+  return {
+    icon: getFileIconName(fileName),
+    color: getFileIconColor(fileName)
+  };
 };
 
 // File size formatter
