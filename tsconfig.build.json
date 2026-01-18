@@ -6,6 +6,6 @@
     "outDir": "./dist",
     "noEmit": false
   },
-  "include": ["src/lib/**/*", "src/types/**/*", "src/utils/**/*", "src/composables/**/*"],
+  "include": ["src/lib/**/*", "src/types/**/*", "src/utils/**/*", "src/composables/**/*", "src/components/**/*"],
   "exclude": ["src/main.ts", "src/App.vue", "**/*.spec.ts", "**/*.test.ts"]
 }
