@@ -11,9 +11,24 @@ const meta: Meta<typeof HandyUploader> = {
     docs: {
       description: {
         component: `
-A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles.
+<p align="center" style="margin-bottom: 16px;">
+  <img src="/logo.png" alt="Handy Uploader" width="200" />
+</p>
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/alijahanpak/handy-uploader) [![npm](https://img.shields.io/badge/npm-Package-CB3837?logo=npm)](https://www.npmjs.com/package/handy-uploader) [![GitHub stars](https://img.shields.io/github/stars/alijahanpak/handy-uploader?style=social)](https://github.com/alijahanpak/handy-uploader) [![CI](https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml/badge.svg)](https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml)
+<p align="center" style="margin-bottom: 8px;">
+  <a href="https://www.npmjs.com/package/handy-uploader" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/npm/v/handy-uploader?color=CB3837&logo=npm" alt="npm version" /></a>
+  <a href="https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml" target="_blank" style="margin: 0 3px;"><img src="https://github.com/alijahanpak/handy-uploader/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/alijahanpak/handy-uploader" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/github/stars/alijahanpak/handy-uploader?style=social" alt="GitHub stars" /></a>
+</p>
+
+<p align="center" style="margin-bottom: 16px;">
+  <a href="https://github.com/alijahanpak/handy-uploader" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/badge/GitHub-Repository-181717?logo=github" alt="GitHub" /></a>
+  <a href="https://opensource.org/licenses/MIT" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://vuejs.org/" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js" alt="Vue 3" /></a>
+  <a href="https://www.typescriptlang.org/" target="_blank" style="margin: 0 3px;"><img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?logo=typescript" alt="TypeScript" /></a>
+</p>
+
+A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles.
 
 ## Features
 - **Multiple Upload Types**: Simple, Table, and Thumbnail views
