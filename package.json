@@ -1,6 +1,6 @@
 {
   "name": "handy-uploader",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles",
   "main": "dist/handy-uploader.umd.js",
   "module": "dist/handy-uploader.es.js",
