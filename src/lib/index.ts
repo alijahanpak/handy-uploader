@@ -61,7 +61,9 @@ export {
 }
 
 // Default export for convenience
-export default {
+import type { Component } from 'vue'
+
+const components: Record<string, Component> = {
   ThumbnailUploader,
   TableUploader,
   SimpleUploader,
@@ -69,6 +71,8 @@ export default {
   InsertButton,
   SelectFileIconType
 }
+
+export default components
 
 // Vue plugin installation function
 import type { App } from 'vue'

@@ -568,7 +568,7 @@ const setCardTheme = () => {
 };
 
 const handleUpload = (fileAttachment: any) => {
-  let reader = new FileReader();
+  const reader = new FileReader();
   return new Promise(function(resolve) {
     reader.onloadend = () => {
       resolve(reader.result);
@@ -604,7 +604,7 @@ const uploadFieldChange = async () => {
     }
 
     let tempFile: any = {};
-    let file: any = {};
+    const file: any = {};
 
     // The item is already a processed DocumentAttachment object
     const fileData = item.file;
@@ -655,10 +655,10 @@ const compressImage = (base64: any) => {
   const img = document.createElement("img");
 
   return new Promise((resolve, reject) => {
-    let imageCompressLevelTemp = props.imageCompressLevel;
+    const imageCompressLevelTemp = props.imageCompressLevel;
     img.onload = function() {
-      let width = img.width;
-      let height = img.height;
+      const width = img.width;
+      const height = img.height;
       canvas.width = width;
       canvas.height = height;
 
@@ -701,7 +701,7 @@ const deleteDocument = () => {
 };
 
 const getAttachmentDetails = async (selectedAttachment: File[]) => {
-  for (let item of selectedAttachment) {
+  for (const item of selectedAttachment) {
     let base64Result: string = "";
     try {
       base64Result = await handleUpload(item) as string;
@@ -709,7 +709,7 @@ const getAttachmentDetails = async (selectedAttachment: File[]) => {
       console.log(e);
       continue;
     }
-    let fileData = {
+    const fileData = {
       name: item.name.split(".")[0],
       format: item.name.substr(item.name.lastIndexOf(".") + 1),
       base64: base64Result.split(",")[1], // Remove data:mime;base64, prefix
@@ -718,7 +718,7 @@ const getAttachmentDetails = async (selectedAttachment: File[]) => {
       description: null,
       showDetailState: false
     };
-    let documentAttachment = { file: fileData };
+    const documentAttachment = { file: fileData };
     uploader.tempAttachmentChanged.push(documentAttachment);
   }
 };
