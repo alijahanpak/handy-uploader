@@ -55,71 +55,82 @@ export function useUploader(
   // Operations run one after another so each one sees the count left by the previous one.
   let queue: Promise<unknown> = Promise.resolve()
   function enqueue<T>(task: () => Promise<T>): Promise<T> {
-    const next = queue.then(task)
+    const next = queue.then(async () => {
+      isProcessing.value = true
+      try {
+        return await task()
+      } finally {
+        isProcessing.value = false
+      }
+    })
     queue = next.catch(() => undefined)
     return next
   }
 
-  async function busy<T>(task: () => Promise<T>): Promise<T> {
-    isProcessing.value = true
-    try {
-      return await task()
-    } finally {
-      isProcessing.value = false
+  type Pending = number | (() => number)
+  const pendingCount = (pending: Pending) => (typeof pending === 'function' ? pending() : pending)
+
+  async function doStage(files: File[], pending: Pending) {
+    const opts = resolveOptions()
+    const byType = filterByAccept(files, opts.accept)
+    // Reject by size/count before reading, so large or surplus files never hit memory.
+    const byLimits = precheckFiles(byType.accepted, {
+      currentCount: attachments.value.length + pendingCount(pending),
+      maxFileCount: opts.maxFileCount,
+      maxFileSize: opts.maxFileSize
+    })
+    const staged = await readFiles(byLimits.accepted)
+    return { staged, errors: [...byType.errors, ...byLimits.errors] }
+  }
+
+  async function doCommit(staged: DocumentAttachment[]) {
+    const opts = resolveOptions()
+    const result = await prepareAttachments(staged, {
+      currentCount: attachments.value.length,
+      maxFileCount: opts.maxFileCount,
+      maxFileSize: opts.maxFileSize,
+      imageCompressor: opts.imageCompressor,
+      imageCompressLevel: opts.imageCompressLevel
+    })
+    if (result.accepted.length > 0) {
+      attachments.value = [...attachments.value, ...result.accepted]
     }
+    return result
   }
 
   /**
-   * Step 1 of 2: checks type, size and count (counting `pending` already-staged files),
-   * then reads the files that pass. Nothing is added to the list yet, so names,
-   * descriptions and tags can be edited on the staged attachments before commit().
+   * Step 1 of 2: checks type, size and count, then reads the files that pass. Nothing is
+   * added to the list yet, so names, descriptions and tags can be edited on the staged
+   * attachments before commit(). `pending` is the number of files already staged; pass a
+   * function to have it read when this step actually runs (after earlier queued steps).
    */
-  function stage(files: FileList | File[], pending = 0): Promise<DocumentAttachment[]> {
+  function stage(files: FileList | File[], pending: Pending = 0): Promise<DocumentAttachment[]> {
     const list = Array.from(files)
-    return enqueue(() =>
-      busy(async () => {
-        const opts = resolveOptions()
-        const byType = filterByAccept(list, opts.accept)
-        // Reject by size/count before reading, so large or surplus files never hit memory.
-        const byLimits = precheckFiles(byType.accepted, {
-          currentCount: attachments.value.length + pending,
-          maxFileCount: opts.maxFileCount,
-          maxFileSize: opts.maxFileSize
-        })
-        errors.value = [...byType.errors, ...byLimits.errors]
-        return readFiles(byLimits.accepted)
-      })
-    )
+    return enqueue(async () => {
+      const result = await doStage(list, pending)
+      errors.value = result.errors
+      return result.staged
+    })
   }
 
   /** Step 2 of 2: validates staged attachments (compressing images if enabled) and appends them. */
   function commit(staged: DocumentAttachment[]): Promise<DocumentAttachment[]> {
-    return enqueue(() =>
-      busy(async () => {
-        const opts = resolveOptions()
-        const result = await prepareAttachments(staged, {
-          currentCount: attachments.value.length,
-          maxFileCount: opts.maxFileCount,
-          maxFileSize: opts.maxFileSize,
-          imageCompressor: opts.imageCompressor,
-          imageCompressLevel: opts.imageCompressLevel
-        })
-        if (result.accepted.length > 0) {
-          attachments.value = [...attachments.value, ...result.accepted]
-        }
-        errors.value = result.errors
-        return result.accepted
-      })
-    )
+    return enqueue(async () => {
+      const result = await doCommit(staged)
+      errors.value = result.errors
+      return result.accepted
+    })
   }
 
-  /** stage() + commit() in one go. Resolves with the attachments that were added. */
-  async function add(files: FileList | File[]): Promise<DocumentAttachment[]> {
-    const staged = await stage(files)
-    const stageErrors = errors.value
-    const added = await commit(staged)
-    errors.value = [...stageErrors, ...errors.value]
-    return added
+  /** stage() + commit() as one queued step. Resolves with the attachments that were added. */
+  function add(files: FileList | File[]): Promise<DocumentAttachment[]> {
+    const list = Array.from(files)
+    return enqueue(async () => {
+      const staged = await doStage(list, 0)
+      const committed = await doCommit(staged.staged)
+      errors.value = [...staged.errors, ...committed.errors]
+      return committed.accepted
+    })
   }
 
   function remove(index: number) {

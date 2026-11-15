@@ -121,7 +121,10 @@ export function precheckFiles(
 }
 
 /** Formats a byte count as "12.3 KB" / "4.5 MB", with translatable unit labels. */
-export function formatBytes(bytes: number, units: { kb: string; mb: string } = { kb: 'KB', mb: 'MB' }) {
+export function formatBytes(
+  bytes: number,
+  units: { kb: string; mb: string } = { kb: 'KB', mb: 'MB' }
+) {
   const kb = bytes / 1024
   return kb < 1024 ? `${kb.toFixed(1)} ${units.kb}` : `${(kb / 1024).toFixed(1)} ${units.mb}`
 }

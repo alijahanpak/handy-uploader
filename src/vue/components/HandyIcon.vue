@@ -17,7 +17,8 @@ import type { IconName } from '../types'
 
 // Inline SVG icons, so the components need no icon font (Material Design Icons etc.).
 const paths = {
-  trash: 'M9 3h6l1 1h4v2H4V4h4l1-1zM6 7h12l-1 13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 7zm4 3v9h1.5v-9H10zm3.5 0v9H15v-9h-1.5z',
+  trash:
+    'M9 3h6l1 1h4v2H4V4h4l1-1zM6 7h12l-1 13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 7zm4 3v9h1.5v-9H10zm3.5 0v9H15v-9h-1.5z',
   pencil:
     'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',
   chevron: 'M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z',

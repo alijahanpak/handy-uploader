@@ -33,7 +33,9 @@ const limits = { currentCount: 0, maxFileCount: 10, maxFileSize: 5242880 }
 
 describe('readFiles', () => {
   it('splits name and extension and strips the data-URL prefix', async () => {
-    const [result] = await readFiles([new File(['hello'], 'report.pdf', { type: 'application/pdf' })])
+    const [result] = await readFiles([
+      new File(['hello'], 'report.pdf', { type: 'application/pdf' })
+    ])
     expect(result.file).toEqual({
       name: 'report',
       format: 'pdf',
@@ -122,7 +124,12 @@ describe('prepareAttachments', () => {
       compress
     )
     expect(compress).toHaveBeenCalledWith(`data:image/png;base64,${original}`, 0.5)
-    expect(accepted[0].file).toMatchObject({ name: 'photo.jpg', format: 'jpg', base64: small, size: 30 })
+    expect(accepted[0].file).toMatchObject({
+      name: 'photo.jpg',
+      format: 'jpg',
+      base64: small,
+      size: 30
+    })
   })
 
   it('keeps the original when compression does not make it smaller', async () => {
@@ -137,7 +144,11 @@ describe('prepareAttachments', () => {
 
   it('does not compress non-images or when the option is off', async () => {
     const compress = vi.fn()
-    await prepareAttachments([staged({ format: 'pdf' })], { ...limits, imageCompressor: true }, compress)
+    await prepareAttachments(
+      [staged({ format: 'pdf' })],
+      { ...limits, imageCompressor: true },
+      compress
+    )
     await prepareAttachments([staged({ format: 'jpg' })], limits, compress)
     expect(compress).not.toHaveBeenCalled()
   })
@@ -162,7 +173,12 @@ describe('prepareAttachments', () => {
       { ...limits, imageCompressor: true },
       compress
     )
-    expect(accepted[0].file).toMatchObject({ name: 'huge.png', format: 'png', size: 5, base64: toBase64('hello') })
+    expect(accepted[0].file).toMatchObject({
+      name: 'huge.png',
+      format: 'png',
+      size: 5,
+      base64: toBase64('hello')
+    })
   })
 })
 

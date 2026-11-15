@@ -113,7 +113,9 @@
   background: transparent;
   color: var(--hu-muted);
   cursor: pointer;
-  transition: background-color 0.15s, transform 0.15s;
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
 }
 .hu-icon-button:hover {
   background: color-mix(in srgb, currentColor 12%, transparent);
@@ -194,7 +196,9 @@
   background: var(--hu-surface-alt);
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
 }
 .hu-dropzone:hover,
 .hu-dropzone--active {
@@ -251,7 +255,9 @@
   border-radius: var(--hu-radius);
   background: var(--hu-surface);
   box-shadow: var(--hu-shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 .hu-card:hover {
   transform: translateY(-2px);
@@ -342,9 +348,15 @@
   background: var(--hu-chip);
   color: #fff;
 }
-.hu-chip[data-hu-size='small'] { --hu-chip: var(--hu-success); }
-.hu-chip[data-hu-size='medium'] { --hu-chip: var(--hu-warning); }
-.hu-chip[data-hu-size='large'] { --hu-chip: var(--hu-danger); }
+.hu-chip[data-hu-size='small'] {
+  --hu-chip: var(--hu-success);
+}
+.hu-chip[data-hu-size='medium'] {
+  --hu-chip: var(--hu-warning);
+}
+.hu-chip[data-hu-size='large'] {
+  --hu-chip: var(--hu-danger);
+}
 
 .hu-thumb {
   display: grid;
@@ -425,13 +437,27 @@
 .hu-file-icon {
   color: #757575;
 }
-.hu-file-icon[data-hu-type='image'] { color: #5e35b1; }
-.hu-file-icon[data-hu-type='document'] { color: #e53935; }
-.hu-file-icon[data-hu-type='spreadsheet'] { color: #00897b; }
-.hu-file-icon[data-hu-type='presentation'] { color: #ef6c00; }
-.hu-file-icon[data-hu-type='video'] { color: #ef5350; }
-.hu-file-icon[data-hu-type='audio'] { color: #8e24aa; }
-.hu-file-icon[data-hu-type='archive'] { color: #9e9d24; }
+.hu-file-icon[data-hu-type='image'] {
+  color: #5e35b1;
+}
+.hu-file-icon[data-hu-type='document'] {
+  color: #e53935;
+}
+.hu-file-icon[data-hu-type='spreadsheet'] {
+  color: #00897b;
+}
+.hu-file-icon[data-hu-type='presentation'] {
+  color: #ef6c00;
+}
+.hu-file-icon[data-hu-type='video'] {
+  color: #ef5350;
+}
+.hu-file-icon[data-hu-type='audio'] {
+  color: #8e24aa;
+}
+.hu-file-icon[data-hu-type='archive'] {
+  color: #9e9d24;
+}
 
 /* Table view */
 .hu-table-wrap {

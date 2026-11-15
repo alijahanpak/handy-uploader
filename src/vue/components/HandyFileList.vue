@@ -16,20 +16,29 @@
           <th v-if="tableThumbColumn" class="hu-table__thumb" scope="col">{{ t.table.thumb }}</th>
           <th scope="col">{{ t.table.name }}</th>
           <th scope="col" class="hu-table__size">{{ t.table.size }}</th>
-          <th v-if="hasActions" scope="col" class="hu-table__actions">{{ t.table.action.action }}</th>
+          <th v-if="hasActions" scope="col" class="hu-table__actions">
+            {{ t.table.action.action }}
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(attachment, index) in files" :key="keyOf(attachment, index)">
           <td v-if="tableThumbColumn" class="hu-table__thumb">
             <span class="hu-thumb hu-thumb--small">
-              <img v-if="previews[index]" :src="previews[index]" alt="" @error="onPreviewError(attachment)" />
+              <img
+                v-if="previews[index]"
+                :src="previews[index]"
+                alt=""
+                @error="onPreviewError(attachment)"
+              />
               <HandyFileIcon v-else :file-name="attachment.file.name" :size="36" />
             </span>
           </td>
           <td class="hu-file__name" :title="attachment.file.name">{{ attachment.file.name }}</td>
           <td class="hu-table__size">
-            <span class="hu-chip" :data-hu-size="sizeLevel(attachment)">{{ sizeOf(attachment) }}</span>
+            <span class="hu-chip" :data-hu-size="sizeLevel(attachment)">{{
+              sizeOf(attachment)
+            }}</span>
           </td>
           <td v-if="hasActions">
             <div class="hu-actions">
@@ -74,7 +83,12 @@
       class="hu-card"
       :class="[`hu-card--${cardType}`, `hu-card--${view}`]"
     >
-      <slot name="item" :attachment="attachment" :index="index" :remove="() => emit('remove', index)">
+      <slot
+        name="item"
+        :attachment="attachment"
+        :index="index"
+        :remove="() => emit('remove', index)"
+      >
         <div v-if="view === 'thumbnail'" class="hu-card__media">
           <img
             v-if="previews[index]"
@@ -91,14 +105,21 @@
 
         <div class="hu-card__content">
           <div class="hu-card__info">
-            <span class="hu-file__name" :title="attachment.file.name">{{ attachment.file.name }}</span>
+            <span class="hu-file__name" :title="attachment.file.name">{{
+              attachment.file.name
+            }}</span>
             <span class="hu-chip">
               <HandyIcon v-if="view === 'simple'" name="disk" :size="14" />
               {{ sizeOf(attachment) }}
             </span>
           </div>
           <span v-if="view === 'simple'" class="hu-thumb">
-            <img v-if="previews[index]" :src="previews[index]" alt="" @error="onPreviewError(attachment)" />
+            <img
+              v-if="previews[index]"
+              :src="previews[index]"
+              alt=""
+              @error="onPreviewError(attachment)"
+            />
             <HandyFileIcon v-else :file-name="attachment.file.name" :size="60" />
           </span>
         </div>
@@ -138,10 +159,12 @@
         </div>
 
         <div v-if="isExpanded(attachment)" class="hu-card__details">
-          <ul v-if="attachment.file.tags.length" class="hu-tags" :aria-label="t.fileTags">
-            <li v-for="tag in attachment.file.tags" :key="tag" class="hu-tag">{{ tag }}</li>
+          <ul v-if="attachment.file.tags?.length" class="hu-tags" :aria-label="t.fileTags">
+            <li v-for="tag in attachment.file.tags ?? []" :key="tag" class="hu-tag">{{ tag }}</li>
           </ul>
-          <p v-if="attachment.file.description" class="hu-description">{{ attachment.file.description }}</p>
+          <p v-if="attachment.file.description" class="hu-description">
+            {{ attachment.file.description }}
+          </p>
         </div>
       </slot>
     </li>
@@ -169,7 +192,7 @@ const props = withDefaults(
     view?: FileUploaderView
     /** Show image previews and video thumbnails (the Vuetify version's `thumb`). */
     thumb?: boolean
-    /** Thumbnail view: width of a card out of 12 columns, like Vuetify's `md` (3 = four per row). */
+    /** Thumbnail view: card width out of 12 columns, like Vuetify's `md` (3 = 4 per row). */
     cols?: number
     cardType?: CardStyle
     editable?: boolean

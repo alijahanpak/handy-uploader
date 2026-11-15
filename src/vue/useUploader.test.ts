@@ -32,6 +32,16 @@ describe('useUploader', () => {
     expect(errors.value.map((e) => e.code)).toEqual(['fileType', 'maxFileSize', 'maxFileCount'])
   })
 
+  it('add() never reads files beyond the limit, even when calls overlap', async () => {
+    const list = ref<DocumentAttachment[]>([])
+    const { add, errors } = useUploader(list, { maxFileCount: 2 })
+    const first = add([file('1.txt'), file('2.txt')])
+    const second = add([file('3.txt')])
+    await Promise.all([first, second])
+    expect(list.value).toHaveLength(2)
+    expect(errors.value.map((e) => e.code)).toEqual(['maxFileCount'])
+  })
+
   it('runs overlapping adds in order so the count limit holds', async () => {
     const list = ref<DocumentAttachment[]>([])
     const { add } = useUploader(list, { maxFileCount: 2 })

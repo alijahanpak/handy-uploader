@@ -27,7 +27,12 @@
       <ul>
         <li v-for="(message, i) in messages" :key="i">{{ message }}</li>
       </ul>
-      <button type="button" class="hu-icon-button" :aria-label="t.deleteDialog.cancel" @click="uploader.dismissErrors">
+      <button
+        type="button"
+        class="hu-icon-button"
+        :aria-label="t.deleteDialog.cancel"
+        @click="uploader.dismissErrors"
+      >
         <HandyIcon name="close" :size="16" />
       </button>
     </div>
@@ -59,7 +64,11 @@
     </HandyFileList>
 
     <!-- Insert: pick or drop files, optionally set name/description/tags, then add -->
-    <HandyDialog v-model:open="insertOpen" :title="t.insertNewFile" :close-label="t.deleteDialog.cancel">
+    <HandyDialog
+      v-model:open="insertOpen"
+      :title="t.insertNewFile"
+      :close-label="t.deleteDialog.cancel"
+    >
       <HandyDropzone
         :accept="fileAccept"
         :disabled="staged.length + files.length >= maxFileCount"
@@ -79,10 +88,14 @@
               <span class="hu-field__label">{{ t.fileName }}</span>
               <span class="hu-field__row">
                 <input v-model="item.file.name" class="hu-input" type="text" />
-                <span v-if="item.file.format" class="hu-field__suffix">.{{ item.file.format }}</span>
+                <span v-if="item.file.format" class="hu-field__suffix"
+                  >.{{ item.file.format }}</span
+                >
               </span>
             </label>
-            <span v-else class="hu-file__name">{{ joinFileName(item.file.name, item.file.format) }}</span>
+            <span v-else class="hu-file__name">{{
+              joinFileName(item.file.name, item.file.format)
+            }}</span>
             <label v-if="addFileDescription" class="hu-field">
               <span class="hu-field__label">{{ t.fileDescription }}</span>
               <textarea
@@ -113,7 +126,9 @@
         </li>
       </ul>
       <template #actions>
-        <button type="button" class="hu-button" @click="insertOpen = false">{{ t.deleteDialog.cancel }}</button>
+        <button type="button" class="hu-button" @click="insertOpen = false">
+          {{ t.deleteDialog.cancel }}
+        </button>
         <button
           type="button"
           class="hu-button hu-button--primary"
@@ -151,26 +166,42 @@
         <HandyFileIcon :file-name="files[editIndex].file.name" :size="60" />
       </div>
       <template #actions>
-        <button type="button" class="hu-button" @click="editOpen = false">{{ t.deleteDialog.cancel }}</button>
-        <button type="button" class="hu-button hu-button--primary" :style="buttonStyle" @click="confirmEdit">
+        <button type="button" class="hu-button" @click="editOpen = false">
+          {{ t.deleteDialog.cancel }}
+        </button>
+        <button
+          type="button"
+          class="hu-button hu-button--primary"
+          :style="buttonStyle"
+          @click="confirmEdit"
+        >
           {{ t.edit }}
         </button>
       </template>
     </HandyDialog>
 
     <!-- Delete confirmation -->
-    <HandyDialog v-model:open="deleteOpen" :title="t.delete" :close-label="t.deleteDialog.cancel" size="small">
+    <HandyDialog
+      v-model:open="deleteOpen"
+      :title="t.delete"
+      :close-label="t.deleteDialog.cancel"
+      size="small"
+    >
       <p class="hu-dialog__message">{{ t.deleteDialog.message }}</p>
       <template #actions>
-        <button type="button" class="hu-button" @click="deleteOpen = false">{{ t.deleteDialog.cancel }}</button>
-        <button type="button" class="hu-button hu-button--danger-solid" @click="confirmDelete">{{ t.delete }}</button>
+        <button type="button" class="hu-button" @click="deleteOpen = false">
+          {{ t.deleteDialog.cancel }}
+        </button>
+        <button type="button" class="hu-button hu-button--danger-solid" @click="confirmDelete">
+          {{ t.delete }}
+        </button>
       </template>
     </HandyDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, isReadonly, reactive, ref, watch } from 'vue'
 import type {
   CardType,
   DocumentAttachment,
@@ -203,7 +234,7 @@ const props = withDefaults(
     btnColor?: string
     imageCompressor?: boolean
     imageCompressLevel?: number
-    /** Same format as the HTML accept attribute, e.g. ".pdf,image/*". Also applied to dropped files. */
+    /** HTML accept format, e.g. ".pdf,image/*". Also applied to dropped files. */
     fileAccept?: string
     thumb?: boolean
     tableThumbColumn?: boolean
@@ -286,9 +317,16 @@ watch(
   { deep: false }
 )
 const model = computed<DocumentAttachment[]>({
-  get: () => props.documentAttachment,
+  // A fresh copy on every change, so counts stay right even for non-reactive arrays.
+  get: () => files.value,
   set: (next) => {
     const target = props.documentAttachment
+    // Frozen or readonly arrays (e.g. from a store) can't be updated in place: emit a new one.
+    if (Object.isFrozen(target) || isReadonly(target)) {
+      emit('updateDocumentAttachment', next)
+      emit('update:documentAttachment', next)
+      return
+    }
     target.splice(0, target.length, ...next)
     version.value++
     emit('updateDocumentAttachment', target)
@@ -341,10 +379,11 @@ const t = computed<Translation>(() => {
 })
 const isRtl = computed(() => props.rtlSupport || props.lang === 'fa' || props.lang === 'ar')
 
-const hint = computed(
-  () =>
-    `${t.value.dropHint} · ${files.value.length + staged.value.length}/${props.maxFileCount} · ≤ ${formatBytes(props.maxFileSize, t.value.size)}`
-)
+const hint = computed(() => {
+  const count = `${files.value.length + staged.value.length}/${props.maxFileCount}`
+  const limit = formatBytes(props.maxFileSize, t.value.size)
+  return `${t.value.dropHint} · ${count} · ≤ ${limit}`
+})
 
 // Button colour: Vuetify's colour names or any CSS colour.
 const VUETIFY_COLORS: Record<string, string> = {
@@ -362,7 +401,8 @@ const buttonStyle = computed(() => {
 })
 
 const canEditAnything = computed(
-  () => props.changeFileName || props.addFileDescription || (props.addFileTag && props.tags.length > 0)
+  () =>
+    props.changeFileName || props.addFileDescription || (props.addFileTag && props.tags.length > 0)
 )
 
 // Errors
@@ -388,15 +428,21 @@ watch(uploader.errors, (errors) => {
 const insertOpen = ref(false)
 const staged = ref<DocumentAttachment[]>([])
 
+// Each opening of the insert dialog is a session; reads from an older session are dropped.
+let session = 0
+
 function openInsert() {
+  session++
   staged.value = []
   uploader.dismissErrors()
   insertOpen.value = true
 }
 
 async function onPick(picked: File[]) {
-  const result = await uploader.stage(picked, staged.value.length)
-  staged.value.push(...result)
+  const current = session
+  // Count already-staged files when this read actually runs, after earlier picks.
+  const result = await uploader.stage(picked, () => staged.value.length)
+  if (current === session && insertOpen.value) staged.value.push(...result)
 }
 
 async function confirmInsert() {
@@ -406,8 +452,26 @@ async function confirmInsert() {
   insertOpen.value = false
 }
 
+/** Programmatic add (via a template ref): validates, reads and adds, emitting `add`. */
+async function addFiles(picked: FileList | File[]) {
+  const added = await uploader.add(picked)
+  if (added.length > 0) emit('add', added)
+  return added
+}
+
+/** Programmatic remove (via a template ref), without the confirmation dialog. */
+function removeAt(index: number) {
+  const removed = files.value[index]
+  if (!removed) return
+  uploader.remove(index)
+  emit('remove', removed, index)
+}
+
 watch(insertOpen, (open) => {
-  if (!open) staged.value = []
+  if (!open) {
+    session++
+    staged.value = []
+  }
 })
 
 // Edit dialog
@@ -446,16 +510,13 @@ function askDelete(index: number) {
 }
 
 function confirmDelete() {
-  const index = deleteIndex.value
-  const removed = index !== null ? files.value[index] : undefined
-  if (index !== null) uploader.remove(index)
-  if (removed) emit('remove', removed, index)
+  if (deleteIndex.value !== null) removeAt(deleteIndex.value)
   deleteOpen.value = false
 }
 
 defineExpose({
-  add: uploader.add,
-  remove: uploader.remove,
+  add: addFiles,
+  remove: removeAt,
   update: uploader.update,
   clear: uploader.clear,
   openInsert

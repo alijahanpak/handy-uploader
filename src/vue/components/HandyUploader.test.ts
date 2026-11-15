@@ -6,7 +6,10 @@ import HandyUploader from './HandyUploader.vue'
 
 const file = (name: string, size = 10, type = '') => new File(['x'.repeat(size)], name, { type })
 
-const stored = (name: string, extra: Partial<DocumentAttachment['file']> = {}): DocumentAttachment => ({
+const stored = (
+  name: string,
+  extra: Partial<DocumentAttachment['file']> = {}
+): DocumentAttachment => ({
   file: {
     name,
     format: name.split('.').pop()!,
@@ -106,7 +109,10 @@ describe('HandyUploader (no Vuetify)', () => {
     expect(list).toHaveLength(2)
     expect(wrapper.text()).toContain('Are you sure you want to delete the file?')
 
-    const confirm = wrapper.findAll('dialog button').filter((b) => b.text() === 'Delete').at(-1)!
+    const confirm = wrapper
+      .findAll('dialog button')
+      .filter((b) => b.text() === 'Delete')
+      .at(-1)!
     await confirm.trigger('click')
 
     expect(list.map((a) => a.file.name)).toEqual(['b.pdf'])
@@ -116,13 +122,21 @@ describe('HandyUploader (no Vuetify)', () => {
   it('edits description and tags of an existing file', async () => {
     const list = reactive([stored('a.pdf')])
     const wrapper = mount(HandyUploader, {
-      props: { documentAttachment: list, addFileDescription: true, addFileTag: true, tags: ['x', 'y'] }
+      props: {
+        documentAttachment: list,
+        addFileDescription: true,
+        addFileTag: true,
+        tags: ['x', 'y']
+      }
     })
 
     await wrapper.find('button[aria-label="Edit a.pdf"]').trigger('click')
     await wrapper.find('.hu-edit textarea').setValue('Signed copy')
     await wrapper.find('.hu-edit input[value="y"]').setValue(true)
-    const save = wrapper.findAll('dialog button').filter((b) => b.text() === 'Edit').at(-1)!
+    const save = wrapper
+      .findAll('dialog button')
+      .filter((b) => b.text() === 'Edit')
+      .at(-1)!
     await save.trigger('click')
 
     expect(list[0].file).toMatchObject({ name: 'a.pdf', description: 'Signed copy', tags: ['y'] })
@@ -175,5 +189,77 @@ describe('HandyUploader (no Vuetify)', () => {
 
     await wrapper.setProps({ cardType: 'raised' })
     expect(wrapper.emitted('updateCardType')?.[0]).toEqual(['raised'])
+  })
+
+  it('disables Insert at the limit even with a plain (non-reactive) array', async () => {
+    const plain: DocumentAttachment[] = []
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: plain, maxFileCount: 1 } })
+    const insert = () => wrapper.find('.hu-toolbar button')
+    expect(insert().attributes('disabled')).toBeUndefined()
+
+    await pickFiles(wrapper, [file('a.pdf')])
+    await addButton(wrapper).trigger('click')
+    await settle(wrapper)
+
+    expect(plain).toHaveLength(1)
+    expect(insert().attributes('disabled')).toBeDefined()
+  })
+
+  it('emits add and remove for programmatic calls through a template ref', async () => {
+    const list = reactive<DocumentAttachment[]>([])
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: list } })
+    const api = wrapper.vm as unknown as {
+      add: (f: File[]) => Promise<unknown>
+      remove: (i: number) => void
+    }
+
+    await api.add([file('a.pdf')])
+    expect(wrapper.emitted('add')).toHaveLength(1)
+    api.remove(0)
+    expect(wrapper.emitted('remove')).toHaveLength(1)
+    expect(list).toHaveLength(0)
+  })
+
+  it('emits error once per add', async () => {
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: [], maxFileSize: 5 } })
+    const api = wrapper.vm as unknown as { add: (f: File[]) => Promise<unknown> }
+    await api.add([file('big.pdf', 50), file('ok.pdf', 1)])
+    await flushPromises()
+    expect(wrapper.emitted('error')).toHaveLength(1)
+  })
+
+  it('emits a new array instead of mutating a frozen one', async () => {
+    const frozen = Object.freeze([]) as unknown as DocumentAttachment[]
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: frozen } })
+    const api = wrapper.vm as unknown as { add: (f: File[]) => Promise<unknown> }
+    await api.add([file('a.pdf')])
+    const [[emitted]] = wrapper.emitted('update:documentAttachment') as [[DocumentAttachment[]]]
+    expect(emitted).not.toBe(frozen)
+    expect(emitted.map((a) => a.file.name)).toEqual(['a.pdf'])
+  })
+
+  it('does not crash expanding a file that has a description but no tags', async () => {
+    const legacy = stored('a.pdf', { description: 'from server' })
+    delete (legacy.file as Partial<DocumentAttachment['file']>).tags
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: [legacy] } })
+    await wrapper.find('.hu-details-toggle').trigger('click')
+    expect(wrapper.find('.hu-card__details').text()).toContain('from server')
+  })
+
+  it('never stages more than maxFileCount across quick successive picks', async () => {
+    const wrapper = mount(HandyUploader, { props: { documentAttachment: [], maxFileCount: 3 } })
+    await wrapper.find('.hu-toolbar button').trigger('click')
+    const input = wrapper.find('dialog input[type="file"]')
+    const pick = async (names: string[]) => {
+      Object.defineProperty(input.element, 'files', {
+        value: names.map((n) => file(n)),
+        configurable: true
+      })
+      await input.trigger('change')
+    }
+    await pick(['1.txt', '2.txt'])
+    await pick(['3.txt', '4.txt']) // before the first read has finished
+    await settle(wrapper)
+    expect(wrapper.findAll('.hu-staged__item')).toHaveLength(3)
   })
 })

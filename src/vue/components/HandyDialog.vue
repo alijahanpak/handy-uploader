@@ -1,5 +1,11 @@
 <template>
-  <dialog ref="el" class="hu-dialog" :class="`hu-dialog--${size}`" :aria-labelledby="titleId" @cancel.prevent="close">
+  <dialog
+    ref="el"
+    class="hu-dialog"
+    :class="`hu-dialog--${size}`"
+    :aria-labelledby="titleId"
+    @cancel.prevent="close"
+  >
     <div class="hu-dialog__panel">
       <header class="hu-dialog__header">
         <h2 :id="titleId" class="hu-dialog__title">{{ title }}</h2>
@@ -27,8 +33,7 @@ const props = withDefaults(
 )
 const emit = defineEmits<{ (e: 'update:open', value: boolean): void }>()
 
-let uid = 0
-const titleId = `hu-dialog-title-${++uid}-${Math.random().toString(36).slice(2, 8)}`
+const titleId = `hu-dialog-title-${Math.random().toString(36).slice(2, 10)}`
 const el = ref<HTMLDialogElement | null>(null)
 
 function sync(open: boolean) {
