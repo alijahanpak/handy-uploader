@@ -16,6 +16,11 @@
       "import": "./dist/vuetify.mjs",
       "require": "./dist/vuetify.cjs"
     },
+    "./element": {
+      "types": "./dist/element/index.d.ts",
+      "import": "./dist/element.mjs",
+      "default": "./dist/element.mjs"
+    },
     "./style.css": "./dist/handy-uploader.css"
   },
   "files": [
@@ -45,7 +50,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "dev:vite": "vite",
-    "build": "run-p type-check build-lib && npm run build-types",
+    "build": "run-p type-check build-lib && npm run build-element && npm run build-types",
     "build-lib": "vite build --mode lib",
     "build-types": "vue-tsc --project tsconfig.build.json",
     "preview": "vite preview",
@@ -60,7 +65,8 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "npm run build && changeset publish",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build-element": "vite build --mode element"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
@@ -108,6 +114,9 @@
     "*": {
       "vuetify": [
         "dist/lib/vuetify.d.ts"
+      ],
+      "element": [
+        "dist/element/index.d.ts"
       ]
     }
   }
