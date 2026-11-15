@@ -15,6 +15,22 @@ export default [
   ...vueTsEslintConfig(),
   skipFormatting,
   {
+    name: 'app/core-is-framework-agnostic',
+    files: ['src/core/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['vue', 'vue/*', '@vue/*'], message: 'src/core must stay framework-agnostic.' },
+            { group: ['vuetify', 'vuetify/*'], message: 'src/core must stay framework-agnostic.' },
+            { group: ['@/components/*', '../components/*', '*.vue'], message: 'src/core must not import UI components.' }
+          ]
+        }
+      ]
+    }
+  },
+  {
     rules: {
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn'

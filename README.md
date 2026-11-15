@@ -50,7 +50,68 @@ yarn add handy-uploader
 pnpm add handy-uploader
 ```
 
-## 🚀 Quick Start
+## 🧩 `HandyUploader` (works with any CSS)
+
+`HandyUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
+
+It has **the same props and events as the Vuetify version** (thumbnail, simple and table views, the insert dialog with name, description and tags, the edit dialog, delete confirmation, permissions, card styles). Switching from Vuetify is a one-line change:
+
+```diff
+- import { HandyUploader } from 'handy-uploader/vuetify'
++ import { HandyUploader } from 'handy-uploader'
++ import 'handy-uploader/style.css'
+```
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { HandyUploader, type DocumentAttachment } from 'handy-uploader'
+import 'handy-uploader/style.css'
+
+const files = ref<DocumentAttachment[]>([])
+</script>
+
+<template>
+  <HandyUploader
+    v-model:document-attachment="files"
+    file-uploader-type="thumbnail"
+    file-accept="image/*,.pdf"
+    :max-file-size="5 * 1024 * 1024"
+    :max-file-count="10"
+    change-file-name
+    add-file-description
+    add-file-tag
+    :tags="['invoice', 'contract', 'photo']"
+  />
+</template>
+```
+
+All props of the Vuetify version are supported; see the [API Reference](#️-api-reference). Additions:
+
+- Files can also be **dragged and dropped** into the insert dialog. `fileAccept` is checked for dropped files too.
+- `btnColor` accepts Vuetify colour names (`primary`, `info`, `success`…) or any CSS colour.
+- Extra events: `update:documentAttachment` (for `v-model`), `add(added)`, `remove(attachment, index)`, `error(errors)`.
+- Slots: `item` (replace a whole card), `actions` (add buttons to a card), `empty`.
+
+**Styling.** The easiest way to re-theme is to set CSS variables on the component or any parent:
+
+```css
+.hu-uploader {
+  --hu-primary: #7c3aed;     /* links, focus, drop area */
+  --hu-button-bg: #7c3aed;   /* Insert / Add buttons (or use btnColor) */
+  --hu-chip: #7c3aed;        /* size chips */
+  --hu-radius: 16px;
+  --hu-media-height: 160px;  /* preview height in the thumbnail view */
+}
+```
+
+Add the `hu-dark` class for the dark preset. Built-in styles are single `hu-*` class selectors, so they survive global resets (Tailwind preflight, Vuetify) and are easy to override with your own classes. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
+
+**Build your own UI.** `useUploader(filesRef, options)` gives you `stage`, `commit`, `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HandyDropzone`, `HandyFileList`, `HandyDialog` and `HandyFileIcon` are available as separate building blocks.
+
+## 🚀 Quick Start (Vuetify components)
+
+The original Vuetify 3 components are imported from `handy-uploader/vuetify`.
 
 ### 1. Install Dependencies
 
@@ -77,7 +138,7 @@ npm install vue@^3.0.0 vuetify@^3.0.0
 </template>
 
 <script setup lang="ts">
-import { ThumbnailUploader } from 'handy-uploader'
+import { ThumbnailUploader } from 'handy-uploader/vuetify'
 import type { FileData } from 'handy-uploader'
 
 const handleFilesSelected = (files: FileData[]) => {
@@ -124,7 +185,7 @@ Perfect for media files with automatic video thumbnail generation:
 </template>
 
 <script setup>
-import { ThumbnailUploader } from 'handy-uploader'
+import { ThumbnailUploader } from 'handy-uploader/vuetify'
 
 const onFilesSelected = (files) => {
   // Video files will have thumbnails automatically generated
@@ -172,7 +233,7 @@ Minimal drag-and-drop interface:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `maxFileSize` | `number` | `10485760` | Maximum file size in bytes (10MB) |
+| `maxFileSize` | `number` | `5242880` | Maximum file size in bytes (5MB) |
 | `maxFileCount` | `number` | `5` | Maximum number of files |
 | `acceptedFileTypes` | `string[]` | `['*']` | Accepted MIME types |
 | `language` | `string` | `'en'` | Language code |
@@ -264,13 +325,15 @@ const languages = [
 
 ### Peer Dependencies
 - **Vue**: ^3.0.0
-- **Vuetify**: ^3.0.0
+- **Vuetify**: ^3.0.0 (optional; only needed for `handy-uploader/vuetify`)
 
 ### Browser Support
 - Chrome 88+
 - Firefox 85+
 - Safari 14+
 - Edge 88+
+
+The default `HandyUploader` theme uses `color-mix()` and `:has()`, which need Chrome/Edge 111+, Firefox 121+ and Safari 16.4+. In older browsers it still works, with simpler focus and badge styling.
 
 ### Bundle Size
 - **Gzipped**: ~45KB
@@ -344,7 +407,7 @@ export default createVuetify({
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ThumbnailUploader, type FileData } from 'handy-uploader'
+import { ThumbnailUploader, type FileData } from 'handy-uploader/vuetify'
 
 const selectedFiles = ref<FileData[]>([])
 const currentLanguage = ref('en')

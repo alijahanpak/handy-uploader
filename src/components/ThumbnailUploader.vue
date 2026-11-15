@@ -155,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, nextTick, triggerRef, reactive } from "vue";
+import { ref, watch, onMounted } from "vue";
 import SelectFileIconType from "./SelectFileIconType.vue";
 import type { 
   DocumentAttachment, 
@@ -164,7 +164,8 @@ import type {
   UploaderEvents,
   LanguageCode 
 } from "@/types";
-import { formatFileSize, getFileIconName, getFileIconColor, isImageFile as isImageFileUtil, constructImageDataUrl, getFileType, getMimeTypeFromExtension } from "@/utils/fileUtils";
+import { formatFileSize, getFileIconName, getFileIconColor, isImageFile as isImageFileUtil, constructImageDataUrl, getFileType } from "@/utils/fileUtils";
+import { createVideoThumbnailCache } from "@/core";
 
 // Wrapper with debug logging
 const isImageFile = (fileName: string): boolean => {
@@ -239,216 +240,20 @@ const onVideoError = (file: DocumentAttachment['file']) => {
   });
 };
 
-// Video thumbnail generation - using reactive Map for better reactivity
-const videoThumbnails = reactive(new Map<string, string>());
-
-const generateVideoThumbnail = (file: DocumentAttachment['file']): Promise<string> => {
-  console.log('🎬 Starting video thumbnail generation for:', file.name);
-  
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) {
-      console.error('❌ Canvas context not available');
-      reject(new Error('Canvas context not available'));
-      return;
-    }
-
-    video.crossOrigin = 'anonymous';
-    video.preload = 'metadata';
-    video.muted = true; // Add muted to help with autoplay policies
-    
-    video.onloadedmetadata = () => {
-      console.log('📹 Video metadata loaded:', {
-        duration: video.duration,
-        width: video.videoWidth,
-        height: video.videoHeight,
-        readyState: video.readyState,
-        networkState: video.networkState
-      });
-      
-      if (video.duration === 0 || isNaN(video.duration)) {
-        console.error('❌ Invalid video duration:', video.duration);
-        const cacheKey = getVideoThumbnailKey(file);
-        generatingThumbnails.delete(cacheKey);
-        reject(new Error('Invalid video duration'));
-        return;
-      }
-      
-      if (video.videoWidth === 0 || video.videoHeight === 0) {
-        console.error('❌ Invalid video dimensions:', video.videoWidth, 'x', video.videoHeight);
-        const cacheKey = getVideoThumbnailKey(file);
-        generatingThumbnails.delete(cacheKey);
-        reject(new Error('Invalid video dimensions'));
-        return;
-      }
-      
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
-      // Seek to 1 second or 10% of video duration, whichever is smaller
-      const seekTime = Math.min(1, video.duration * 0.1);
-      console.log('⏰ Seeking to time:', seekTime, 'of total duration:', video.duration);
-      video.currentTime = seekTime;
-    };
-    
-    video.onseeked = () => {
-      console.log('🎯 Video seeked successfully to:', video.currentTime);
-      
-      try {
-        console.log('🖼️ Canvas setup:', {
-          width: canvas.width,
-          height: canvas.height,
-          videoCurrentTime: video.currentTime,
-          videoReadyState: video.readyState
-        });
-        
-        // Draw video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Check if anything was drawn
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const hasContent = imageData.data.some(pixel => pixel !== 0);
-        console.log('🎨 Canvas content check:', hasContent ? 'Has content' : 'Empty/transparent');
-        
-        // Convert canvas to data URL
-        const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        console.log('✅ Generated thumbnail:', {
-          dataUrlLength: thumbnailDataUrl.length,
-          startsWithData: thumbnailDataUrl.startsWith('data:image/jpeg'),
-          preview: thumbnailDataUrl.substring(0, 50) + '...'
-        });
-        
-        resolve(thumbnailDataUrl);
-      } catch (error) {
-        console.error('❌ Error during thumbnail generation:', error);
-        reject(error);
-      }
-    };
-    
-
-    
-    video.onabort = () => {
-      console.warn('⚠️ Video loading aborted');
-      reject(new Error('Video loading aborted'));
-    };
-    
-    video.onstalled = () => {
-      console.warn('⚠️ Video loading stalled');
-    };
-    
-    video.onerror = (error) => {
-      console.error('❌ Video failed to load for thumbnail generation:', error);
-      reject(new Error('Video failed to load for thumbnail generation'));
-    };
-    
-    video.onloadstart = () => {
-      console.log('🔄 Video load started');
-    };
-    
-    video.oncanplay = () => {
-      console.log('▶️ Video can play');
-    };
-    
-    // Set video source - construct proper video data URL
-    const cleanBase64 = file.base64?.replace(/^data:[^;]+;base64,/, '') || '';
-    
-    // Get proper MIME type from file name or use the format if it's already a MIME type
-    let mimeType: string;
-    if (file.format.startsWith('video/')) {
-      mimeType = file.format;
-    } else {
-      mimeType = getMimeTypeFromExtension(file.name);
-      // Fallback if not a recognized video type
-      if (!mimeType.startsWith('video/')) {
-        mimeType = `video/${file.format}`;
-      }
-    }
-    
-    const videoSrc = `data:${mimeType};base64,${cleanBase64}`;
-    console.log('🔗 Setting video source:', {
-      fileName: file.name,
-      format: file.format,
-      mimeType: mimeType,
-      base64Length: cleanBase64.length,
-      videoSrcLength: videoSrc.length
-    });
-    video.src = videoSrc;
-  });
-};
-
-const getVideoThumbnailKey = (file: DocumentAttachment['file']): string => {
-  return `${file.name}_${file.base64?.substring(0, 50)}`;
-};
-
-// Computed property to get video thumbnail reactively
-const getVideoThumbnailSrc = (file: DocumentAttachment['file']): string | undefined => {
-  const cacheKey = getVideoThumbnailKey(file);
-  const thumbnail = videoThumbnails.get(cacheKey);
-  console.log('🔍 Getting thumbnail for:', file.name, 'cached:', !!thumbnail, 'key:', cacheKey);
-  return thumbnail && thumbnail !== '' ? thumbnail : undefined;
-};
-
-// Create a computed property for each video thumbnail to ensure reactivity
-const videoThumbnailsComputed = computed(() => {
-  console.log('🔄 Video thumbnails computed updated:', Array.from(videoThumbnails.keys()));
-  return videoThumbnails;
-});
-
-// Track which thumbnails are being generated to avoid duplicates
-const generatingThumbnails = new Set<string>();
+// Video thumbnails: generation + caching live in the framework-agnostic core.
+// Reading thumbnailVersion during render makes Vue re-render once a thumbnail is ready.
+const thumbnailVersion = ref(0);
+const videoThumbnails = createVideoThumbnailCache(() => thumbnailVersion.value++);
 
 const getVideoThumbnail = (file: DocumentAttachment['file']): string | undefined => {
-  const cacheKey = getVideoThumbnailKey(file);
-  console.log('🔍 Getting video thumbnail for:', file.name, 'cache key:', cacheKey);
-  
-  // Return cached thumbnail if available
-  if (videoThumbnails.has(cacheKey)) {
-    console.log('💾 Returning cached thumbnail for:', file.name);
-    return videoThumbnails.get(cacheKey);
-  }
-  
-  // Check if already generating to avoid duplicates
-  if (generatingThumbnails.has(cacheKey)) {
-    console.log('⏳ Thumbnail already being generated for:', file.name);
-    return undefined;
-  }
-  
-  console.log('🚀 No cached thumbnail, generating new one for:', file.name);
-  generatingThumbnails.add(cacheKey);
-  
-  // Generate thumbnail asynchronously
-  generateVideoThumbnail(file)
-    .then(thumbnailUrl => {
-      console.log('✅ Thumbnail generated and cached for:', file.name);
-      videoThumbnails.set(cacheKey, thumbnailUrl);
-      generatingThumbnails.delete(cacheKey);
-      // Force UI update
-      nextTick(() => {
-        console.log('🔄 UI update triggered for:', file.name);
-      });
-    })
-    .catch(error => {
-      console.error('❌ Failed to generate video thumbnail for:', file.name, error);
-      generatingThumbnails.delete(cacheKey);
-      // Don't cache empty results to allow retries
-    });
-  
-  return undefined; // Return undefined initially while generating
+  void thumbnailVersion.value;
+  return videoThumbnails.get(file);
 };
 
 const onVideoThumbnailError = (file: DocumentAttachment['file']) => {
-  console.error('Video thumbnail failed to load:', {
-    name: file.name,
-    format: file.format
-  });
-  
+  console.error('Video thumbnail failed to load:', { name: file.name, format: file.format });
   // Remove from cache to allow retry
-  const cacheKey = getVideoThumbnailKey(file);
-  videoThumbnails.delete(cacheKey);
+  videoThumbnails.invalidate(file);
 };
 
 const getFileIconProps = (fileName: string) => {
@@ -493,6 +298,7 @@ const handleEdit = (item: DocumentAttachment, index: number) => {
 
 // Auto-generate video thumbnails
 const generateThumbnailsForVideos = () => {
+  videoThumbnails.retain(props.documentAttachment.map((a) => a.file));
   console.log('🎯 Generating thumbnails for videos, total attachments:', props.documentAttachment.length);
   
   const videoAttachments = props.documentAttachment.filter(attachment => isVideoFile(attachment.file.name));
