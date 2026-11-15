@@ -1,6 +1,6 @@
 {
   "name": "handy-uploader",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "A Vue 3 file uploader with video thumbnails, image compression and i18n. Works with any CSS framework; Vuetify components available from handy-uploader/vuetify.",
   "main": "dist/handy-uploader.cjs",
   "module": "dist/handy-uploader.mjs",
