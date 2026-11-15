@@ -11,6 +11,8 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.ts']
+    include: ['src/**/*.test.ts'],
+    // Vuetify's components import their CSS, which only Vite (not Node) can load.
+    server: { deps: { inline: ['vuetify'] } }
   }
 })

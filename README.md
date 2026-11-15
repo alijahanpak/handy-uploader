@@ -271,7 +271,9 @@ See [CHANGELOG.md](CHANGELOG.md) for details.
 
 1. Fork the repository and create a branch.
 2. `npm install`, then `npm run storybook` to work on the components.
-3. Run `npm test`, `npm run type-check` and `npm run lint` before opening a pull request.
+3. Run `npm test`, `npm run type-check` and `npm run lint` before opening a pull request. The
+   browser tests (`npm run test:e2e`, Playwright: the Storybook stories and the apps in
+   `examples/`) need Chromium once: `npx playwright install chromium`.
 4. Add a changeset (`npx changeset`) describing your change.
 
 ## 📄 License

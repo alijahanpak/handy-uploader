@@ -17,6 +17,11 @@ coverage
 /cypress/videos/
 /cypress/screenshots/
 
+# Playwright and Storybook output
+/playwright-report/
+/test-results/
+/storybook-static/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

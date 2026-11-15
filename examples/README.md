@@ -19,19 +19,23 @@ root config.
 ## Browser test
 
 ```bash
-npx playwright-core install chromium   # once, or set CHROMIUM_PATH=/path/to/chrome
-npm run test:examples                  # all examples
-npm run test:examples -- react-19      # only some
-npm run test:examples -- --skip-build  # reuse the current dist/
+npx playwright install chromium                     # once, or set CHROMIUM_PATH=/path/to/chrome
+npm run test:examples                               # all examples
+npm run test:examples -- --grep "react-19|svelte-5" # only some
+SKIP_BUILD=1 npm run test:examples                  # reuse the current dist/
+npm run test:examples -- --headed                   # watch it
 ```
 
-`scripts/test-examples.mjs` builds the library, packs it with `npm pack`, installs each example's
-pinned dependencies from its committed lockfile (`npm ci`) and then the packed library on top
+This is the `examples` project of the Playwright suite (`playwright.config.ts`, tests in
+`e2e/examples/`). Its setup (`examples.setup.ts`) builds the library and packs it with
+`npm pack`. Then, for each example (`examples.spec.ts`), it installs the pinned dependencies from
+the committed lockfile (`npm ci`) and the packed library on top
 (`npm install --no-save ../.handy-uploader.tgz`, as a real install would, without touching
-`package.json` or the lockfile), builds each example, serves it and drives Chromium through the
-uploader: the saved file shows, clearing the app state empties the uploader, two files added
-through the Insert dialog show as two cards and in the app's own state, and `addFiles` adds a
-third. Any page or console error fails the example.
+`package.json` or the lockfile), checks that the installed `element.mjs` is the fresh build,
+builds the example, serves it and drives Chromium through the uploader: the saved file shows,
+clearing the app state empties the uploader, two files added through the Insert dialog show as
+two cards and in the app's own state, and `addFiles` adds a third. Any page or console error
+fails the example. The HTML report (`npx playwright show-report`) has a step per check.
 
 ## Running an example by hand
 
