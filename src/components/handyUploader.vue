@@ -345,10 +345,8 @@ import type {
   FileUploaderType,
   LanguageCollection
 } from "@/types";
-import { useFileUpload } from "@/composables/useFileUpload";
-import { useErrorHandler } from "@/composables/useErrorHandler";
-import { formatFileSize, isImageFile } from "@/utils/fileUtils";
-import { propValidators, validateHandyUploaderProps } from "@/utils/propValidation";
+import { readFiles, prepareAttachments, type AttachmentError } from "@/core";
+import { validateHandyUploaderProps } from "@/utils/propValidation";
 
 interface Props {
   documentAttachment: DocumentAttachment[];
@@ -472,9 +470,9 @@ onBeforeMount(() => {
 
 watch(
     () => uploader.tempAttachment,
-    (newValue: File[]) => {
+    async (newValue: File[]) => {
     if (newValue && newValue.length > 0) {
-      getAttachmentDetails(newValue);
+      uploader.tempAttachmentChanged = await readFiles(newValue);
     } else {
       uploader.tempAttachmentChanged = [];
     }
@@ -567,111 +565,47 @@ const setCardTheme = () => {
   uploader.tile = theme.tile;
 };
 
-const handleUpload = (fileAttachment: any) => {
-  const reader = new FileReader();
-  return new Promise(function(resolve) {
-    reader.onloadend = () => {
-      resolve(reader.result);
-    };
-    reader.readAsDataURL(fileAttachment);
-  });
+const showSnackBarAlert = (message: string, color: string) => {
+  uploader.fileUploaderSnackText = message;
+  uploader.fileUploaderSnackBarAlertColor = color;
+  uploader.fileUploaderSnackBarAlert = true;
+};
+
+const attachmentErrorMessage = (error: AttachmentError): string => {
+  const t = uploader.selectedLang[props.lang];
+  switch (error.code) {
+    case "maxFileCount":
+      return `${t.maxFileCountAlert} ${props.maxFileCount}`;
+    case "maxFileSize":
+      return `${t.maxFileSizeAlert} ${Math.round(props.maxFileSize / 1024)} ${t.size.mb}`;
+    default:
+      return "File could not be processed due to an invalid format.";
+  }
 };
 
 const uploadFieldChange = async () => {
   uploader.btnLoader = true;
 
-  const showSnackBarAlert = (message: string, color: string) => {
-    uploader.fileUploaderSnackText = message;
-    uploader.fileUploaderSnackBarAlertColor = color;
-    uploader.fileUploaderSnackBarAlert = true;
-  };
+  const { accepted, errors } = await prepareAttachments(uploader.tempAttachmentChanged, {
+    currentCount: props.documentAttachment.length,
+    maxFileCount: props.maxFileCount,
+    maxFileSize: props.maxFileSize,
+    imageCompressor: props.imageCompressor,
+    imageCompressLevel: props.imageCompressLevel,
+  });
 
-  for (const [index, item] of uploader.tempAttachmentChanged.entries()) {
-    if (props.documentAttachment.length >= props.maxFileCount) {
-      showSnackBarAlert(
-        `${uploader.selectedLang[props.lang].maxFileCountAlert} ${props.maxFileCount}`,
-        "red"
-      );
-      break;
-    }
-
-    if ((item.file.size / 1000) > props.maxFileSize) {
-      showSnackBarAlert(
-        `${uploader.selectedLang[props.lang].maxFileSizeAlert} ${Math.round(props.maxFileSize / 1024)} ${uploader.selectedLang[props.lang].size.mb}`,
-        "red"
-      );
-      continue;
-    }
-
-    let tempFile: any = {};
-    const file: any = {};
-
-    // The item is already a processed DocumentAttachment object
-    const fileData = item.file;
-    const fileType = fileData.format;
-    let status = false;
-    let imgFile: string = "";
-    let base64Data = fileData.base64;
-
-    if (props.imageCompressor && ["image/png", "image/jpg", "image/jpeg", "image/webp"].includes(fileType)) {
-      status = true;
-      imgFile = await compressImage(`data:${fileType};base64,${base64Data}`) as string;
-      base64Data = imgFile.split(",")[1];
-    }
-
-    try {
-      // Sanitize base64Data by removing any invalid characters (e.g., whitespace)
-      const sanitizedBase64Data = base64Data.replace(/\s/g, "");
-
-      tempFile = {
-        base64: sanitizedBase64Data,
-        size: status ? (atob(sanitizedBase64Data).length / 1024).toFixed(1) : fileData.size.toString(),
-        name: `${fileData.name}.${fileData.format}`,
-        tags: fileData.tags || [],
-        description: fileData.description || "",
-        showDetailState: false,
-        format: fileType,
-      };
-
-      file.file = tempFile;
-      uploader.registryDocFile.push(file);
-      emits("updateDocumentAttachment", uploader.registryDocFile);
-    } catch (error) {
-      console.error("Error processing Base64 string:", error);
-      showSnackBarAlert("File could not be processed due to an invalid format.", "red");
-      continue;
-    }
+  if (accepted.length > 0) {
+    uploader.registryDocFile.push(...accepted);
+    emits("updateDocumentAttachment", uploader.registryDocFile);
   }
+  // Only the last alert was ever visible (each one replaced the previous), so show that one.
+  const lastError = errors[errors.length - 1];
+  if (lastError) showSnackBarAlert(attachmentErrorMessage(lastError), "red");
 
   uploader.documentAttachmentAPI = [];
   uploader.tempAttachmentChanged = [];
   uploader.insertDocumentDialog = false;
   uploader.btnLoader = false;
-};
-
-
-const compressImage = (base64: any) => {
-  const canvas = document.createElement("canvas");
-  const img = document.createElement("img");
-
-  return new Promise((resolve, reject) => {
-    const imageCompressLevelTemp = props.imageCompressLevel;
-    img.onload = function() {
-      const width = img.width;
-      const height = img.height;
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext("2d");
-      ctx?.drawImage(img, 0, 0, width, height);
-
-      resolve(canvas.toDataURL("image/jpeg", imageCompressLevelTemp));
-    };
-    img.onerror = function(err) {
-      reject(err);
-    };
-    img.src = base64;
-  });
 };
 
 const convertBase64ToFile = (base64: any, fileName: any) => {
@@ -698,29 +632,6 @@ const deleteDocument = () => {
   uploader.registryDocFile.splice(uploader.selectedIndex, 1);
   emits("updateDocumentAttachment", uploader.registryDocFile);
   uploader.deleteDocumentDialog = false;
-};
-
-const getAttachmentDetails = async (selectedAttachment: File[]) => {
-  for (const item of selectedAttachment) {
-    let base64Result: string = "";
-    try {
-      base64Result = await handleUpload(item) as string;
-    } catch (e) {
-      console.log(e);
-      continue;
-    }
-    const fileData = {
-      name: item.name.split(".")[0],
-      format: item.name.substr(item.name.lastIndexOf(".") + 1),
-      base64: base64Result.split(",")[1], // Remove data:mime;base64, prefix
-      size: item.size,
-      tags: [],
-      description: null,
-      showDetailState: false
-    };
-    const documentAttachment = { file: fileData };
-    uploader.tempAttachmentChanged.push(documentAttachment);
-  }
 };
 
 const openEditDocumentDialog = (item: DocumentAttachment, index: number) => {

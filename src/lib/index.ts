@@ -43,6 +43,25 @@ export {
   fileToBase64
 } from '../utils/fileUtils'
 
+// Framework-agnostic core (no Vue/Vuetify) — the base for future React/other adapters
+export {
+  readFiles,
+  readFileAsDataUrl,
+  prepareAttachments,
+  compressDataUrl,
+  generateVideoThumbnail,
+  getVideoDataUrl,
+  createVideoThumbnailCache
+} from '../core'
+export type {
+  AttachmentError,
+  AttachmentErrorCode,
+  PrepareOptions,
+  PrepareResult,
+  CompressFn,
+  VideoThumbnailCache
+} from '../core'
+
 // Import composables
 export { useFileUpload } from '../composables/useFileUpload'
 export { useErrorHandler } from '../composables/useErrorHandler'
