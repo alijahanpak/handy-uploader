@@ -179,7 +179,7 @@
                       :size="24"
                     >
                     </select-file-icon-type>
-                    {{ attachment.file.name }}.{{ attachment.file.format }}
+                    {{ joinFileName(attachment.file.name, attachment.file.format) }}
                   </v-list-item-title>
                 </v-list-item>
               </v-card>
@@ -345,7 +345,7 @@ import type {
   FileUploaderType,
   LanguageCollection
 } from "@/types";
-import { readFiles, prepareAttachments, type AttachmentError } from "@/core";
+import { readFiles, prepareAttachments, joinFileName, type AttachmentError } from "@/core";
 import { validateHandyUploaderProps } from "@/utils/propValidation";
 
 interface Props {
@@ -577,7 +577,7 @@ const attachmentErrorMessage = (error: AttachmentError): string => {
     case "maxFileCount":
       return `${t.maxFileCountAlert} ${props.maxFileCount}`;
     case "maxFileSize":
-      return `${t.maxFileSizeAlert} ${Math.round(props.maxFileSize / 1024)} ${t.size.mb}`;
+      return `${t.maxFileSizeAlert} ${Number((props.maxFileSize / (1024 * 1024)).toFixed(1))} ${t.size.mb}`;
     default:
       return "File could not be processed due to an invalid format.";
   }

@@ -172,7 +172,7 @@ Minimal drag-and-drop interface:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `maxFileSize` | `number` | `10485760` | Maximum file size in bytes (10MB) |
+| `maxFileSize` | `number` | `5242880` | Maximum file size in bytes (5MB) |
 | `maxFileCount` | `number` | `5` | Maximum number of files |
 | `acceptedFileTypes` | `string[]` | `['*']` | Accepted MIME types |
 | `language` | `string` | `'en'` | Language code |

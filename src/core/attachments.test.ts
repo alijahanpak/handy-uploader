@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { prepareAttachments, readFiles } from './attachments'
+import {
+  base64ByteLength,
+  joinFileName,
+  prepareAttachments,
+  readFiles,
+  splitFileName
+} from './attachments'
 import type { DocumentAttachment } from '../types'
 
 const toBase64 = (text: string) => btoa(text)
@@ -35,10 +41,15 @@ describe('readFiles', () => {
     })
   })
 
-  it('keeps the legacy name handling for names with several dots', async () => {
+  it('keeps every dot but the last in the name', async () => {
     const [result] = await readFiles([new File(['x'], 'my.report.final.pdf')])
-    expect(result.file.name).toBe('my')
+    expect(result.file.name).toBe('my.report.final')
     expect(result.file.format).toBe('pdf')
+  })
+
+  it('handles files without an extension', async () => {
+    const [result] = await readFiles([new File(['x'], 'README')])
+    expect(result.file).toMatchObject({ name: 'README', format: '' })
   })
 
   it('reads every file in order', async () => {
@@ -58,7 +69,7 @@ describe('prepareAttachments', () => {
       {
         file: {
           base64: toBase64('hello'),
-          size: '5',
+          size: 5,
           name: 'report.pdf',
           tags: ['a'],
           description: 'desc',
@@ -88,42 +99,72 @@ describe('prepareAttachments', () => {
     expect(errors).toEqual([{ code: 'maxFileCount', fileName: 'report', limit: 10 }])
   })
 
-  it('skips oversized files and keeps going (legacy: size/1000 compared to maxFileSize)', async () => {
+  it('skips files over maxFileSize (bytes) and keeps going', async () => {
     const { accepted, errors } = await prepareAttachments(
       [staged({ name: 'big', size: 2001 }), staged({ name: 'ok', size: 2000 })],
-      { ...limits, maxFileSize: 2 }
+      { ...limits, maxFileSize: 2000 }
     )
     expect(accepted.map((a) => a.file.name)).toEqual(['ok.pdf'])
-    expect(errors).toEqual([{ code: 'maxFileSize', fileName: 'big', limit: 2 }])
+    expect(errors).toEqual([{ code: 'maxFileSize', fileName: 'big', limit: 2000 }])
   })
 
-  it('does not compress when format is an extension (legacy behaviour)', async () => {
-    const compress = vi.fn()
-    await prepareAttachments([staged({ format: 'png' })], { ...limits, imageCompressor: true }, compress)
-    expect(compress).not.toHaveBeenCalled()
-  })
-
-  it('compresses MIME-typed images with the configured quality', async () => {
-    const compress = vi.fn().mockResolvedValue(`data:image/jpeg;base64,${toBase64('small')}`)
+  it('compresses images with the configured quality and stores them as jpg', async () => {
+    const original = toBase64('x'.repeat(300))
+    const small = toBase64('y'.repeat(30))
+    const compress = vi.fn().mockResolvedValue(`data:image/jpeg;base64,${small}`)
     const { accepted } = await prepareAttachments(
-      [staged({ format: 'image/png' })],
+      [staged({ name: 'photo', format: 'png', base64: original, size: 300 })],
       { ...limits, imageCompressor: true, imageCompressLevel: 0.5 },
       compress
     )
-    expect(compress).toHaveBeenCalledWith(`data:image/png;base64,${toBase64('hello')}`, 0.5)
-    expect(accepted[0].file.base64).toBe(toBase64('small'))
-    expect(accepted[0].file.size).toBe('0.0')
+    expect(compress).toHaveBeenCalledWith(`data:image/png;base64,${original}`, 0.5)
+    expect(accepted[0].file).toMatchObject({ name: 'photo.jpg', format: 'jpg', base64: small, size: 30 })
+  })
+
+  it('keeps the original when compression does not make it smaller', async () => {
+    const compress = vi.fn().mockResolvedValue(`data:image/jpeg;base64,${toBase64('much bigger')}`)
+    const { accepted } = await prepareAttachments(
+      [staged({ name: 'icon', format: 'png' })],
+      { ...limits, imageCompressor: true },
+      compress
+    )
+    expect(accepted[0].file).toMatchObject({ name: 'icon.png', format: 'png', size: 5 })
+  })
+
+  it('does not compress non-images or when the option is off', async () => {
+    const compress = vi.fn()
+    await prepareAttachments([staged({ format: 'pdf' })], { ...limits, imageCompressor: true }, compress)
+    await prepareAttachments([staged({ format: 'jpg' })], limits, compress)
+    expect(compress).not.toHaveBeenCalled()
   })
 
   it('reports invalidFormat and continues when a file cannot be processed', async () => {
     const compress = vi.fn().mockRejectedValue(new Error('bad image'))
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const { accepted, errors } = await prepareAttachments(
-      [staged({ name: 'broken', format: 'image/png' }), staged({ name: 'fine' })],
+      [staged({ name: 'broken', format: 'jpeg' }), staged({ name: 'fine' })],
       { ...limits, imageCompressor: true },
       compress
     )
     expect(accepted.map((a) => a.file.name)).toEqual(['fine.pdf'])
     expect(errors).toEqual([{ code: 'invalidFormat', fileName: 'broken' }])
+  })
+})
+
+describe('file name helpers', () => {
+  it.each([
+    ['report.pdf', 'report', 'pdf'],
+    ['my.report.pdf', 'my.report', 'pdf'],
+    ['README', 'README', ''],
+    ['.env', '.env', '']
+  ])('splits %s', (file, name, format) => {
+    expect(splitFileName(file)).toEqual({ name, format })
+    expect(joinFileName(name, format)).toBe(file)
+  })
+
+  it('computes decoded base64 length', () => {
+    for (const text of ['', 'a', 'ab', 'abc', 'abcd']) {
+      expect(base64ByteLength(btoa(text))).toBe(text.length)
+    }
   })
 })

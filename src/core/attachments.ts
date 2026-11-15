@@ -1,13 +1,10 @@
-import type { DocumentAttachment, FileData } from '../types'
+import type { DocumentAttachment } from '../types'
+import { getMimeTypeFromExtension } from './fileUtils'
 
 /**
  * Framework-agnostic attachment pipeline: read selected files, then validate and
  * prepare them for the attachment list. Nothing here touches Vue, Vuetify or i18n —
  * errors come back as codes so each UI layer can render its own messages.
- *
- * NOTE: this is a faithful port of the logic that lived in handyUploader.vue.
- * Some legacy quirks are preserved on purpose (marked "Legacy") so this refactor
- * does not change behaviour; fix them in a separate, versioned change.
  */
 
 export type AttachmentErrorCode = 'maxFileCount' | 'maxFileSize' | 'invalidFormat'
@@ -22,8 +19,10 @@ export interface PrepareOptions {
   /** Number of attachments already in the list. */
   currentCount: number
   maxFileCount: number
+  /** Maximum size per file, in bytes. */
   maxFileSize: number
   imageCompressor?: boolean
+  /** JPEG quality between 0 and 1. */
   imageCompressLevel?: number
 }
 
@@ -34,9 +33,27 @@ export interface PrepareResult {
 
 export type CompressFn = (dataUrl: string, quality: number) => Promise<string>
 
-// Legacy: matched against FileData.format, which holds an extension ("png"), not a MIME
-// type — so compression never triggers today.
-const COMPRESSIBLE_TYPES = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
+/** Extensions that imageCompressor re-encodes as JPEG. */
+export const COMPRESSIBLE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp']
+
+/** Splits "my.report.pdf" into { name: "my.report", format: "pdf" }. */
+export function splitFileName(fileName: string): { name: string; format: string } {
+  const dot = fileName.lastIndexOf('.')
+  // No dot, or a leading dot only (".env"): there is no extension.
+  if (dot <= 0) return { name: fileName, format: '' }
+  return { name: fileName.substring(0, dot), format: fileName.substring(dot + 1) }
+}
+
+/** Joins a base name and extension back together ("README" stays "README"). */
+export function joinFileName(name: string, format: string): string {
+  return format ? `${name}.${format}` : name
+}
+
+/** Size in bytes of the data a base64 string decodes to. */
+export function base64ByteLength(base64: string): number {
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
+  return Math.floor((base64.length * 3) / 4) - padding
+}
 
 /** Reads a Blob as a data URL. */
 export function readFileAsDataUrl(file: Blob): Promise<string> {
@@ -49,8 +66,8 @@ export function readFileAsDataUrl(file: Blob): Promise<string> {
 }
 
 /**
- * Turns selected files into staged attachments (name without extension, extension as
- * format, raw base64). Files that cannot be read are skipped.
+ * Turns selected files into staged attachments (base name, extension as format, raw
+ * base64, size in bytes). Files that cannot be read are skipped.
  */
 export async function readFiles(files: File[]): Promise<DocumentAttachment[]> {
   const staged: DocumentAttachment[] = []
@@ -64,10 +81,8 @@ export async function readFiles(files: File[]): Promise<DocumentAttachment[]> {
     }
     staged.push({
       file: {
-        // Legacy: drops everything after the first dot ("my.report.pdf" -> "my").
-        name: item.name.split('.')[0],
-        format: item.name.substring(item.name.lastIndexOf('.') + 1),
-        base64: dataUrl.split(',')[1],
+        ...splitFileName(item.name),
+        base64: dataUrl.split(',')[1] ?? '',
         size: item.size,
         tags: [],
         description: null,
@@ -78,7 +93,10 @@ export async function readFiles(files: File[]): Promise<DocumentAttachment[]> {
   return staged
 }
 
-/** Re-encodes an image data URL as JPEG at the given quality (0–1). Browser only. */
+/**
+ * Re-encodes an image data URL as JPEG at the given quality (0–1). Transparent areas
+ * are filled with white, since JPEG has no alpha channel. Browser only.
+ */
 export function compressDataUrl(dataUrl: string, quality: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas')
@@ -86,10 +104,15 @@ export function compressDataUrl(dataUrl: string, quality: number): Promise<strin
     img.onload = () => {
       canvas.width = img.width
       canvas.height = img.height
-      canvas.getContext('2d')?.drawImage(img, 0, 0, img.width, img.height)
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, img.width, img.height)
+        ctx.drawImage(img, 0, 0, img.width, img.height)
+      }
       resolve(canvas.toDataURL('image/jpeg', quality))
     }
-    img.onerror = reject
+    img.onerror = () => reject(new Error('Failed to load image for compression'))
     img.src = dataUrl
   })
 }
@@ -98,6 +121,9 @@ export function compressDataUrl(dataUrl: string, quality: number): Promise<strin
  * Validates staged attachments against the limits and converts them to the shape that
  * is stored in the attachment list. Stops at the file-count limit; skips files that are
  * too large or cannot be processed.
+ *
+ * With imageCompressor on, JPEG/PNG/WebP images are re-encoded as JPEG; the result is
+ * kept only if it is smaller, in which case the stored format becomes "jpg".
  */
 export async function prepareAttachments(
   staged: DocumentAttachment[],
@@ -117,36 +143,37 @@ export async function prepareAttachments(
       break
     }
 
-    // Legacy: compares kilobytes against maxFileSize, which is documented in bytes,
-    // so the effective limit is ~1000x the configured one.
-    if (fileData.size / 1000 > maxFileSize) {
+    if (fileData.size > maxFileSize) {
       errors.push({ code: 'maxFileSize', fileName: fileData.name, limit: maxFileSize })
       continue
     }
 
     try {
-      let base64Data = fileData.base64
-      let compressed = false
-      if (imageCompressor && COMPRESSIBLE_TYPES.includes(fileData.format)) {
-        const dataUrl = await compress(`data:${fileData.format};base64,${base64Data}`, quality)
-        base64Data = dataUrl.split(',')[1]
-        compressed = true
+      let base64 = fileData.base64.replace(/\s/g, '')
+      let format = fileData.format
+      let size = fileData.size
+
+      if (imageCompressor && COMPRESSIBLE_EXTENSIONS.includes(format.toLowerCase())) {
+        const mime = getMimeTypeFromExtension(`file.${format}`)
+        const dataUrl = await compress(`data:${mime};base64,${base64}`, quality)
+        const compressed = dataUrl.split(',')[1].replace(/\s/g, '')
+        const compressedSize = base64ByteLength(compressed)
+        if (compressedSize < size) {
+          base64 = compressed
+          format = 'jpg'
+          size = compressedSize
+        }
       }
 
-      const sanitized = base64Data.replace(/\s/g, '')
       accepted.push({
         file: {
-          base64: sanitized,
-          // Legacy: stored as a string (KB when compressed, bytes otherwise) despite
-          // FileData.size being typed as a number.
-          size: (compressed
-            ? (atob(sanitized).length / 1024).toFixed(1)
-            : fileData.size.toString()) as unknown as FileData['size'],
-          name: `${fileData.name}.${fileData.format}`,
+          base64,
+          size,
+          name: joinFileName(fileData.name, format),
           tags: fileData.tags || [],
           description: fileData.description || '',
           showDetailState: false,
-          format: fileData.format
+          format
         }
       })
     } catch (error) {

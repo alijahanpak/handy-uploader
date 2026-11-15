@@ -49,6 +49,10 @@ export {
   readFileAsDataUrl,
   prepareAttachments,
   compressDataUrl,
+  splitFileName,
+  joinFileName,
+  base64ByteLength,
+  COMPRESSIBLE_EXTENSIONS,
   generateVideoThumbnail,
   getVideoDataUrl,
   createVideoThumbnailCache
