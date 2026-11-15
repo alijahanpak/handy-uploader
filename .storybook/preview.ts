@@ -29,9 +29,21 @@ const preview: Preview = {
     a11y: {
       test: 'todo'
     },
-    docs: {
-      description: {
-        component: 'Handy Uploader Vue - A comprehensive file uploader component library'
+    options: {
+      storySort: {
+        order: [
+          'Guide',
+          [
+            'Getting Started',
+            'Feature Tour',
+            'Styling & Theming',
+            'Build Your Own UI',
+            'Framework Support',
+            'Upgrading from 2.x'
+          ],
+          'Vue (any CSS)',
+          'Vue + Vuetify'
+        ]
       }
     },
     backgrounds: {

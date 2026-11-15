@@ -1,0 +1,80 @@
+import { Meta, Canvas } from '@storybook/blocks'
+import * as Uploader from '../HandyUploader.stories'
+
+<Meta title="Guide/Build Your Own UI" />
+
+# Build Your Own UI
+
+`HandyUploader` covers most needs, but everything it is built from is exported too. Pick the level you need.
+
+## Level 1: Slots: keep the component, change parts of it
+
+| Slot | Props | Use |
+| --- | --- | --- |
+| `actions` | `{ attachment, index }` | Add buttons to each card or row |
+| `item` | `{ attachment, index, remove }` | Replace a whole card |
+| `empty` | – | Show something when there are no files |
+
+<Canvas of={Uploader.CustomActions} />
+
+## Level 2: Building blocks: your own layout
+
+```ts
+import { HandyDropzone, HandyFileList, HandyDialog, HandyFileIcon } from 'handy-uploader'
+```
+
+| Component | What it does |
+| --- | --- |
+| `HandyDropzone` | Drag-and-drop area plus file picker. Emits `files` with the chosen `File[]` |
+| `HandyFileList` | The thumbnail, simple and table views on their own. Emits `edit` and `remove` |
+| `HandyDialog` | Accessible modal dialog (native `<dialog>`) |
+| `HandyFileIcon` | The coloured file-type icon for a file name |
+
+## Level 3: `useUploader`: logic only, no markup
+
+All the rules (accepted types, size and count limits, reading files, compression) without any UI:
+
+```ts
+import { ref } from 'vue'
+import { useUploader, type DocumentAttachment } from 'handy-uploader'
+
+const files = ref<DocumentAttachment[]>([])
+const { add, remove, update, errors, isProcessing, canAddMore } = useUploader(files, {
+  maxFileSize: 5 * 1024 * 1024,  // bytes
+  maxFileCount: 10,
+  accept: 'image/*,.pdf',
+  imageCompressor: true,
+  imageCompressLevel: 0.7
+})
+```
+
+```vue
+<input type="file" multiple :disabled="!canAddMore" @change="add($event.target.files)" />
+<p v-for="e in errors" :key="e.fileName">{{ e.fileName }}: {{ e.code }}</p>
+<ul>
+  <li v-for="(a, i) in files" :key="i">
+    {{ a.file.name }} <button @click="remove(i)">×</button>
+  </li>
+</ul>
+```
+
+| From `useUploader` | |
+| --- | --- |
+| `add(files)` | Check, read and add files in one step |
+| `stage(files)` → `commit(staged)` | Two steps: read first, let users edit names/tags, then add |
+| `remove(index)`, `update(index, { name, description, tags })`, `clear()` | Change the list |
+| `errors` | Rejected files: `fileType`, `maxFileSize`, `maxFileCount` or `invalidFormat` |
+| `isProcessing`, `count`, `canAddMore` | State for your UI |
+
+## Level 4: Helpers without Vue
+
+These functions don't depend on Vue at all. They are the shared core and the base for future React and Web Component versions:
+
+| Function | What it does |
+| --- | --- |
+| `readFiles(files)` | Read `File[]` into attachments (base64) |
+| `prepareAttachments(staged, options)` | Apply limits and compression |
+| `precheckFiles`, `filterByAccept`, `matchesAccept` | Validation before reading |
+| `compressDataUrl(dataUrl, quality)` | Re-encode an image as JPEG |
+| `generateVideoThumbnail(file)` | Capture a frame from a video |
+| `formatBytes`, `getFileType`, `splitFileName` | Small utilities |

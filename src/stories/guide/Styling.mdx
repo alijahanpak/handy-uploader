@@ -1,0 +1,77 @@
+import { Meta, Canvas } from '@storybook/blocks'
+import * as Uploader from '../HandyUploader.stories'
+
+<Meta title="Guide/Styling & Theming" />
+
+# Styling & Theming
+
+This page is about the **framework-free** `HandyUploader`. The Vuetify version follows your Vuetify theme.
+
+## 1. Import the default theme
+
+```ts
+import 'handy-uploader/style.css'
+```
+
+## 2. Change it with CSS variables
+
+Set them on the component or on any parent, for example your app's root:
+
+```css
+.hu-uploader {
+  --hu-primary: #7c3aed;
+  --hu-button-bg: #7c3aed;
+  --hu-radius: 16px;
+}
+```
+
+<Canvas of={Uploader.CustomTheme} />
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--hu-primary` | `#2196f3` | Links, focus ring, drop area, selected tags |
+| `--hu-primary-soft` | `#e3f2fd` | Drop area and selected-tag background |
+| `--hu-button-bg` | `var(--hu-primary)` | Insert and Add buttons (or set the `btn-color` prop) |
+| `--hu-button-text` | `#ffffff` | Text on those buttons |
+| `--hu-chip` | `#009688` | File size chips |
+| `--hu-danger` | `#e53935` | Delete buttons, error messages |
+| `--hu-success` | `#43a047` | Edit buttons, count badge |
+| `--hu-warning` | `#fb8c00` | Medium file sizes in the table |
+| `--hu-text` / `--hu-muted` | `#1f2328` / `#656d76` | Text colours |
+| `--hu-surface` / `--hu-surface-alt` | `#ffffff` / `#f5f5f5` | Card and preview backgrounds |
+| `--hu-border` | `#d0d7de` | Borders and dividers |
+| `--hu-radius` | `12px` | Card corners |
+| `--hu-gap` | `16px` | Space between cards |
+| `--hu-media-height` | `200px` | Preview height in the thumbnail view |
+| `--hu-shadow` / `--hu-shadow-raised` | (soft shadows) | Card shadows (`cardType="raised"` uses the second) |
+| `--hu-font` | `inherit` | Font family |
+
+## 3. Dark mode
+
+Add the `hu-dark` class to the component or any parent:
+
+```vue
+<div class="hu-dark">
+  <HandyUploader v-model:document-attachment="files" />
+</div>
+```
+
+<Canvas of={Uploader.DarkMode} />
+
+## 4. Your own classes (Tailwind, Bootstrap, …)
+
+Every part has a `hu-*` class, for example `hu-card`, `hu-button`, `hu-chip`, `hu-dialog` and `hu-table`. The built-in styles are **single-class selectors**:
+
+- They **survive global resets** such as Tailwind's preflight or Vuetify's, so buttons and dialogs don't lose their styling.
+- Overriding them is easy: a class of yours that comes later in the CSS, or one with one more class in its selector, wins.
+
+```css
+/* e.g. in your app.css, after importing handy-uploader/style.css */
+.hu-card { border-radius: 0; box-shadow: none; border: 1px solid #ddd; }
+```
+
+## 5. No default theme at all
+
+Skip `handy-uploader/style.css` and style the `hu-*` classes yourself, or replace whole cards with the `item` slot.
+
+**Browser support:** the default theme uses `color-mix()` and `:has()` (Chrome/Edge 111+, Firefox 121+, Safari 16.4+). Older browsers still work, with simpler focus and badge styling.

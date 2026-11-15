@@ -1,0 +1,97 @@
+import { Meta, Canvas } from '@storybook/blocks'
+import * as Uploader from '../HandyUploader.stories'
+
+<Meta title="Guide/Getting Started" />
+
+# Handy Uploader
+
+A Vue 3 file uploader with **automatic video thumbnails**, **image compression**, three layouts, and per-file **names, descriptions and tags**, translated into 5 languages.
+
+<Canvas of={Uploader.ThumbnailView} />
+
+## Two flavours, same API
+
+| | `handy-uploader` | `handy-uploader/vuetify` |
+| --- | --- | --- |
+| **For** | Any Vue 3 app | Vue 3 apps using Vuetify 3 |
+| **Styling** | Plain CSS. Works with Tailwind, Bootstrap, your own CSS, or none | Vuetify components |
+| **Needs** | `vue` | `vue`, `vuetify`, `@mdi/font` |
+| **In this Storybook** | [Vue (any CSS)](?path=/docs/vue-any-css-handyuploader--docs) | [Vue + Vuetify](?path=/docs/vue-vuetify-handyuploader--docs) |
+
+Both have **the same props and events**, so switching is a change of import.
+
+## Install
+
+```bash
+npm install handy-uploader
+```
+
+### Without Vuetify
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { HandyUploader, type DocumentAttachment } from 'handy-uploader'
+import 'handy-uploader/style.css'
+
+const files = ref<DocumentAttachment[]>([])
+</script>
+
+<template>
+  <HandyUploader
+    v-model:document-attachment="files"
+    file-uploader-type="thumbnail"
+    file-accept="image/*,video/*,.pdf"
+    :max-file-size="10 * 1024 * 1024"
+    change-file-name
+    add-file-description
+    add-file-tag
+    :tags="['invoice', 'contract', 'photo']"
+  />
+</template>
+```
+
+### With Vuetify
+
+```ts
+// main.ts: Vuetify must be installed in your app
+import { createVuetify } from 'vuetify'
+import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
+app.use(createVuetify())
+```
+
+```vue
+<script setup lang="ts">
+import { HandyUploader } from 'handy-uploader/vuetify'
+</script>
+
+<template>
+  <HandyUploader v-model:document-attachment="files" file-uploader-type="table" />
+</template>
+```
+
+## What you get back
+
+`files` is an array of attachments. Each holds the file contents as base64, ready to send to your API:
+
+```ts
+interface DocumentAttachment {
+  file: {
+    name: string               // "report.pdf"
+    format: string             // "pdf" ("jpg" after compression)
+    base64: string             // contents, without the "data:…;base64," prefix
+    size: number               // bytes
+    tags: string[]
+    description: string | null
+    showDetailState: boolean
+  }
+}
+```
+
+## How to use this Storybook
+
+- **[Feature Tour](?path=/docs/guide-feature-tour--docs):** every feature, with a link to the story that shows it.
+- **Story pages** (sidebar): open a story, then use the **Controls** panel at the bottom to change props live.
+- **Docs pages** (the first entry under each component): every prop, grouped by category, with defaults.
+- **Compare** the same story under *Vue (any CSS)* and *Vue + Vuetify* to see both flavours.
