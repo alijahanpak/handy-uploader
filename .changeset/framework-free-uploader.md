@@ -21,7 +21,7 @@ import 'handy-uploader/style.css'
 ```
 
 - Grid, list and table layouts; drag-and-drop with `accept` checking; right-to-left support; and slots for custom items and actions.
-- Restyle it with your own classes (all built-in selectors have zero specificity) or with `--hu-*` CSS variables. An opt-in `hu-dark` preset is included.
+- Restyle it with `--hu-*` CSS variables or your own classes. Built-in styles use single `hu-*` class selectors, so they hold up against global resets such as Tailwind's preflight. An opt-in `hu-dark` preset is included.
 - `HandyDropzone`, `HandyFileList` and the `useUploader()` composable are also exported, for building a fully custom UI.
 - Vuetify is now an optional peer dependency.
 

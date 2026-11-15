@@ -16,7 +16,7 @@
       <tr v-for="(attachment, index) in files" :key="keyOf(attachment, index)">
         <td class="hu-table__thumb">
           <span class="hu-preview hu-preview--small">
-            <img v-if="previewOf(attachment)" :src="previewOf(attachment)" alt="" />
+            <img v-if="previews[index]" :src="previews[index]" alt="" />
             <span v-else class="hu-badge" :data-hu-type="typeOf(attachment)">{{ badgeOf(attachment) }}</span>
           </span>
         </td>
@@ -44,7 +44,7 @@
     <li v-for="(attachment, index) in files" :key="keyOf(attachment, index)" class="hu-file">
       <slot name="item" :attachment="attachment" :index="index" :remove="() => emit('remove', index)">
         <span class="hu-preview" :class="{ 'hu-preview--small': layout === 'list' }">
-          <img v-if="previewOf(attachment)" :src="previewOf(attachment)" alt="" />
+          <img v-if="previews[index]" :src="previews[index]" alt="" />
           <span v-else class="hu-badge" :data-hu-type="typeOf(attachment)">{{ badgeOf(attachment) }}</span>
           <span v-if="typeOf(attachment) === 'video'" class="hu-preview__play" aria-hidden="true">▶</span>
         </span>
@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
+import { computed, ref, useSlots, watch } from 'vue'
 import type { DocumentAttachment } from '../../types'
 import {
   constructImageDataUrl,
@@ -109,22 +109,41 @@ const labels = computed<FileListLabels>(() => ({
 
 const hasActions = computed(() => props.removable || !!slots.actions)
 
-// Reading thumbnailVersion during render re-renders once a video thumbnail is ready.
+// Bumped when a video thumbnail is ready, so `previews` recomputes.
 const thumbnailVersion = ref(0)
 const videoThumbnails = createVideoThumbnailCache(() => thumbnailVersion.value++)
+
+// Image data URLs are cached per file object, so re-renders reuse the same string and
+// the browser does not re-decode the image.
+const imageUrls = new WeakMap<object, string>()
 
 const typeOf = (a: DocumentAttachment) => getFileType(a.file.name)
 
 function previewOf(a: DocumentAttachment): string | undefined {
   if (!props.thumbnails || !a.file.base64) return undefined
   const type = typeOf(a)
-  if (type === 'image') return constructImageDataUrl(a.file.base64, a.file.format)
-  if (type === 'video') {
-    void thumbnailVersion.value
-    return videoThumbnails.get(a.file)
+  if (type === 'image') {
+    let url = imageUrls.get(a.file)
+    if (!url) {
+      url = constructImageDataUrl(a.file.base64, a.file.format)
+      imageUrls.set(a.file, url)
+    }
+    return url
   }
+  if (type === 'video') return videoThumbnails.get(a.file)
   return undefined
 }
+
+const previews = computed(() => {
+  void thumbnailVersion.value
+  return props.files.map(previewOf)
+})
+
+// Free thumbnails of videos that were removed from the list.
+watch(
+  () => props.files,
+  (files) => videoThumbnails.retain(files.map((a) => a.file))
+)
 
 function badgeOf(a: DocumentAttachment): string {
   const ext = a.file.format || splitFileName(a.file.name).format

@@ -101,5 +101,12 @@
     "vuetify": {
       "optional": true
     }
+  },
+  "typesVersions": {
+    "*": {
+      "vuetify": [
+        "dist/lib/vuetify.d.ts"
+      ]
+    }
   }
 }

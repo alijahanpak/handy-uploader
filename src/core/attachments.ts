@@ -89,6 +89,37 @@ export function filterByAccept(
   return { accepted, errors }
 }
 
+export interface PrecheckOptions {
+  currentCount: number
+  maxFileCount: number
+  /** Maximum size per file, in bytes. */
+  maxFileSize: number
+}
+
+/**
+ * Applies the count and size limits using File metadata only, before any file is read,
+ * so oversized or surplus files never get loaded into memory.
+ */
+export function precheckFiles(
+  files: File[],
+  { currentCount, maxFileCount, maxFileSize }: PrecheckOptions
+): { accepted: File[]; errors: AttachmentError[] } {
+  const accepted: File[] = []
+  const errors: AttachmentError[] = []
+  for (const file of files) {
+    if (currentCount + accepted.length >= maxFileCount) {
+      errors.push({ code: 'maxFileCount', fileName: file.name, limit: maxFileCount })
+      break
+    }
+    if (file.size > maxFileSize) {
+      errors.push({ code: 'maxFileSize', fileName: file.name, limit: maxFileSize })
+      continue
+    }
+    accepted.push(file)
+  }
+  return { accepted, errors }
+}
+
 /** Formats a byte count as "12.3 KB" / "4.5 MB", with translatable unit labels. */
 export function formatBytes(bytes: number, units: { kb: string; mb: string } = { kb: 'KB', mb: 'MB' }) {
   const kb = bytes / 1024
@@ -145,12 +176,20 @@ export function compressDataUrl(dataUrl: string, quality: number): Promise<strin
       canvas.width = img.width
       canvas.height = img.height
       const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, img.width, img.height)
-        ctx.drawImage(img, 0, 0, img.width, img.height)
+      if (!ctx) {
+        reject(new Error('Canvas 2D context not available'))
+        return
       }
-      resolve(canvas.toDataURL('image/jpeg', quality))
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, img.width, img.height)
+      ctx.drawImage(img, 0, 0, img.width, img.height)
+      // Browsers return "data:," when the image exceeds their canvas size limit.
+      const result = canvas.toDataURL('image/jpeg', quality)
+      if (!result.startsWith('data:image/jpeg')) {
+        reject(new Error('Canvas could not encode the image'))
+        return
+      }
+      resolve(result)
     }
     img.onerror = () => reject(new Error('Failed to load image for compression'))
     img.src = dataUrl
@@ -196,10 +235,14 @@ export async function prepareAttachments(
 
       if (imageCompressor && COMPRESSIBLE_EXTENSIONS.includes(format.toLowerCase())) {
         const mime = getMimeTypeFromExtension(`file.${format}`)
-        const dataUrl = await compress(`data:${mime};base64,${base64}`, quality)
-        const compressed = dataUrl.split(',')[1].replace(/\s/g, '')
+        const dataUrl = await compress(`data:${mime};base64,${base64}`, quality).catch((error) => {
+          console.warn('handy-uploader: compression failed, keeping original', fileName, error)
+          return ''
+        })
+        const compressed = (dataUrl.split(',')[1] ?? '').replace(/\s/g, '')
         const compressedSize = base64ByteLength(compressed)
-        if (compressedSize < size) {
+        // Never replace a file with an empty or failed result; keep the original instead.
+        if (compressedSize > 0 && compressedSize < size) {
           base64 = compressed
           format = 'jpg'
           size = compressedSize

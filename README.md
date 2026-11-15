@@ -91,7 +91,7 @@ const files = ref<DocumentAttachment[]>([])
 Events: `update:modelValue`, `add(added)`, `remove(attachment, index)`, `error(errors)`.
 Slots: `item`, `actions` (gets `update` to edit name/description/tags), `dropzone`, `empty`.
 
-**Styling.** Every built-in selector has zero specificity, so your own classes always win. To re-theme, set CSS variables on the component or any parent:
+**Styling.** The easiest way to re-theme is to set CSS variables on the component or any parent:
 
 ```css
 .hu-uploader {

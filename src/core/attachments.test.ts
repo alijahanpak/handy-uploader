@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   base64ByteLength,
   filterByAccept,
+  precheckFiles,
   formatBytes,
   matchesAccept,
   joinFileName,
@@ -141,16 +142,44 @@ describe('prepareAttachments', () => {
     expect(compress).not.toHaveBeenCalled()
   })
 
-  it('reports invalidFormat and continues when a file cannot be processed', async () => {
+  it('keeps the original when compression fails', async () => {
     const compress = vi.fn().mockRejectedValue(new Error('bad image'))
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { accepted, errors } = await prepareAttachments(
-      [staged({ name: 'broken', format: 'jpeg' }), staged({ name: 'fine' })],
+      [staged({ name: 'photo', format: 'jpeg' }), staged({ name: 'fine' })],
       { ...limits, imageCompressor: true },
       compress
     )
-    expect(accepted.map((a) => a.file.name)).toEqual(['fine.pdf'])
-    expect(errors).toEqual([{ code: 'invalidFormat', fileName: 'broken.jpeg' }])
+    expect(accepted.map((a) => a.file.name)).toEqual(['photo.jpeg', 'fine.pdf'])
+    expect(accepted[0].file.base64).toBe(toBase64('hello'))
+    expect(errors).toEqual([])
+  })
+
+  it('never replaces a file with an empty compression result ("data:,")', async () => {
+    const compress = vi.fn().mockResolvedValue('data:,')
+    const { accepted } = await prepareAttachments(
+      [staged({ name: 'huge', format: 'png' })],
+      { ...limits, imageCompressor: true },
+      compress
+    )
+    expect(accepted[0].file).toMatchObject({ name: 'huge.png', format: 'png', size: 5, base64: toBase64('hello') })
+  })
+})
+
+describe('precheckFiles', () => {
+  const f = (name: string, size: number) => new File(['x'.repeat(size)], name)
+
+  it('applies size and count limits without reading files', () => {
+    const result = precheckFiles([f('big.mov', 50), f('a.txt', 1), f('b.txt', 1), f('c.txt', 1)], {
+      currentCount: 1,
+      maxFileCount: 3,
+      maxFileSize: 10
+    })
+    expect(result.accepted.map((x) => x.name)).toEqual(['a.txt', 'b.txt'])
+    expect(result.errors).toEqual([
+      { code: 'maxFileSize', fileName: 'big.mov', limit: 10 },
+      { code: 'maxFileCount', fileName: 'c.txt', limit: 3 }
+    ])
   })
 })
 

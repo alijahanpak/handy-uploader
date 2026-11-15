@@ -46,6 +46,7 @@ export {
   COMPRESSIBLE_EXTENSIONS,
   matchesAccept,
   filterByAccept,
+  precheckFiles,
   formatBytes,
   generateVideoThumbnail,
   getVideoDataUrl,

@@ -468,11 +468,20 @@ onBeforeMount(() => {
     setCardTheme();
 });
 
+// Incremented on every new selection and whenever a dialog takes over the staged list.
+let readToken = 0;
+
 watch(
     () => uploader.tempAttachment,
     async (newValue: File[]) => {
+    // Each selection gets a token; a slower, older read must not overwrite a newer state.
+    const token = ++readToken;
     if (newValue && newValue.length > 0) {
-      uploader.tempAttachmentChanged = await readFiles(newValue);
+      uploader.btnLoader = true; // blocks "Add" until the files are read
+      const staged = await readFiles(newValue);
+      if (token !== readToken || !uploader.insertDocumentDialog) return;
+      uploader.tempAttachmentChanged = staged;
+      uploader.btnLoader = false;
     } else {
       uploader.tempAttachmentChanged = [];
     }
@@ -635,6 +644,7 @@ const deleteDocument = () => {
 };
 
 const openEditDocumentDialog = (item: DocumentAttachment, index: number) => {
+  readToken++; // discard any file read still in flight
   uploader.btnLoader = false;
   uploader.attachmentIndex = index;
   uploader.editDocumentDialog = true;

@@ -13,7 +13,7 @@ const meta: Meta<typeof HandyUploader> = {
         component: `
 Framework-free uploader: plain HTML + CSS, no Vuetify. Import \`handy-uploader/style.css\`
 for the default look, then restyle it with your own classes or the \`--hu-*\` CSS variables.
-All selectors have zero specificity, so your CSS always wins.`
+Built-in styles are single \`hu-*\` classes, so they survive global resets and are easy to override.`
       }
     }
   },

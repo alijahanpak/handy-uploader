@@ -2,6 +2,7 @@ import { computed, ref, unref, type Ref } from 'vue'
 import type { DocumentAttachment, FileData } from '../types'
 import {
   filterByAccept,
+  precheckFiles,
   prepareAttachments,
   readFiles,
   type AttachmentError
@@ -59,7 +60,13 @@ export function useUploader(
     isProcessing.value = true
     try {
       const byType = filterByAccept(files, opts.accept)
-      const staged = await readFiles(byType.accepted)
+      // Reject by size/count before reading, so large or surplus files never hit memory.
+      const byLimits = precheckFiles(byType.accepted, {
+        currentCount: attachments.value.length,
+        maxFileCount: opts.maxFileCount,
+        maxFileSize: opts.maxFileSize
+      })
+      const staged = await readFiles(byLimits.accepted)
       const result = await prepareAttachments(staged, {
         currentCount: attachments.value.length,
         maxFileCount: opts.maxFileCount,
@@ -70,7 +77,7 @@ export function useUploader(
       if (result.accepted.length > 0) {
         attachments.value = [...attachments.value, ...result.accepted]
       }
-      errors.value = [...byType.errors, ...result.errors]
+      errors.value = [...byType.errors, ...byLimits.errors, ...result.errors]
       return result.accepted
     } finally {
       isProcessing.value = false

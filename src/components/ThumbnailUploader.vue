@@ -298,6 +298,7 @@ const handleEdit = (item: DocumentAttachment, index: number) => {
 
 // Auto-generate video thumbnails
 const generateThumbnailsForVideos = () => {
+  videoThumbnails.retain(props.documentAttachment.map((a) => a.file));
   console.log('🎯 Generating thumbnails for videos, total attachments:', props.documentAttachment.length);
   
   const videoAttachments = props.documentAttachment.filter(attachment => isVideoFile(attachment.file.name));

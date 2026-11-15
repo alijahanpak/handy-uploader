@@ -67,14 +67,30 @@ export function generateVideoThumbnail(file: VideoSource): Promise<string> {
 export interface VideoThumbnailCache {
   /** Returns the cached thumbnail, or starts generating it and returns undefined. */
   get(file: VideoSource): string | undefined
-  /** Drops a cached thumbnail so the next get() regenerates it. */
+  /**
+   * Drops a cached thumbnail (e.g. its <img> failed to load) and notifies, so the UI
+   * re-renders and the next get() regenerates it. After one retry the file is given up on.
+   */
   invalidate(file: VideoSource): void
+  /** Frees thumbnails of files that are no longer shown. */
+  retain(files: VideoSource[]): void
+}
+
+const MAX_RETRIES = 1
+
+/**
+ * Key from name, total length and the end of the data. The first bytes of a video are
+ * the container header, which is often identical across clips from the same device.
+ */
+export function videoThumbnailKey(file: VideoSource): string {
+  const data = file.base64 ?? ''
+  return `${file.name}|${data.length}|${data.slice(-64)}`
 }
 
 /**
  * Caches generated thumbnails and de-duplicates in-flight work. `onUpdate` fires when a
- * thumbnail becomes available, so a UI layer can re-render (bump a Vue ref, set React
- * state, …). Failed generations are not cached, so they are retried on the next get().
+ * thumbnail becomes available or is invalidated, so a UI layer can re-render (bump a Vue
+ * ref, set React state, …). Failed generations are retried once, then given up on.
  */
 export function createVideoThumbnailCache(
   onUpdate: () => void,
@@ -82,13 +98,16 @@ export function createVideoThumbnailCache(
 ): VideoThumbnailCache {
   const cache = new Map<string, string>()
   const pending = new Set<string>()
-  const keyOf = (file: VideoSource) => `${file.name}_${file.base64?.substring(0, 50)}`
+  const failures = new Map<string, number>()
+
+  const fail = (key: string) => failures.set(key, (failures.get(key) ?? 0) + 1)
+  const givenUp = (key: string) => (failures.get(key) ?? 0) > MAX_RETRIES
 
   return {
     get(file) {
-      const key = keyOf(file)
+      const key = videoThumbnailKey(file)
       if (cache.has(key)) return cache.get(key)
-      if (pending.has(key)) return undefined
+      if (pending.has(key) || givenUp(key)) return undefined
 
       pending.add(key)
       generate(file)
@@ -97,13 +116,23 @@ export function createVideoThumbnailCache(
           onUpdate()
         })
         .catch((error) => {
+          fail(key)
           console.warn('handy-uploader: video thumbnail failed for', file.name, error)
         })
         .finally(() => pending.delete(key))
       return undefined
     },
     invalidate(file) {
-      cache.delete(keyOf(file))
+      const key = videoThumbnailKey(file)
+      if (cache.delete(key)) {
+        fail(key)
+        onUpdate()
+      }
+    },
+    retain(files) {
+      const keep = new Set(files.map(videoThumbnailKey))
+      for (const key of [...cache.keys()]) if (!keep.has(key)) cache.delete(key)
+      for (const key of [...failures.keys()]) if (!keep.has(key)) failures.delete(key)
     }
   }
 }
