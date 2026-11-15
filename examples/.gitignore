@@ -1,0 +1,5 @@
+node_modules
+dist
+.angular
+# The packed library, created by scripts/test-examples.mjs
+.handy-uploader.tgz

@@ -1,0 +1,8 @@
+{
+  "name": "handy-uploader-example-plain-html",
+  "private": true,
+  "description": "<handy-uploader> in a plain HTML page: no framework, no build step.",
+  "scripts": {
+    "dev": "npx --yes serve ."
+  }
+}

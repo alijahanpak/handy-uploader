@@ -25,10 +25,43 @@ export type {
 export type { DocumentAttachment, FileData, LanguageCollection } from '../types'
 export type { AttachmentError } from '../core'
 
-/** The custom element class behind <handy-uploader>. */
-export const HandyUploaderElement = defineCustomElement(HandyUploaderElementComponent, {
+const VueHandyUploaderElement = defineCustomElement(HandyUploaderElementComponent, {
   shadowRoot: false
-}) as unknown as HandyUploaderElementConstructor
+})
+
+// Every prop of the component, i.e. every JS property that can be set on the element.
+const PROP_NAMES = Object.keys(HandyUploaderElementComponent.props)
+
+/** The custom element class behind <handy-uploader>. */
+export const HandyUploaderElement = class extends VueHandyUploaderElement {
+  constructor() {
+    super()
+    // Vue defines the prop accessors only when the element is connected to the page. Until then
+    // `'files' in el` would be false, and React 19 and Svelte 5, which set a value as a property
+    // only if it exists on the element (as an attribute otherwise), would turn the first `files`
+    // into the string "[object Object]". So every prop is a property from the start: a value set
+    // before connecting is stored as a plain property, which Vue picks up on connect (and then
+    // replaces with its own accessor). Unset props stay out of Object.keys, so attributes win.
+    // Per-instance properties (not prototype accessors calling Vue's private _getProp/_setProp)
+    // rely only on Vue reading pre-set own properties on connect, which the test "hands values
+    // set before connecting over to Vue" guards against Vue changing.
+    for (const name of PROP_NAMES) {
+      if (name in this) continue // e.g. `lang` (native) or a value set before the upgrade
+      Object.defineProperty(this, name, {
+        configurable: true,
+        get: () => undefined,
+        set(value: unknown) {
+          Object.defineProperty(this, name, {
+            value,
+            configurable: true,
+            enumerable: true,
+            writable: true
+          })
+        }
+      })
+    }
+  }
+} as unknown as HandyUploaderElementConstructor
 export type HandyUploaderElement = HandyUploaderElementType
 
 const STYLE_ID = 'handy-uploader-theme'

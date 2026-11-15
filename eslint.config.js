@@ -9,7 +9,13 @@ export default [
   },
   {
     name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', '**/storybook-static/**']
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/storybook-static/**',
+      'examples/**'
+    ]
   },
   ...pluginVue.configs['flat/essential'],
   ...vueTsEslintConfig(),
@@ -22,9 +28,15 @@ export default [
         'error',
         {
           patterns: [
-            { group: ['vue', 'vue/*', '@vue/*'], message: 'src/core must stay framework-agnostic.' },
+            {
+              group: ['vue', 'vue/*', '@vue/*'],
+              message: 'src/core must stay framework-agnostic.'
+            },
             { group: ['vuetify', 'vuetify/*'], message: 'src/core must stay framework-agnostic.' },
-            { group: ['@/components/*', '../components/*', '*.vue'], message: 'src/core must not import UI components.' }
+            {
+              group: ['@/components/*', '../components/*', '*.vue'],
+              message: 'src/core must not import UI components.'
+            }
           ]
         }
       ]
