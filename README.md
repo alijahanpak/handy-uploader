@@ -92,6 +92,26 @@ const files = ref<DocumentAttachment[]>([])
 
 Switching between the two is a one-line change, because the props are the same.
 
+## 🧭 Framework Support
+
+| Framework | Status |
+| --- | --- |
+| **Vue 3** (any CSS) | ✅ `handy-uploader` |
+| **Vue 3 + Vuetify 3** | ✅ `handy-uploader/vuetify` |
+| **React, Svelte, Angular, plain HTML** | 🛠️ Planned as a Web Component (`<handy-uploader>`) in a 3.x release |
+
+The upload logic (reading files, validation, compression, video thumbnails) lives in a framework-free core that is already exported; see [Building your own UI](#-building-your-own-ui).
+
+## 📚 Documentation
+
+The [live demo](https://illustrious-griffin-257b43.netlify.app) is a Storybook with guides and an interactive example of every feature:
+
+- [Getting Started](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-getting-started--docs)
+- [Feature Tour](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-feature-tour--docs): every feature, with a link to try it
+- [Styling & Theming](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-styling-theming--docs)
+- [Build Your Own UI](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-build-your-own-ui--docs)
+- [Upgrading from 2.x](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-upgrading-from-2-x--docs)
+
 ## ⚙️ API Reference
 
 ### `HandyUploader` props
