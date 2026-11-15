@@ -58,7 +58,7 @@ export interface Translation {
   };
   maxFileSizeAlert?: string;
   maxFileCountAlert: string;
-  /** Used by HuUploader; falls back to English when missing. */
+  /** Used by HandyUploader; falls back to English when missing. */
   fileTypeAlert?: string;
   invalidFileAlert?: string;
   dropHint?: string;

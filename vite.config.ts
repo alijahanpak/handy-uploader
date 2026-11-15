@@ -18,19 +18,19 @@ export default defineConfig(({ mode }) => {
     ...(isLib && {
       build: {
         lib: {
-          entry: resolve(__dirname, 'src/lib/index.ts'),
-          name: 'HandyUploaderVue',
-          fileName: (format) => `handy-uploader.${format}.js`,
-          formats: ['es', 'umd']
+          // 'handy-uploader' (framework-free) and 'handy-uploader/vuetify'
+          entry: {
+            'handy-uploader': resolve(__dirname, 'src/lib/index.ts'),
+            vuetify: resolve(__dirname, 'src/lib/vuetify.ts')
+          },
+          fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,
+          cssFileName: 'handy-uploader',
+          formats: ['es', 'cjs']
         },
         rollupOptions: {
           external: ['vue', 'vuetify', 'vuetify/components', 'vuetify/directives'],
           output: {
-            exports: 'named',
-            globals: {
-              vue: 'Vue',
-              vuetify: 'Vuetify'
-            }
+            exports: 'named'
           }
         },
         cssCodeSplit: false,

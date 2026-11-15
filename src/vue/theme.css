@@ -1,5 +1,5 @@
 /*
- * handy-uploader default theme for the framework-free components (HuUploader & co).
+ * handy-uploader default theme for the framework-free components (HandyUploader & co).
  * Every selector is wrapped in :where(), so it has zero specificity: any class of yours
  * (Tailwind, Bootstrap, your own CSS) wins without !important. Restyle by overriding the
  * --hu-* variables on .hu-uploader or any ancestor.
@@ -28,7 +28,7 @@
   color: var(--hu-text);
 }
 
-/* Opt-in dark preset: <HuUploader class="hu-dark" /> or on any ancestor. */
+/* Opt-in dark preset: <HandyUploader class="hu-dark" /> or on any ancestor. */
 :where(.hu-dark .hu-uploader, .hu-uploader.hu-dark) {
   --hu-text: #e6edf3;
   --hu-muted: #8d96a0;

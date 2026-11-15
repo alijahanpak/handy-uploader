@@ -1,6 +1,6 @@
 <template>
   <div class="hu-uploader" :dir="isRtl ? 'rtl' : undefined">
-    <HuDropzone
+    <HandyDropzone
       :accept="accept"
       :disabled="disabled || !uploader.canAddMore.value"
       :label="t.insertFile"
@@ -10,7 +10,7 @@
       <template v-if="$slots.dropzone" #default="slotProps">
         <slot name="dropzone" v-bind="slotProps" />
       </template>
-    </HuDropzone>
+    </HandyDropzone>
 
     <p v-if="uploader.isProcessing.value" class="hu-status" role="status">…</p>
 
@@ -18,7 +18,7 @@
       <li v-for="(message, i) in messages" :key="i">{{ message }}</li>
     </ul>
 
-    <HuFileList
+    <HandyFileList
       :files="model"
       :layout="layout"
       :removable="removable && !disabled"
@@ -35,7 +35,7 @@
       <template #empty>
         <slot name="empty" />
       </template>
-    </HuFileList>
+    </HandyFileList>
   </div>
 </template>
 
@@ -45,8 +45,8 @@ import type { DocumentAttachment, LanguageCode, LanguageCollection, Translation 
 import { formatBytes, type AttachmentError } from '../../core'
 import { languages } from '../../lib/language'
 import { useUploader } from '../useUploader'
-import HuDropzone from './HuDropzone.vue'
-import HuFileList from './HuFileList.vue'
+import HandyDropzone from './HandyDropzone.vue'
+import HandyFileList from './HandyFileList.vue'
 import type { FileListLayout } from '../types'
 
 const props = withDefaults(

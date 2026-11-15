@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { DocumentAttachment } from '../../types'
-import HuUploader from './HuUploader.vue'
+import HandyUploader from './HandyUploader.vue'
 
 const file = (name: string, size = 10, type = '') => new File(['x'.repeat(size)], name, { type })
 
@@ -26,16 +26,16 @@ const stored = (name: string): DocumentAttachment => ({
   }
 })
 
-describe('HuUploader', () => {
+describe('HandyUploader', () => {
   it('renders without Vuetify', () => {
-    const wrapper = mount(HuUploader)
+    const wrapper = mount(HandyUploader)
     expect(wrapper.find('.hu-dropzone').exists()).toBe(true)
     expect(wrapper.text()).toContain('Insert File')
     expect(wrapper.html()).not.toMatch(/<v-/)
   })
 
   it('emits update:modelValue and add when files are chosen', async () => {
-    const wrapper = mount(HuUploader, { props: { modelValue: [] } })
+    const wrapper = mount(HandyUploader, { props: { modelValue: [] } })
     await chooseFiles(wrapper, [file('report.pdf')])
 
     const [[value]] = wrapper.emitted('update:modelValue') as [[DocumentAttachment[]]]
@@ -45,7 +45,7 @@ describe('HuUploader', () => {
   })
 
   it('shows translated errors for rejected files', async () => {
-    const wrapper = mount(HuUploader, { props: { accept: '.pdf', maxFileSize: 5 } })
+    const wrapper = mount(HandyUploader, { props: { accept: '.pdf', maxFileSize: 5 } })
     await chooseFiles(wrapper, [file('a.exe'), file('big.pdf', 50)])
 
     const alert = wrapper.find('[role="alert"]')
@@ -56,7 +56,7 @@ describe('HuUploader', () => {
 
   it('removes a file and emits the removed attachment', async () => {
     const files = [stored('a.pdf'), stored('b.pdf')]
-    const wrapper = mount(HuUploader, { props: { modelValue: files } })
+    const wrapper = mount(HandyUploader, { props: { modelValue: files } })
 
     await wrapper.find('button[aria-label="Delete a.pdf"]').trigger('click')
 
@@ -66,14 +66,14 @@ describe('HuUploader', () => {
   })
 
   it('disables the dropzone when the list is full', () => {
-    const wrapper = mount(HuUploader, {
+    const wrapper = mount(HandyUploader, {
       props: { modelValue: [stored('a.pdf')], maxFileCount: 1 }
     })
     expect(wrapper.find('input[type="file"]').attributes('disabled')).toBeDefined()
   })
 
   it('renders a table layout and switches to RTL for Persian', () => {
-    const wrapper = mount(HuUploader, {
+    const wrapper = mount(HandyUploader, {
       props: { modelValue: [stored('a.pdf')], layout: 'table', lang: 'fa' }
     })
     expect(wrapper.find('table.hu-table').exists()).toBe(true)
@@ -82,7 +82,7 @@ describe('HuUploader', () => {
   })
 
   it('lets a slot replace each item', () => {
-    const wrapper = mount(HuUploader, {
+    const wrapper = mount(HandyUploader, {
       props: { modelValue: [stored('a.pdf')] },
       slots: { item: '<template #item="{ attachment }"><b class="custom">{{ attachment.file.name }}</b></template>' }
     })

@@ -50,21 +50,21 @@ yarn add handy-uploader
 pnpm add handy-uploader
 ```
 
-## 🧩 Without Vuetify: `HuUploader`
+## 🧩 `HandyUploader` (works with any CSS)
 
-`HuUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
+`HandyUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { HuUploader, type DocumentAttachment } from 'handy-uploader'
+import { HandyUploader, type DocumentAttachment } from 'handy-uploader'
 import 'handy-uploader/style.css'
 
 const files = ref<DocumentAttachment[]>([])
 </script>
 
 <template>
-  <HuUploader
+  <HandyUploader
     v-model="files"
     layout="grid"
     accept="image/*,.pdf"
@@ -85,7 +85,7 @@ const files = ref<DocumentAttachment[]>([])
 | `imageCompressor` | `false` | Re-encode JPEG/PNG/WebP as JPEG when that makes them smaller |
 | `imageCompressLevel` | `0.8` | JPEG quality, 0–1 |
 | `removable` / `thumbnails` / `disabled` | `true` / `true` / `false` | |
-| `lang` / `customLang` | `'en'` / `null` | Same translations as `HandyUploader` |
+| `lang` / `customLang` | `'en'` / `null` | `en`, `fa`, `fr`, `ch`, `ar`, or your own translations |
 | `rtl` | auto | Right-to-left; on by default for `fa` and `ar` |
 
 Events: `update:modelValue`, `add(added)`, `remove(attachment, index)`, `error(errors)`.
@@ -103,9 +103,11 @@ Slots: `item`, `actions` (gets `update` to edit name/description/tags), `dropzon
 
 Add the `hu-dark` class for the dark preset. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
 
-**Build your own UI.** `useUploader(filesRef, options)` gives you `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HuDropzone` and `HuFileList` are available as separate building blocks.
+**Build your own UI.** `useUploader(filesRef, options)` gives you `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HandyDropzone` and `HandyFileList` are available as separate building blocks.
 
 ## 🚀 Quick Start (Vuetify components)
+
+The original Vuetify 3 components are imported from `handy-uploader/vuetify`.
 
 ### 1. Install Dependencies
 
@@ -132,7 +134,7 @@ npm install vue@^3.0.0 vuetify@^3.0.0
 </template>
 
 <script setup lang="ts">
-import { ThumbnailUploader } from 'handy-uploader'
+import { ThumbnailUploader } from 'handy-uploader/vuetify'
 import type { FileData } from 'handy-uploader'
 
 const handleFilesSelected = (files: FileData[]) => {
@@ -179,7 +181,7 @@ Perfect for media files with automatic video thumbnail generation:
 </template>
 
 <script setup>
-import { ThumbnailUploader } from 'handy-uploader'
+import { ThumbnailUploader } from 'handy-uploader/vuetify'
 
 const onFilesSelected = (files) => {
   // Video files will have thumbnails automatically generated
@@ -319,7 +321,7 @@ const languages = [
 
 ### Peer Dependencies
 - **Vue**: ^3.0.0
-- **Vuetify**: ^3.0.0 (optional; only needed for `HandyUploader`, `ThumbnailUploader`, `TableUploader` and `SimpleUploader`)
+- **Vuetify**: ^3.0.0 (optional; only needed for `handy-uploader/vuetify`)
 
 ### Browser Support
 - Chrome 88+
@@ -327,7 +329,7 @@ const languages = [
 - Safari 14+
 - Edge 88+
 
-The default `HuUploader` theme uses `color-mix()` and `:has()`, which need Chrome/Edge 111+, Firefox 121+ and Safari 16.4+. In older browsers it still works, with simpler focus and badge styling.
+The default `HandyUploader` theme uses `color-mix()` and `:has()`, which need Chrome/Edge 111+, Firefox 121+ and Safari 16.4+. In older browsers it still works, with simpler focus and badge styling.
 
 ### Bundle Size
 - **Gzipped**: ~45KB
@@ -401,7 +403,7 @@ export default createVuetify({
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ThumbnailUploader, type FileData } from 'handy-uploader'
+import { ThumbnailUploader, type FileData } from 'handy-uploader/vuetify'
 
 const selectedFiles = ref<FileData[]>([])
 const currentLanguage = ref('en')

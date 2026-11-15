@@ -89,7 +89,7 @@ const meta: Meta = {
 
 &lt;script setup&gt;
 import { ref } from 'vue'
-import { HandyUploader } from 'handy-uploader'
+import { HandyUploader } from 'handy-uploader/vuetify'
 
 const files = ref([])
 &lt;/script&gt;</code></pre>
@@ -107,7 +107,8 @@ const files = ref([])
           <h2 style="color: #2c3e50; margin-top: 30px;">📖 Story Navigation</h2>
           <p>Explore the components using the sidebar navigation:</p>
           <ol style="margin-left: 20px;">
-            <li><strong>Components/HandyUploader</strong> - Main component with all features</li>
+            <li><strong>Components/HandyUploader</strong> - Works with any CSS framework, no Vuetify needed</li>
+            <li><strong>Vuetify/HandyUploader</strong> - The Vuetify version, from <code>handy-uploader/vuetify</code></li>
             <li><strong>Components/ThumbnailUploader</strong> - Grid-based visual uploader</li>
             <li><strong>Components/TableUploader</strong> - Detailed table interface</li>
             <li><strong>Components/SimpleUploader</strong> - Minimal upload interface</li>
