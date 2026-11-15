@@ -1,7 +1,7 @@
 {
   "name": "handy-uploader",
   "version": "2.0.3",
-  "description": "A comprehensive Vue 3 file uploader component library with video thumbnail generation and multiple upload styles",
+  "description": "A Vue 3 file uploader with video thumbnails, image compression and i18n. Use the framework-free HuUploader with any CSS, or the Vuetify-based HandyUploader.",
   "main": "dist/handy-uploader.umd.js",
   "module": "dist/handy-uploader.es.js",
   "types": "dist/lib/index.d.ts",
@@ -10,7 +10,8 @@
       "types": "./dist/lib/index.d.ts",
       "import": "./dist/handy-uploader.es.js",
       "require": "./dist/handy-uploader.umd.js"
-    }
+    },
+    "./style.css": "./dist/handy-uploader.css"
   },
   "files": [
     "dist"
@@ -75,6 +76,7 @@
     "@vitejs/plugin-vue-jsx": "^5.1.3",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.6.0",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.7.0",
@@ -89,5 +91,10 @@
     "vue": "^3.5.26",
     "vue-tsc": "^3.2.2",
     "vuetify": "^3.11.6"
+  },
+  "peerDependenciesMeta": {
+    "vuetify": {
+      "optional": true
+    }
   }
 }

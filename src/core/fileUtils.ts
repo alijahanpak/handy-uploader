@@ -252,8 +252,11 @@ export function constructImageDataUrl(base64: string | undefined, format: string
   // Remove any existing data URL prefix (handles svg+xml and other formats)
   const cleanBase64 = base64.replace(/^data:[^;]+;base64,/, '');
 
-  // Determine MIME type
-  const mimeType = format.startsWith('image/') ? format : `image/${format}`;
+  // Determine MIME type ("svg" must become "image/svg+xml", not "image/svg")
+  const known = getMimeTypeFromExtension(`file.${format}`);
+  const mimeType = format.includes('/')
+    ? format
+    : known.startsWith('image/') ? known : `image/${format}`;
 
   return `data:${mimeType};base64,${cleanBase64}`;
 }

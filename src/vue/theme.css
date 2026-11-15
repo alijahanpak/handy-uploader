@@ -1,0 +1,265 @@
+/*
+ * handy-uploader default theme for the framework-free components (HuUploader & co).
+ * Every selector is wrapped in :where(), so it has zero specificity: any class of yours
+ * (Tailwind, Bootstrap, your own CSS) wins without !important. Restyle by overriding the
+ * --hu-* variables on .hu-uploader or any ancestor.
+ */
+
+:where(.hu-uploader) {
+  --hu-font: inherit;
+  --hu-text: #1f2328;
+  --hu-muted: #656d76;
+  --hu-surface: #ffffff;
+  --hu-surface-alt: #f6f8fa;
+  --hu-border: #d0d7de;
+  --hu-primary: #0969da;
+  --hu-primary-soft: #ddf4ff;
+  --hu-danger: #cf222e;
+  --hu-danger-soft: #ffebe9;
+  --hu-radius: 8px;
+  --hu-gap: 12px;
+  --hu-thumb-size: 120px;
+  --hu-focus-ring: 0 0 0 3px color-mix(in srgb, var(--hu-primary) 40%, transparent);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--hu-gap);
+  font-family: var(--hu-font);
+  color: var(--hu-text);
+}
+
+/* Opt-in dark preset: <HuUploader class="hu-dark" /> or on any ancestor. */
+:where(.hu-dark .hu-uploader, .hu-uploader.hu-dark) {
+  --hu-text: #e6edf3;
+  --hu-muted: #8d96a0;
+  --hu-surface: #0d1117;
+  --hu-surface-alt: #161b22;
+  --hu-border: #30363d;
+  --hu-primary: #4493f8;
+  --hu-primary-soft: #121d2f;
+  --hu-danger: #f85149;
+  --hu-danger-soft: #25171c;
+}
+
+:where(.hu-visually-hidden) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Dropzone */
+:where(.hu-dropzone) {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: calc(var(--hu-gap) * 2);
+  border: 2px dashed var(--hu-border);
+  border-radius: var(--hu-radius);
+  background: var(--hu-surface-alt);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+:where(.hu-dropzone:hover, .hu-dropzone--active) {
+  border-color: var(--hu-primary);
+  background: var(--hu-primary-soft);
+}
+:where(.hu-dropzone:has(input:focus-visible)) {
+  box-shadow: var(--hu-focus-ring);
+}
+:where(.hu-dropzone--disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+:where(.hu-dropzone__label) {
+  font-weight: 600;
+  color: var(--hu-primary);
+}
+:where(.hu-dropzone__hint) {
+  font-size: 0.875em;
+  color: var(--hu-muted);
+}
+
+/* Messages */
+:where(.hu-status) {
+  margin: 0;
+  color: var(--hu-muted);
+}
+:where(.hu-errors) {
+  margin: 0;
+  padding: 8px 12px;
+  padding-inline-start: 28px;
+  border-radius: var(--hu-radius);
+  background: var(--hu-danger-soft);
+  color: var(--hu-danger);
+  font-size: 0.875em;
+}
+
+/* Buttons */
+:where(.hu-button) {
+  padding: 4px 10px;
+  border: 1px solid var(--hu-border);
+  border-radius: calc(var(--hu-radius) - 2px);
+  background: var(--hu-surface);
+  color: var(--hu-text);
+  font: inherit;
+  font-size: 0.8125em;
+  cursor: pointer;
+}
+:where(.hu-button:focus-visible) {
+  outline: none;
+  box-shadow: var(--hu-focus-ring);
+}
+:where(.hu-button--danger) {
+  color: var(--hu-danger);
+}
+:where(.hu-button--danger:hover) {
+  border-color: var(--hu-danger);
+  background: var(--hu-danger-soft);
+}
+
+/* File list: grid & list */
+:where(.hu-files) {
+  display: grid;
+  gap: var(--hu-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+:where(.hu-files--grid) {
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--hu-thumb-size) + 40px), 1fr));
+}
+:where(.hu-file) {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--hu-border);
+  border-radius: var(--hu-radius);
+  background: var(--hu-surface);
+}
+:where(.hu-files--list .hu-file) {
+  flex-direction: row;
+  align-items: center;
+}
+:where(.hu-file__info) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+:where(.hu-file__name) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+:where(.hu-file__size) {
+  font-size: 0.8125em;
+  color: var(--hu-muted);
+}
+:where(.hu-file__actions) {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* Preview */
+:where(.hu-preview) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--hu-thumb-size);
+  overflow: hidden;
+  border-radius: calc(var(--hu-radius) - 2px);
+  background: var(--hu-surface-alt);
+}
+:where(.hu-preview--small) {
+  flex: none;
+  width: 44px;
+  height: 44px;
+}
+:where(.hu-preview img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:where(.hu-preview__play) {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+  font-size: 14px;
+}
+:where(.hu-preview--small .hu-preview__play) {
+  display: none;
+}
+
+/* Extension badge, coloured by file type */
+:where(.hu-badge) {
+  --hu-badge: var(--hu-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--hu-badge) 15%, transparent);
+  color: var(--hu-badge);
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+:where(.hu-badge[data-hu-type='image']) { --hu-badge: #8250df; }
+:where(.hu-badge[data-hu-type='document']) { --hu-badge: #cf222e; }
+:where(.hu-badge[data-hu-type='spreadsheet']) { --hu-badge: #1a7f37; }
+:where(.hu-badge[data-hu-type='presentation']) { --hu-badge: #bc4c00; }
+:where(.hu-badge[data-hu-type='video']) { --hu-badge: #bf3989; }
+:where(.hu-badge[data-hu-type='audio']) { --hu-badge: #0550ae; }
+:where(.hu-badge[data-hu-type='archive']) { --hu-badge: #7d4e00; }
+:where(.hu-dark .hu-badge, .hu-uploader.hu-dark .hu-badge) {
+  color: color-mix(in srgb, var(--hu-badge) 55%, white);
+}
+
+/* Table */
+:where(.hu-table) {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--hu-border);
+  border-radius: var(--hu-radius);
+  background: var(--hu-surface);
+  font-size: 0.875em;
+}
+:where(.hu-table th, .hu-table td) {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hu-border);
+  text-align: start;
+  vertical-align: middle;
+}
+:where(.hu-table th) {
+  background: var(--hu-surface-alt);
+  font-weight: 600;
+}
+:where(.hu-table__thumb) {
+  width: 60px;
+}
+:where(.hu-table .hu-file__name) {
+  max-width: 0;
+  width: 100%;
+}
+:where(.hu-table .hu-file__name) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where(.hu-table .hu-file__size) {
+  white-space: nowrap;
+}

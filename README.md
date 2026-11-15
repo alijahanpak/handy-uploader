@@ -50,7 +50,62 @@ yarn add handy-uploader
 pnpm add handy-uploader
 ```
 
-## 🚀 Quick Start
+## 🧩 Without Vuetify: `HuUploader`
+
+`HuUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { HuUploader, type DocumentAttachment } from 'handy-uploader'
+import 'handy-uploader/style.css'
+
+const files = ref<DocumentAttachment[]>([])
+</script>
+
+<template>
+  <HuUploader
+    v-model="files"
+    layout="grid"
+    accept="image/*,.pdf"
+    :max-file-size="5 * 1024 * 1024"
+    :max-file-count="10"
+    image-compressor
+  />
+</template>
+```
+
+| Prop | Default | Description |
+|------|---------|-------------|
+| `modelValue` | `[]` | The attachments (`v-model`) |
+| `layout` | `'grid'` | `'grid'`, `'list'` or `'table'` |
+| `maxFileSize` | `5242880` | Maximum size per file, in bytes |
+| `maxFileCount` | `10` | Maximum number of files |
+| `accept` | `''` | Same format as the HTML `accept` attribute; also applied to drag-and-drop |
+| `imageCompressor` | `false` | Re-encode JPEG/PNG/WebP as JPEG when that makes them smaller |
+| `imageCompressLevel` | `0.8` | JPEG quality, 0–1 |
+| `removable` / `thumbnails` / `disabled` | `true` / `true` / `false` | |
+| `lang` / `customLang` | `'en'` / `null` | Same translations as `HandyUploader` |
+| `rtl` | auto | Right-to-left; on by default for `fa` and `ar` |
+
+Events: `update:modelValue`, `add(added)`, `remove(attachment, index)`, `error(errors)`.
+Slots: `item`, `actions` (gets `update` to edit name/description/tags), `dropzone`, `empty`.
+
+**Styling.** Every built-in selector has zero specificity, so your own classes always win. To re-theme, set CSS variables on the component or any parent:
+
+```css
+.hu-uploader {
+  --hu-primary: #7c3aed;
+  --hu-radius: 16px;
+  --hu-thumb-size: 96px;
+}
+```
+
+Add the `hu-dark` class for the dark preset. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
+
+**Build your own UI.** `useUploader(filesRef, options)` gives you `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HuDropzone` and `HuFileList` are available as separate building blocks.
+
+## 🚀 Quick Start (Vuetify components)
 
 ### 1. Install Dependencies
 
@@ -264,13 +319,15 @@ const languages = [
 
 ### Peer Dependencies
 - **Vue**: ^3.0.0
-- **Vuetify**: ^3.0.0
+- **Vuetify**: ^3.0.0 (optional; only needed for `HandyUploader`, `ThumbnailUploader`, `TableUploader` and `SimpleUploader`)
 
 ### Browser Support
 - Chrome 88+
 - Firefox 85+
 - Safari 14+
 - Edge 88+
+
+The default `HuUploader` theme uses `color-mix()` and `:has()`, which need Chrome/Edge 111+, Firefox 121+ and Safari 16.4+. In older browsers it still works, with simpler focus and badge styling.
 
 ### Bundle Size
 - **Gzipped**: ~45KB

@@ -7,7 +7,7 @@ import { getMimeTypeFromExtension } from './fileUtils'
  * errors come back as codes so each UI layer can render its own messages.
  */
 
-export type AttachmentErrorCode = 'maxFileCount' | 'maxFileSize' | 'invalidFormat'
+export type AttachmentErrorCode = 'maxFileCount' | 'maxFileSize' | 'invalidFormat' | 'fileType'
 
 export interface AttachmentError {
   code: AttachmentErrorCode
@@ -53,6 +53,46 @@ export function joinFileName(name: string, format: string): string {
 export function base64ByteLength(base64: string): number {
   const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
   return Math.floor((base64.length * 3) / 4) - padding
+}
+
+/**
+ * Checks a file against an `accept` string in the same format as the HTML attribute
+ * (".pdf,image/*,application/zip"). An empty string or "*" accepts everything.
+ */
+export function matchesAccept(file: { name: string; type?: string }, accept = ''): boolean {
+  const rules = accept
+    .split(',')
+    .map((rule) => rule.trim().toLowerCase())
+    .filter(Boolean)
+  if (rules.length === 0 || rules.includes('*') || rules.includes('*/*')) return true
+
+  const extension = `.${splitFileName(file.name).format.toLowerCase()}`
+  const mime = (file.type || '').toLowerCase()
+  return rules.some((rule) => {
+    if (rule.startsWith('.')) return rule === extension
+    if (rule.endsWith('/*')) return mime.startsWith(rule.slice(0, -1))
+    return rule === mime
+  })
+}
+
+/** Splits files into those matching `accept` and a `fileType` error for each other one. */
+export function filterByAccept(
+  files: File[],
+  accept = ''
+): { accepted: File[]; errors: AttachmentError[] } {
+  const accepted: File[] = []
+  const errors: AttachmentError[] = []
+  for (const file of files) {
+    if (matchesAccept(file, accept)) accepted.push(file)
+    else errors.push({ code: 'fileType', fileName: file.name })
+  }
+  return { accepted, errors }
+}
+
+/** Formats a byte count as "12.3 KB" / "4.5 MB", with translatable unit labels. */
+export function formatBytes(bytes: number, units: { kb: string; mb: string } = { kb: 'KB', mb: 'MB' }) {
+  const kb = bytes / 1024
+  return kb < 1024 ? `${kb.toFixed(1)} ${units.kb}` : `${(kb / 1024).toFixed(1)} ${units.mb}`
 }
 
 /** Reads a Blob as a data URL. */
@@ -137,14 +177,15 @@ export async function prepareAttachments(
 
   for (const item of staged) {
     const fileData = item.file
+    const fileName = joinFileName(fileData.name, fileData.format)
 
     if (currentCount + accepted.length >= maxFileCount) {
-      errors.push({ code: 'maxFileCount', fileName: fileData.name, limit: maxFileCount })
+      errors.push({ code: 'maxFileCount', fileName, limit: maxFileCount })
       break
     }
 
     if (fileData.size > maxFileSize) {
-      errors.push({ code: 'maxFileSize', fileName: fileData.name, limit: maxFileSize })
+      errors.push({ code: 'maxFileSize', fileName, limit: maxFileSize })
       continue
     }
 
@@ -177,8 +218,8 @@ export async function prepareAttachments(
         }
       })
     } catch (error) {
-      console.error('handy-uploader: could not process file', fileData.name, error)
-      errors.push({ code: 'invalidFormat', fileName: fileData.name })
+      console.error('handy-uploader: could not process file', fileName, error)
+      errors.push({ code: 'invalidFormat', fileName })
     }
   }
 

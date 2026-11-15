@@ -53,6 +53,9 @@ export {
   joinFileName,
   base64ByteLength,
   COMPRESSIBLE_EXTENSIONS,
+  matchesAccept,
+  filterByAccept,
+  formatBytes,
   generateVideoThumbnail,
   getVideoDataUrl,
   createVideoThumbnailCache
@@ -65,6 +68,11 @@ export type {
   CompressFn,
   VideoThumbnailCache
 } from '../core'
+
+// Framework-free Vue components (no Vuetify needed). Styles: import 'handy-uploader/style.css'
+export { HuUploader, HuDropzone, HuFileList, useUploader, DEFAULT_UPLOADER_OPTIONS } from '../vue'
+export type { UploaderOptions, EditableFields, FileListLayout, FileListLabels } from '../vue'
+import { HuUploader, HuDropzone, HuFileList } from '../vue'
 
 // Import composables
 export { useFileUpload } from '../composables/useFileUpload'
@@ -92,7 +100,10 @@ const components: Record<string, Component> = {
   SimpleUploader,
   HandyUploader,
   InsertButton,
-  SelectFileIconType
+  SelectFileIconType,
+  HuUploader,
+  HuDropzone,
+  HuFileList
 }
 
 export default components
@@ -107,6 +118,9 @@ export function install(app: App) {
   app.component('HandyUploader', HandyUploader)
   app.component('InsertButton', InsertButton)
   app.component('SelectFileIconType', SelectFileIconType)
+  app.component('HuUploader', HuUploader)
+  app.component('HuDropzone', HuDropzone)
+  app.component('HuFileList', HuFileList)
 }
 
 // Auto-install when used via script tag

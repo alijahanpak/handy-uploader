@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   base64ByteLength,
+  filterByAccept,
+  formatBytes,
+  matchesAccept,
   joinFileName,
   prepareAttachments,
   readFiles,
@@ -96,7 +99,7 @@ describe('prepareAttachments', () => {
       currentCount: 8
     })
     expect(accepted).toHaveLength(2)
-    expect(errors).toEqual([{ code: 'maxFileCount', fileName: 'report', limit: 10 }])
+    expect(errors).toEqual([{ code: 'maxFileCount', fileName: 'report.pdf', limit: 10 }])
   })
 
   it('skips files over maxFileSize (bytes) and keeps going', async () => {
@@ -105,7 +108,7 @@ describe('prepareAttachments', () => {
       { ...limits, maxFileSize: 2000 }
     )
     expect(accepted.map((a) => a.file.name)).toEqual(['ok.pdf'])
-    expect(errors).toEqual([{ code: 'maxFileSize', fileName: 'big', limit: 2000 }])
+    expect(errors).toEqual([{ code: 'maxFileSize', fileName: 'big.pdf', limit: 2000 }])
   })
 
   it('compresses images with the configured quality and stores them as jpg', async () => {
@@ -147,7 +150,7 @@ describe('prepareAttachments', () => {
       compress
     )
     expect(accepted.map((a) => a.file.name)).toEqual(['fine.pdf'])
-    expect(errors).toEqual([{ code: 'invalidFormat', fileName: 'broken' }])
+    expect(errors).toEqual([{ code: 'invalidFormat', fileName: 'broken.jpeg' }])
   })
 })
 
@@ -166,5 +169,37 @@ describe('file name helpers', () => {
     for (const text of ['', 'a', 'ab', 'abc', 'abcd']) {
       expect(base64ByteLength(btoa(text))).toBe(text.length)
     }
+  })
+})
+
+describe('matchesAccept', () => {
+  const pdf = { name: 'a.PDF', type: 'application/pdf' }
+  const png = { name: 'b.png', type: 'image/png' }
+
+  it.each([
+    ['', pdf, true],
+    ['*', png, true],
+    ['.pdf', pdf, true],
+    ['.pdf', png, false],
+    ['image/*', png, true],
+    ['image/*', pdf, false],
+    ['application/pdf, .docx', pdf, true],
+    ['.jpg,.jpeg', png, false]
+  ])('accept=%j', (accept, file, expected) => {
+    expect(matchesAccept(file, accept)).toBe(expected)
+  })
+
+  it('filterByAccept reports rejected files', () => {
+    const files = [new File([''], 'a.pdf'), new File([''], 'b.exe')]
+    const result = filterByAccept(files, '.pdf')
+    expect(result.accepted.map((f) => f.name)).toEqual(['a.pdf'])
+    expect(result.errors).toEqual([{ code: 'fileType', fileName: 'b.exe' }])
+  })
+})
+
+describe('formatBytes', () => {
+  it('formats KB and MB with custom units', () => {
+    expect(formatBytes(1536)).toBe('1.5 KB')
+    expect(formatBytes(5 * 1024 * 1024, { kb: 'کیلوبایت', mb: 'مگابایت' })).toBe('5.0 مگابایت')
   })
 })

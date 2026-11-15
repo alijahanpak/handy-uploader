@@ -32,6 +32,9 @@ interface Translation {
   };
   maxFileSizeAlert?: string;
   maxFileCountAlert: string;
+  fileTypeAlert?: string;
+  invalidFileAlert?: string;
+  dropHint?: string;
   fileName: string;
   fileDescription: string;
   fileTags: string;
@@ -72,6 +75,9 @@ export const languages: Language = {
     },
     maxFileSizeAlert: "Max file Size is",
     maxFileCountAlert: "Max file Count is",
+    fileTypeAlert: "File type is not allowed",
+    invalidFileAlert: "File could not be processed",
+    dropHint: "or drag and drop here",
     fileName: "File Name",
     fileDescription: "File Description",
     fileTags: "File Tags"
@@ -101,6 +107,9 @@ export const languages: Language = {
     },
     maxFileSizeAlert: "حداکثر حجم فایل انتحابی ",
     maxFileCountAlert: "حداکثر تعداد فایل انتخابی",
+    fileTypeAlert: "نوع فایل مجاز نیست",
+    invalidFileAlert: "فایل قابل پردازش نیست",
+    dropHint: "یا فایل را اینجا رها کنید",
     fileName: "نام فایل",
     fileDescription: "توضیحات فایل",
     fileTags: "برچسب فایل"
@@ -130,6 +139,9 @@ export const languages: Language = {
     },
     maxFileSizeAlert: "La taille maximale du fichier est",
     maxFileCountAlert: "Le nombre maximal de fichiers est",
+    fileTypeAlert: "Ce type de fichier n'est pas autorisé",
+    invalidFileAlert: "Le fichier n’a pas pu être traité",
+    dropHint: "ou glissez-déposez ici",
     fileName: "Nom de fichier",
     fileDescription: "description du fichier",
     fileTags: "Balises de fichier"
@@ -159,6 +171,9 @@ export const languages: Language = {
     },
     maxFileSizeAlert: "档案大小上限为",
     maxFileCountAlert: "现“最大文件数”为",
+    fileTypeAlert: "不允许的文件类型",
+    invalidFileAlert: "无法处理该文件",
+    dropHint: "或将文件拖放到此处",
     fileName: "文档名称",
     fileDescription: "文件描述",
     fileTags: "文件标签"
@@ -188,6 +203,9 @@ export const languages: Language = {
     },
     maxFileSizeAlert: "الحجم الأقصى للملف هو",
     maxFileCountAlert: "الحد الأقصى لعدد الملفات هو",
+    fileTypeAlert: "نوع الملف غير مسموح به",
+    invalidFileAlert: "تعذّرت معالجة الملف",
+    dropHint: "أو اسحب الملفات وأفلتها هنا",
     fileName: "اسم الملف",
     fileDescription: "وصف الملف",
     fileTags: "علامات الملف"
