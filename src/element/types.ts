@@ -3,7 +3,10 @@
 import type { CardType, DocumentAttachment, LanguageCollection } from '../types'
 import type { AttachmentError } from '../core'
 
-/** Properties of the <handy-uploader> element. Each one can also be set as a kebab-case attribute. */
+/**
+ * Properties of the <handy-uploader> element. Each one can also be set as a kebab-case
+ * attribute.
+ */
 export interface HandyUploaderElementProps {
   /** The file list. Set and read it as a JS property: `el.files = [...]`. */
   files: DocumentAttachment[]
@@ -57,8 +60,51 @@ export interface HandyUploaderElementProps {
   rtlSupport?: boolean
 }
 
+type Listener<E> = (this: HandyUploaderElement, event: E) => unknown
+
 /** The <handy-uploader> element. */
-export type HandyUploaderElement = HTMLElement & HandyUploaderElementProps
+export interface HandyUploaderElement extends HTMLElement, Omit<HandyUploaderElementProps, 'lang'> {
+  /** Language: en, fa, fr, ch, ar, or a key from `customLang`. */
+  lang: string
+
+  /** Validate, read and add files (e.g. from your own drop zone). Resolves with what was added. */
+  addFiles(files: FileList | File[]): Promise<DocumentAttachment[]>
+  /** Remove a file by index, without the confirmation dialog. */
+  removeAt(index: number): void
+  /** Open the insert dialog. */
+  openInsert(): void
+
+  addEventListener<K extends keyof HandyUploaderEventMap>(
+    type: K,
+    listener: Listener<HandyUploaderEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  addEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: Listener<HTMLElementEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  removeEventListener<K extends keyof HandyUploaderEventMap>(
+    type: K,
+    listener: Listener<HandyUploaderEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+  removeEventListener<K extends keyof HTMLElementEventMap>(
+    type: K,
+    listener: Listener<HTMLElementEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ): void
+}
 
 export interface HandyUploaderElementConstructor {
   new (): HandyUploaderElement

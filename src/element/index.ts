@@ -8,7 +8,10 @@ import { defineCustomElement } from 'vue'
 import themeCss from '../vue/theme.css?inline'
 import HandyUploaderElementComponent from './HandyUploaderElement'
 
-import type { HandyUploaderElement as HandyUploaderElementType, HandyUploaderElementConstructor } from './types'
+import type {
+  HandyUploaderElement as HandyUploaderElementType,
+  HandyUploaderElementConstructor
+} from './types'
 
 export type {
   HandyUploaderElementProps,
@@ -50,9 +53,11 @@ export function defineHandyUploader(
 ) {
   if (typeof window === 'undefined' || !window.customElements) return
   if (styles) injectStyles()
-  if (!customElements.get(tagName)) {
-    customElements.define(tagName, HandyUploaderElement as unknown as CustomElementConstructor)
-  }
+  if (customElements.get(tagName)) return
+  const base = HandyUploaderElement as unknown as CustomElementConstructor
+  // A constructor can only be registered once, so other tag names get their own subclass.
+  const ctor = tagName === 'handy-uploader' ? base : class extends base {}
+  customElements.define(tagName, ctor)
 }
 
 // Importing the module registers <handy-uploader> right away.

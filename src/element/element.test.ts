@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import type { DocumentAttachment } from '../types'
 import './index'
 import { defineHandyUploader } from './index'
+import type { HandyUploaderElement } from './types'
 
 const file = (name: string, size = 10) => new File(['x'.repeat(size)], name)
 const stored = (name: string): DocumentAttachment => ({
@@ -17,7 +18,7 @@ const stored = (name: string): DocumentAttachment => ({
   }
 })
 
-type El = HTMLElement & { files: DocumentAttachment[] }
+type El = HandyUploaderElement
 
 async function mountEl(html: string): Promise<El> {
   document.body.innerHTML = html
@@ -92,7 +93,9 @@ describe('<handy-uploader> Web Component', () => {
     const el = await mountEl('<handy-uploader></handy-uploader>')
     const changes: DocumentAttachment[][] = []
     const adds: DocumentAttachment[][] = []
-    document.body.addEventListener('hu-change', (e) => changes.push((e as CustomEvent).detail.files))
+    document.body.addEventListener('hu-change', (e) =>
+      changes.push((e as CustomEvent).detail.files)
+    )
     // Native change events from the inner inputs must not look like ours
     const nativeChanges: Event[] = []
     el.addEventListener('change', (e) => nativeChanges.push(e))
@@ -120,7 +123,9 @@ describe('<handy-uploader> Web Component', () => {
 
     ;(el.querySelector('button[aria-label="Delete a.pdf"]') as HTMLButtonElement).click()
     await nextTick()
-    const confirm = [...el.querySelectorAll('dialog button')].filter((b) => b.textContent?.trim() === 'Delete').at(-1)
+    const confirm = [...el.querySelectorAll('dialog button')]
+      .filter((b) => b.textContent?.trim() === 'Delete')
+      .at(-1)
     ;(confirm as HTMLButtonElement).click()
     await nextTick()
 
@@ -131,11 +136,66 @@ describe('<handy-uploader> Web Component', () => {
   it('dispatches hu-error for rejected files', async () => {
     const el = await mountEl('<handy-uploader file-accept=".pdf"></handy-uploader>')
     const errors: string[] = []
-    el.addEventListener('hu-error', (e) => errors.push(...(e as unknown as CustomEvent).detail.errors.map((x: { code: string }) => x.code)))
+    el.addEventListener('hu-error', (e) =>
+      errors.push(
+        ...(e as unknown as CustomEvent).detail.errors.map((x: { code: string }) => x.code)
+      )
+    )
     ;(el.querySelector('.hu-toolbar button') as HTMLButtonElement).click()
     const input = el.querySelector('dialog input[type="file"]') as HTMLInputElement
     Object.defineProperty(input, 'files', { value: [file('virus.exe')], configurable: true })
     input.dispatchEvent(new Event('change'))
     await vi.waitFor(() => expect(errors).toEqual(['fileType']))
+  })
+})
+
+describe('<handy-uploader> review fixes', () => {
+  it('never mutates the array it was given, nor arrays from earlier events', async () => {
+    const el = await mountEl('<handy-uploader></handy-uploader>')
+    const given: DocumentAttachment[] = [stored('keep.pdf')]
+    el.files = given
+    await nextTick()
+    const snapshots: DocumentAttachment[][] = []
+    el.addEventListener('hu-change', (e) => snapshots.push(e.detail.files))
+    await addThroughDialog(el, [file('a.pdf')])
+    await addThroughDialog(el, [file('b.pdf')])
+    expect(given.map((a) => a.file.name)).toEqual(['keep.pdf'])
+    expect(snapshots[0].map((a) => a.file.name)).toEqual(['keep.pdf', 'a.pdf'])
+    expect(el.files.map((a) => a.file.name)).toEqual(['keep.pdf', 'a.pdf', 'b.pdf'])
+  })
+
+  it('treats empty number attributes as not set', async () => {
+    const el = await mountEl(
+      '<handy-uploader max-file-count="" max-file-size=" "></handy-uploader>'
+    )
+    expect((el.querySelector('.hu-toolbar button') as HTMLButtonElement).disabled).toBe(false)
+  })
+
+  it('reads custom-lang from a JSON attribute', async () => {
+    const lang = JSON.stringify({ de: { insertFile: 'Datei hinzufügen' } })
+    document.body.innerHTML = `<handy-uploader lang="de"></handy-uploader>`
+    const el = document.body.firstElementChild as El
+    el.setAttribute('custom-lang', lang)
+    await nextTick()
+    expect(el.querySelector('.hu-toolbar button')!.textContent).toContain('Datei hinzufügen')
+  })
+
+  it('can be registered under another tag name too', async () => {
+    defineHandyUploader('my-uploader')
+    const el = await mountEl('<my-uploader></my-uploader>')
+    expect(el.querySelector('.hu-uploader')).not.toBeNull()
+  })
+
+  it('exposes addFiles and removeAt, which dispatch hu-add and hu-remove', async () => {
+    const el = await mountEl('<handy-uploader></handy-uploader>')
+    const events: string[] = []
+    el.addEventListener('hu-add', () => events.push('add'))
+    el.addEventListener('hu-remove', () => events.push('remove'))
+    await el.addFiles([file('x.pdf')])
+    expect(el.files.map((a) => a.file.name)).toEqual(['x.pdf'])
+    el.removeAt(0)
+    await nextTick()
+    expect(el.files).toEqual([])
+    expect(events).toEqual(['add', 'remove'])
   })
 })

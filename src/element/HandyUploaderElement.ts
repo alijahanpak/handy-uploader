@@ -1,4 +1,4 @@
-import { defineComponent, h, shallowRef, useHost, watch, type PropType } from 'vue'
+import { defineComponent, h, ref, useHost, type PropType } from 'vue'
 import type { DocumentAttachment, LanguageCollection } from '../types'
 import type { AttachmentError } from '../core'
 import type {
@@ -49,26 +49,55 @@ const RUNTIME_TYPES: Record<Kind, PropType<unknown>> = {
   // String too, so that attribute="false" can be read as false (Vue would treat it as truthy).
   boolean: [Boolean, String],
   list: [Array, String],
-  object: Object
+  object: [Object, String]
 }
 
-function normalise(kind: Kind, value: unknown): unknown {
+const isBlank = (value: unknown) => typeof value === 'string' && value.trim() === ''
+
+function normalise(name: string, kind: Kind, value: unknown): unknown {
   if (value === undefined || value === null) return undefined
   switch (kind) {
     case 'number': {
+      // An empty attribute (max-file-count="") means "not set", not 0.
+      if (isBlank(value)) return undefined
       const n = typeof value === 'number' ? value : Number(value)
       return Number.isFinite(n) ? n : undefined
     }
     case 'boolean':
-      if (typeof value === 'string') return !['false', '0', 'no', 'off'].includes(value.trim().toLowerCase())
+      if (typeof value === 'string') {
+        return !['false', '0', 'no', 'off'].includes(value.trim().toLowerCase())
+      }
       return Boolean(value)
     case 'list':
       // Attribute form: tags="invoice, contract, photo"
-      if (typeof value === 'string') return value.split(',').map((s) => s.trim()).filter(Boolean)
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      }
       return Array.isArray(value) ? value : undefined
+    case 'object':
+      // Attribute form: custom-lang='{"de": {...}}'
+      if (typeof value === 'string') {
+        if (isBlank(value)) return undefined
+        try {
+          return JSON.parse(value)
+        } catch {
+          console.warn(`[handy-uploader] ${name}: attribute is not valid JSON, ignoring it.`)
+          return undefined
+        }
+      }
+      return value
     default:
       return value
   }
+}
+
+type InnerApi = {
+  add: (files: FileList | File[]) => Promise<DocumentAttachment[]>
+  remove: (index: number) => void
+  openInsert: () => void
 }
 
 export default defineComponent({
@@ -77,19 +106,15 @@ export default defineComponent({
     /** The file list. Set it as a JS property (`el.files = [...]`); read it back the same way. */
     files: { type: Array as PropType<DocumentAttachment[]>, default: undefined },
     ...Object.fromEntries(
-      Object.entries(PROPS).map(([name, kind]) => [name, { type: RUNTIME_TYPES[kind], default: undefined }])
+      Object.entries(PROPS).map(([name, kind]) => [
+        name,
+        { type: RUNTIME_TYPES[kind], default: undefined }
+      ])
     )
   },
-  setup(props) {
+  setup(props, { expose }) {
     const host = useHost()
-    const files = shallowRef<DocumentAttachment[]>(props.files ?? [])
-
-    watch(
-      () => props.files,
-      (value) => {
-        files.value = value ?? []
-      }
-    )
+    const inner = ref<InnerApi | null>(null)
 
     // DOM events with a clear `detail`, bubbling so they can be listened to on a parent.
     // Prefixed with `hu-` because native `change` events from the inputs inside bubble too.
@@ -97,32 +122,46 @@ export default defineComponent({
       host?.dispatchEvent(new CustomEvent(type, { detail, bubbles: true, composed: true }))
     }
 
-    // Write back through the element's own `files` property, so `el.files` always returns the
-    // current list (the watcher above then sees the same array and changes nothing).
+    // The new list is written to the element's own `files` property (the single source of
+    // truth), so `el.files` always returns the current list.
     function setFiles(next: DocumentAttachment[]) {
-      files.value = next
       if (host) (host as unknown as { files: DocumentAttachment[] }).files = next
     }
+
+    // Methods on the element, for apps with their own drop zone or paste handling.
+    expose({
+      /** Validate, read and add files. Resolves with the attachments that were added. */
+      addFiles: (files: FileList | File[]) => inner.value?.add(files) ?? Promise.resolve([]),
+      /** Remove a file by index, without the confirmation dialog. */
+      removeAt: (index: number) => inner.value?.remove(index),
+      /** Open the insert dialog. */
+      openInsert: () => inner.value?.openInsert()
+    })
 
     return () => {
       const passed: Record<string, unknown> = {}
       for (const [name, kind] of Object.entries(PROPS)) {
-        const value = normalise(kind, (props as Record<string, unknown>)[name])
+        const value = normalise(name, kind, (props as Record<string, unknown>)[name])
         if (value !== undefined) passed[name] = value
       }
       return h(HandyUploader, {
         ...passed,
+        ref: inner,
         customLang: (passed.customLang as LanguageCollection | undefined) ?? null,
-        documentAttachment: files.value,
+        // A copy: HandyUploader updates the array it is given in place, and the caller's array
+        // (e.g. React state) and arrays from earlier events must never change behind their back.
+        documentAttachment: [...(props.files ?? [])],
         'onUpdate:documentAttachment': (value: DocumentAttachment[]) => {
           const next = [...value]
           setFiles(next)
           dispatch<HandyUploaderChangeDetail>('hu-change', { files: next })
         },
-        onAdd: (added: DocumentAttachment[]) => dispatch<HandyUploaderAddDetail>('hu-add', { added }),
+        onAdd: (added: DocumentAttachment[]) =>
+          dispatch<HandyUploaderAddDetail>('hu-add', { added }),
         onRemove: (attachment: DocumentAttachment, index: number) =>
           dispatch<HandyUploaderRemoveDetail>('hu-remove', { attachment, index }),
-        onError: (errors: AttachmentError[]) => dispatch<HandyUploaderErrorDetail>('hu-error', { errors })
+        onError: (errors: AttachmentError[]) =>
+          dispatch<HandyUploaderErrorDetail>('hu-error', { errors })
       })
     }
   }
