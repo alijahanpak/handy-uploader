@@ -4,18 +4,32 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { test as setup } from '@playwright/test'
+import { chromium, test as setup } from '@playwright/test'
 import { root, run, tarball } from './shared'
 
 setup('build and pack the library', async () => {
+  // Fail fast: make sure Chromium starts before spending minutes on builds.
+  await setup.step('Chromium starts', async () => {
+    const executablePath = process.env.CHROMIUM_PATH || undefined
+    try {
+      const browser = await chromium.launch({ executablePath })
+      await browser.close()
+    } catch (error) {
+      throw new Error(
+        `Could not start Chromium: ${(error as Error).message.split('\n')[0]}\n` +
+          'Run `npx playwright install chromium`, or set CHROMIUM_PATH to a Chrome/Chromium binary.'
+      )
+    }
+  })
+
   if (!process.env.SKIP_BUILD) {
-    await setup.step('npm run build', () => {
-      run('npm', ['run', 'build'], root)
+    await setup.step('npm run build', async () => {
+      await run('npm', ['run', 'build'], root)
     })
   }
-  await setup.step('npm pack', () => {
+  await setup.step('npm pack', async () => {
     const packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hu-pack-'))
-    const packOut = run('npm', ['pack', '--json', '--pack-destination', packDir], root)
+    const packOut = await run('npm', ['pack', '--json', '--pack-destination', packDir], root)
     // The `prepare` script may print before the JSON.
     const packed = JSON.parse(packOut.slice(packOut.indexOf('[\n')))[0]
     fs.copyFileSync(path.join(packDir, packed.filename), tarball)

@@ -2,26 +2,19 @@ import { defineConfig, devices } from '@playwright/test'
 
 // Two projects:
 //
-//   components  the uploader stories (Vue, Vuetify, Web Component) in a static Storybook build.
-//               Build it first: `npm run build-storybook` (`npm run test:e2e:components` does).
+//   components  the uploader stories (Vue, Vuetify, Web Component) in a static Storybook build,
+//               served by a worker fixture (e2e/components/fixtures.ts). Build it first:
+//               `npm run build-storybook` (`npm run test:e2e:components` does).
 //   examples    the framework example apps in examples/, each with the freshly packed library
 //               installed. `examples-setup` builds and packs the library first.
 //
 // npm run test:e2e              both (builds Storybook first)
+// npm run test:e2e:run          both, without building anything (SKIP_BUILD=1 for examples)
 // npm run test:e2e:components   components only
 // npm run test:examples         examples only; pick some with `-- --grep "react-19|svelte-5"`,
 //                               reuse the current dist/ with SKIP_BUILD=1
 
 const CI = !!process.env.CI
-const STORYBOOK_PORT = Number(process.env.STORYBOOK_PORT ?? 6007)
-
-// The Storybook server is only needed by the components project, so it is not started when
-// only the examples are run (`--project=examples`).
-const projectArgs = process.argv.flatMap((arg, i, argv) =>
-  arg === '--project' ? [argv[i + 1]] : arg.startsWith('--project=') ? [arg.slice(10)] : []
-)
-const needsStorybook =
-  projectArgs.length === 0 || projectArgs.some((name) => !name?.startsWith('examples'))
 
 export default defineConfig({
   testDir: './e2e',
@@ -44,8 +37,7 @@ export default defineConfig({
     {
       name: 'components',
       testDir: './e2e/components',
-      fullyParallel: true,
-      use: { baseURL: `http://127.0.0.1:${STORYBOOK_PORT}/` }
+      fullyParallel: true
     },
     {
       // Builds the library and packs it into examples/.handy-uploader.tgz.
@@ -63,14 +55,5 @@ export default defineConfig({
       fullyParallel: true,
       timeout: 60_000
     }
-  ],
-  webServer: needsStorybook
-    ? {
-        // Serves the static build in storybook-static/ (fails if it hasn't been built).
-        command: `npx vite preview --outDir storybook-static --host 127.0.0.1 --port ${STORYBOOK_PORT} --strictPort`,
-        url: `http://127.0.0.1:${STORYBOOK_PORT}/index.json`,
-        reuseExistingServer: !CI,
-        timeout: 30_000
-      }
-    : undefined
+  ]
 })

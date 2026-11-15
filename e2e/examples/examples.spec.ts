@@ -5,7 +5,7 @@
 //   "Clear" (app sets its state to [])         ⇒ 0 cards (the `files` property reached it)
 //   Insert → report.pdf + notes.txt → Add      ⇒ 2 cards, and the app's own state says so
 //   "Add sample" (el.addFiles)                 ⇒ 3 cards, app state updated
-//   no page errors, no console errors
+//   no page errors, no console errors (the pageErrors fixture in ../fixtures.ts)
 //
 // Pick examples with --grep: `npm run test:examples -- --grep "react-19|svelte-5"`.
 import fs from 'node:fs'
@@ -25,9 +25,9 @@ for (const name of examples) {
 
       // Framework versions come from the committed lockfile; the library is the fresh tarball,
       // installed without touching package.json or the lockfile.
-      await test.step('npm ci + npm install --no-save <tarball>', () => {
-        run('npm', ['ci', '--no-audit', '--no-fund'], dir)
-        run('npm', ['install', '--no-save', '--no-audit', '--no-fund', tarball], dir)
+      await test.step('npm ci + npm install --no-save <tarball>', async () => {
+        await run('npm', ['ci', '--no-audit', '--no-fund'], dir)
+        await run('npm', ['install', '--no-save', '--no-audit', '--no-fund', tarball], dir)
       })
       await test.step('the installed library is the fresh build', () => {
         const installed = fs.readFileSync(
@@ -40,9 +40,9 @@ for (const name of examples) {
       const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'))
       let outDir = dir // no build step (plain HTML)
       if (pkg.scripts?.build) {
-        await test.step('npm run build', () => {
+        await test.step('npm run build', async () => {
           fs.rmSync(path.join(dir, 'dist'), { recursive: true, force: true })
-          run('npm', ['run', 'build'], dir)
+          await run('npm', ['run', 'build'], dir)
         })
         outDir = path.join(dir, 'dist')
         if (fs.existsSync(path.join(outDir, 'browser/index.html')))
@@ -55,7 +55,7 @@ for (const name of examples) {
       await server?.close()
     })
 
-    test('uploader works in the app', async ({ page, pageErrors }) => {
+    test('uploader works in the app', async ({ page }) => {
       const uploader = page.locator('handy-uploader')
       const cards = uploader.locator('.hu-card')
       const state = page.locator('#state')
@@ -103,11 +103,7 @@ for (const name of examples) {
       await test.step('addFiles → app state', async () => {
         await expect(state).toHaveText('3 files: report.pdf, notes.txt, sample.txt')
       })
-
-      await test.step('no page/console errors', async () => {
-        await page.waitForTimeout(100) // let any late errors surface
-        expect(pageErrors).toEqual([])
-      })
+      // No page or console errors: checked by the pageErrors fixture after the test.
     })
   })
 }

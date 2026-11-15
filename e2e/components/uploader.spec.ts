@@ -1,5 +1,5 @@
 // The behaviour every flavour shares, run against the Vue, Web Component and Vuetify stories.
-import { expect, test } from '../fixtures'
+import { expect, test } from './fixtures'
 import { bigPdf, pdf, png, txt } from '../support/files'
 import { flavours } from './flavours'
 
@@ -13,6 +13,8 @@ for (const flavour of flavours) {
       for (const story of ['thumbnail-view', 'simple-view', 'table-view'] as const) {
         test(story, async ({ page }) => {
           const uploader = await flavour.open(page, story)
+          const view = story.replace('-view', '') as 'thumbnail' | 'simple' | 'table'
+          await expect(uploader.layout(view).first()).toBeVisible()
           await expect(uploader.items).toHaveCount(SAMPLES.length)
           // The Vuetify table shortens long names, so only the start is checked there.
           for (const name of SAMPLES) {
@@ -45,8 +47,10 @@ for (const flavour of flavours) {
 
     test('shows file-type icons and no badge with thumb and badgeCounter off', async ({ page }) => {
       // MinimalFeatures: thumb, badgeCounter and all editing features off.
-      for (const view of ['thumbnail', 'simple', 'table']) {
+      for (const view of ['thumbnail', 'simple', 'table'] as const) {
         const uploader = await flavour.open(page, 'minimal-features', { fileUploaderType: view })
+        // The requested layout is really shown, not the story's default one.
+        await expect(uploader.layout(view).first()).toBeVisible()
         await expect(uploader.items).toHaveCount(3)
         await expect(uploader.thumbnail('vue-upload')).toHaveCount(0)
         await expect(uploader.badge).toHaveCount(0)

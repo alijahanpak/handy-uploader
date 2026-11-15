@@ -1,5 +1,5 @@
-// A tiny static file server with an SPA fallback to index.html, so every example app is
-// served the same way, whatever its build tool.
+// A tiny static file server with an SPA fallback to index.html. Serves the Storybook build
+// (components/fixtures.ts) and every example app the same way, whatever its build tool.
 import fs from 'node:fs'
 import http from 'node:http'
 import type { AddressInfo } from 'node:net'
@@ -13,8 +13,12 @@ const MIME: Record<string, string> = {
   '.json': 'application/json',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
   '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2'
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.eot': 'application/vnd.ms-fontobject'
 }
 
 export interface StaticServer {

@@ -30,25 +30,63 @@ export const storyUrl = (prefix: string, story: StoryName) =>
 
 type StorybookChannel = {
   emit(event: string, payload: unknown): void
-  once(event: string, listener: () => void): void
+  on(event: string, listener: () => void): void
+}
+type RenderCounter = { __huRenders: number }
+
+/**
+ * Counts Storybook's `storyRendered` events in `window.__huRenders`. Runs before any page script
+ * (page.addInitScript), so the first render is never missed: it hooks the channel the moment
+ * Storybook assigns it to `window.__STORYBOOK_ADDONS_CHANNEL__`.
+ */
+function countRenders() {
+  const win = window as unknown as RenderCounter & Record<string, unknown>
+  win.__huRenders = 0
+  let channel: StorybookChannel | undefined
+  Object.defineProperty(window, '__STORYBOOK_ADDONS_CHANNEL__', {
+    configurable: true,
+    get: () => channel,
+    set(value: StorybookChannel) {
+      channel = value
+      value.on('storyRendered', () => win.__huRenders++)
+    }
+  })
+}
+
+const renders = (page: Page) =>
+  page.evaluate(() => (window as unknown as RenderCounter).__huRenders)
+
+/** Opens a story and waits until Storybook has finished rendering it. */
+const counted = new WeakSet<Page>()
+
+export async function gotoStory(page: Page, prefix: string, story: StoryName) {
+  if (!counted.has(page)) {
+    counted.add(page)
+    await page.addInitScript(countRenders)
+  }
+  await page.goto(storyUrl(prefix, story))
+  await expect.poll(() => renders(page)).toBeGreaterThanOrEqual(1)
 }
 
 /**
- * Changes story args the way the Controls panel does, and waits for the story to re-render.
+ * Changes story args the way the Controls panel does, and waits for the re-render they cause.
+ * Call it only after gotoStory, so the initial render can't be mistaken for this one.
  * (The `args` URL parameter can't be used: Storybook ignores it for props whose inferred type
  * is a union, like `lang` and `fileUploaderType` of the Vue components.)
  */
 export async function updateArgs(page: Page, storyId: string, args: StoryArgs) {
+  const before = await renders(page)
   await page.evaluate(
-    ({ storyId, args }) =>
-      new Promise<void>((resolve) => {
-        const channel = (window as unknown as { __STORYBOOK_ADDONS_CHANNEL__: StorybookChannel })
-          .__STORYBOOK_ADDONS_CHANNEL__
-        channel.once('storyRendered', () => requestAnimationFrame(() => resolve()))
-        channel.emit('updateStoryArgs', { storyId, updatedArgs: args })
-      }),
+    ({ storyId, args }) => {
+      const channel = (window as unknown as { __STORYBOOK_ADDONS_CHANNEL__: StorybookChannel })
+        .__STORYBOOK_ADDONS_CHANNEL__
+      channel.emit('updateStoryArgs', { storyId, updatedArgs: args })
+    },
     { storyId, args }
   )
+  await expect.poll(() => renders(page)).toBeGreaterThan(before)
+  // Let Vue and the custom element flush the new props to the DOM.
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)))
 }
 
 export abstract class Uploader {
@@ -69,6 +107,9 @@ export abstract class Uploader {
   item(name: string) {
     return this.items.filter({ hasText: name })
   }
+
+  /** The files in the given layout: present only while that layout is shown. */
+  abstract layout(view: 'thumbnail' | 'simple' | 'table'): Locator
 
   /** The preview image of a file (not its file-type icon). */
   abstract thumbnail(name: string): Locator
@@ -159,6 +200,9 @@ class HuUploader extends Uploader {
   readonly editSaveButton = this.addButton
   protected readonly dropTarget = this.dialog.locator('.hu-dropzone')
 
+  layout(view: 'thumbnail' | 'simple' | 'table') {
+    return this.root.locator(view === 'table' ? 'table.hu-table' : `.hu-card--${view}`)
+  }
   thumbnail(name: string) {
     return this.item(name).locator('img')
   }
@@ -211,6 +255,10 @@ class VuetifyUploader extends Uploader {
   readonly editSaveButton = this.dialog.getByRole('button', { name: 'Edit', exact: true })
   protected readonly dropTarget = this.dialog.locator('.v-file-input .v-field')
 
+  layout(view: 'thumbnail' | 'simple' | 'table') {
+    const selector = { thumbnail: '.v-card.mx-auto', simple: '.v-card.file-card', table: 'table' }
+    return this.root.locator(selector[view])
+  }
   thumbnail(name: string) {
     return this.item(name).locator('img')
   }
@@ -274,7 +322,7 @@ function flavour(
     title,
     prefix,
     async open(page, story, args) {
-      await page.goto(storyUrl(prefix, story))
+      await gotoStory(page, prefix, story)
       const uploader = new Driver(page)
       await expect(uploader.root).toBeVisible()
       if (args) await updateArgs(page, `${prefix}--${story}`, args)

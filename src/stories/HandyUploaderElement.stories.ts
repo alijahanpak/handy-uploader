@@ -74,8 +74,11 @@ const ElementDemo = defineComponent({
       for (const [name, value] of Object.entries(args)) {
         if (name === 'files') continue
         const attr = kebab(name)
-        if (value === undefined || value === null) el.removeAttribute(attr)
-        else if (name === 'customLang') el.customLang = value as HandyUploaderElement['customLang']
+        if (name === 'customLang') {
+          // A JS property: clearing the arg must clear the property, not only the attribute.
+          el.removeAttribute(attr)
+          el.customLang = (value ?? null) as HandyUploaderElement['customLang']
+        } else if (value === undefined || value === null) el.removeAttribute(attr)
         else if (Array.isArray(value)) el.setAttribute(attr, value.join(', '))
         else el.setAttribute(attr, String(value))
       }

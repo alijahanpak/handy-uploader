@@ -61,6 +61,17 @@ describe('Vuetify HandyUploader: Insert button', () => {
     })
     expect(insertButton(fullNoBadge)?.attributes('disabled')).toBeDefined()
   })
+
+  it('turns the badge red at the limit, and also above it', () => {
+    const badge = (count: number) =>
+      mountUploader({
+        documentAttachment: Array.from({ length: count }, (_, i) => stored(`${i}.pdf`)),
+        maxFileCount: 2
+      }).find('.v-badge__badge')
+    expect(badge(1).classes()).toContain('bg-success')
+    expect(badge(2).classes()).toContain('bg-error')
+    expect(badge(3).classes()).toContain('bg-error')
+  })
 })
 
 describe('Vuetify HandyUploader: thumb', () => {

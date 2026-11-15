@@ -4,9 +4,9 @@
 // element, or on a fresh one created there, configured only with attributes as in plain HTML.
 import type { Locator, Page } from '@playwright/test'
 import type { HandyUploaderElement } from '../../src/element/types'
-import { expect, test } from '../fixtures'
+import { expect, test } from './fixtures'
 import { pdf, png, serialisable, txt, type TestFile } from '../support/files'
-import { flavourById, storyUrl } from './flavours'
+import { flavourById, gotoStory } from './flavours'
 
 const element = flavourById('element')
 
@@ -34,7 +34,7 @@ const fileNames = (el: Locator) =>
 
 /** A new <handy-uploader> on the page, set up with attributes only. */
 async function createElement(page: Page, attributes: Record<string, string>) {
-  await page.goto(storyUrl(element.prefix, 'playground'))
+  await gotoStory(page, element.prefix, 'playground')
   await expect(page.locator('handy-uploader')).toHaveCount(1)
   await page.evaluate((attributes) => {
     const el = document.createElement('handy-uploader')

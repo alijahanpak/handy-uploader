@@ -39,7 +39,23 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
 
+      # For the e2e job, so it tests exactly these builds without rebuilding.
+      - name: Upload library build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 3
+
+      - name: Upload Storybook build
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static/
+          retention-days: 3
+
   e2e:
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -61,10 +77,24 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
-      # Builds Storybook, then runs both projects: the components (Vue, Vuetify and Web
-      # Component stories) and the example apps (builds, packs and installs the library in each).
+      - name: Download library build
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Download Storybook build
+        uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static/
+
+      # Both projects, on the build job's output: the components (Vue, Vuetify and Web Component
+      # stories) and the example apps (packs the library and installs it in each).
       - name: Run e2e tests
-        run: npm run test:e2e
+        run: npm run test:e2e:run
+        env:
+          SKIP_BUILD: '1'
 
       - name: Upload Playwright report
         if: failure()

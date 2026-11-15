@@ -69,6 +69,7 @@
     "build-element": "vite build --mode element",
     "test:examples": "playwright test --project=examples",
     "test:e2e": "npm run build-storybook && playwright test",
+    "test:e2e:run": "playwright test",
     "test:e2e:components": "npm run build-storybook && playwright test --project=components"
   },
   "peerDependencies": {
