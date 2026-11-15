@@ -52,44 +52,74 @@ export function useUploader(
   const count = computed(() => attachments.value.length)
   const canAddMore = computed(() => count.value < resolveOptions().maxFileCount)
 
-  // Adds run one after another so each one sees the count left by the previous one.
+  // Operations run one after another so each one sees the count left by the previous one.
   let queue: Promise<unknown> = Promise.resolve()
+  function enqueue<T>(task: () => Promise<T>): Promise<T> {
+    const next = queue.then(task)
+    queue = next.catch(() => undefined)
+    return next
+  }
 
-  async function run(files: File[]): Promise<DocumentAttachment[]> {
-    const opts = resolveOptions()
+  async function busy<T>(task: () => Promise<T>): Promise<T> {
     isProcessing.value = true
     try {
-      const byType = filterByAccept(files, opts.accept)
-      // Reject by size/count before reading, so large or surplus files never hit memory.
-      const byLimits = precheckFiles(byType.accepted, {
-        currentCount: attachments.value.length,
-        maxFileCount: opts.maxFileCount,
-        maxFileSize: opts.maxFileSize
-      })
-      const staged = await readFiles(byLimits.accepted)
-      const result = await prepareAttachments(staged, {
-        currentCount: attachments.value.length,
-        maxFileCount: opts.maxFileCount,
-        maxFileSize: opts.maxFileSize,
-        imageCompressor: opts.imageCompressor,
-        imageCompressLevel: opts.imageCompressLevel
-      })
-      if (result.accepted.length > 0) {
-        attachments.value = [...attachments.value, ...result.accepted]
-      }
-      errors.value = [...byType.errors, ...byLimits.errors, ...result.errors]
-      return result.accepted
+      return await task()
     } finally {
       isProcessing.value = false
     }
   }
 
-  /** Validates, reads and appends files. Resolves with the attachments that were added. */
-  function add(files: FileList | File[]): Promise<DocumentAttachment[]> {
+  /**
+   * Step 1 of 2: checks type, size and count (counting `pending` already-staged files),
+   * then reads the files that pass. Nothing is added to the list yet, so names,
+   * descriptions and tags can be edited on the staged attachments before commit().
+   */
+  function stage(files: FileList | File[], pending = 0): Promise<DocumentAttachment[]> {
     const list = Array.from(files)
-    const next = queue.then(() => run(list))
-    queue = next.catch(() => undefined)
-    return next
+    return enqueue(() =>
+      busy(async () => {
+        const opts = resolveOptions()
+        const byType = filterByAccept(list, opts.accept)
+        // Reject by size/count before reading, so large or surplus files never hit memory.
+        const byLimits = precheckFiles(byType.accepted, {
+          currentCount: attachments.value.length + pending,
+          maxFileCount: opts.maxFileCount,
+          maxFileSize: opts.maxFileSize
+        })
+        errors.value = [...byType.errors, ...byLimits.errors]
+        return readFiles(byLimits.accepted)
+      })
+    )
+  }
+
+  /** Step 2 of 2: validates staged attachments (compressing images if enabled) and appends them. */
+  function commit(staged: DocumentAttachment[]): Promise<DocumentAttachment[]> {
+    return enqueue(() =>
+      busy(async () => {
+        const opts = resolveOptions()
+        const result = await prepareAttachments(staged, {
+          currentCount: attachments.value.length,
+          maxFileCount: opts.maxFileCount,
+          maxFileSize: opts.maxFileSize,
+          imageCompressor: opts.imageCompressor,
+          imageCompressLevel: opts.imageCompressLevel
+        })
+        if (result.accepted.length > 0) {
+          attachments.value = [...attachments.value, ...result.accepted]
+        }
+        errors.value = result.errors
+        return result.accepted
+      })
+    )
+  }
+
+  /** stage() + commit() in one go. Resolves with the attachments that were added. */
+  async function add(files: FileList | File[]): Promise<DocumentAttachment[]> {
+    const staged = await stage(files)
+    const stageErrors = errors.value
+    const added = await commit(staged)
+    errors.value = [...stageErrors, ...errors.value]
+    return added
   }
 
   function remove(index: number) {
@@ -117,6 +147,8 @@ export function useUploader(
     canAddMore,
     options: computed(resolveOptions),
     add,
+    stage,
+    commit,
     remove,
     update,
     clear,

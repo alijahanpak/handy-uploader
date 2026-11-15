@@ -1,11 +1,7 @@
-export type FileListLayout = 'grid' | 'list' | 'table'
+/** Same values as the Vuetify version's fileUploaderType prop. */
+export type FileUploaderView = 'thumbnail' | 'simple' | 'table'
 
-export interface FileListLabels {
-  name: string
-  size: string
-  remove: string
-  preview: string
-  actions: string
-  kb: string
-  mb: string
-}
+/** Same values as the Vuetify version's cardType prop. */
+export type CardStyle = 'default' | 'outlined' | 'shaped' | 'raised' | 'tile'
+
+export type IconName = 'trash' | 'pencil' | 'chevron' | 'close' | 'play' | 'upload' | 'disk'

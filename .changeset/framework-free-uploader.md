@@ -13,16 +13,18 @@
 
 Types, utilities and translations are available from both entries. If you register components globally, use the `install` function from `handy-uploader/vuetify`.
 
-**The new `HandyUploader`:**
+**The new `HandyUploader`** has the same props and events as the Vuetify version: thumbnail, simple and table views; the insert dialog with name, description and tags; the edit dialog; delete confirmation; permissions; card styles; and the count badge. Switching away from Vuetify is a one-line change:
 
-```ts
-import { HandyUploader } from 'handy-uploader'
-import 'handy-uploader/style.css'
+```diff
+- import { HandyUploader } from 'handy-uploader/vuetify'
++ import { HandyUploader } from 'handy-uploader'
++ import 'handy-uploader/style.css'
 ```
 
-- Grid, list and table layouts; drag-and-drop with `accept` checking; right-to-left support; and slots for custom items and actions.
+- Files can also be dragged and dropped into the insert dialog, and `fileAccept` is checked for dropped files too.
 - Restyle it with `--hu-*` CSS variables or your own classes. Built-in styles use single `hu-*` class selectors, so they hold up against global resets such as Tailwind's preflight. An opt-in `hu-dark` preset is included.
-- `HandyDropzone`, `HandyFileList` and the `useUploader()` composable are also exported, for building a fully custom UI.
+- File-type icons are inline SVG, so no icon font is needed.
+- `HandyDropzone`, `HandyFileList`, `HandyDialog`, `HandyFileIcon` and the `useUploader()` composable are also exported, for building a fully custom UI.
 - Vuetify is now an optional peer dependency.
 
 **Build output:** the package now ships ES modules (`.mjs`) and CommonJS (`.cjs`) instead of ES + UMD. The CSS file is exported as `handy-uploader/style.css`.

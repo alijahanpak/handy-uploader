@@ -237,6 +237,7 @@ export const Default: Story = {
     changeFileName: true,
     addFileDescription: true,
     addFileTag: true,
+    tags: ['invoice', 'contract', 'photo', 'draft', 'vue', 'upload', 'mockup'],
     editPermission: true,
     deletePermission: true,
     insertPermission: true

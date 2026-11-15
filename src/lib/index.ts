@@ -8,7 +8,8 @@ import { HandyUploader, HandyDropzone, HandyFileList } from '../vue'
 export * from './shared'
 export { HandyUploader, HandyDropzone, HandyFileList }
 export { useUploader, DEFAULT_UPLOADER_OPTIONS } from '../vue'
-export type { UploaderOptions, EditableFields, FileListLayout, FileListLabels } from '../vue'
+export { HandyDialog, HandyFileIcon } from '../vue'
+export type { UploaderOptions, EditableFields, FileUploaderView, CardStyle } from '../vue'
 
 const components: Record<string, Component> = { HandyUploader, HandyDropzone, HandyFileList }
 

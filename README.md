@@ -54,6 +54,14 @@ pnpm add handy-uploader
 
 `HandyUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
 
+It has **the same props and events as the Vuetify version** (thumbnail, simple and table views, the insert dialog with name, description and tags, the edit dialog, delete confirmation, permissions, card styles). Switching from Vuetify is a one-line change:
+
+```diff
+- import { HandyUploader } from 'handy-uploader/vuetify'
++ import { HandyUploader } from 'handy-uploader'
++ import 'handy-uploader/style.css'
+```
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -65,45 +73,41 @@ const files = ref<DocumentAttachment[]>([])
 
 <template>
   <HandyUploader
-    v-model="files"
-    layout="grid"
-    accept="image/*,.pdf"
+    v-model:document-attachment="files"
+    file-uploader-type="thumbnail"
+    file-accept="image/*,.pdf"
     :max-file-size="5 * 1024 * 1024"
     :max-file-count="10"
-    image-compressor
+    change-file-name
+    add-file-description
+    add-file-tag
+    :tags="['invoice', 'contract', 'photo']"
   />
 </template>
 ```
 
-| Prop | Default | Description |
-|------|---------|-------------|
-| `modelValue` | `[]` | The attachments (`v-model`) |
-| `layout` | `'grid'` | `'grid'`, `'list'` or `'table'` |
-| `maxFileSize` | `5242880` | Maximum size per file, in bytes |
-| `maxFileCount` | `10` | Maximum number of files |
-| `accept` | `''` | Same format as the HTML `accept` attribute; also applied to drag-and-drop |
-| `imageCompressor` | `false` | Re-encode JPEG/PNG/WebP as JPEG when that makes them smaller |
-| `imageCompressLevel` | `0.8` | JPEG quality, 0–1 |
-| `removable` / `thumbnails` / `disabled` | `true` / `true` / `false` | |
-| `lang` / `customLang` | `'en'` / `null` | `en`, `fa`, `fr`, `ch`, `ar`, or your own translations |
-| `rtl` | auto | Right-to-left; on by default for `fa` and `ar` |
+All props of the Vuetify version are supported; see the [API Reference](#️-api-reference). Additions:
 
-Events: `update:modelValue`, `add(added)`, `remove(attachment, index)`, `error(errors)`.
-Slots: `item`, `actions` (gets `update` to edit name/description/tags), `dropzone`, `empty`.
+- Files can also be **dragged and dropped** into the insert dialog. `fileAccept` is checked for dropped files too.
+- `btnColor` accepts Vuetify colour names (`primary`, `info`, `success`…) or any CSS colour.
+- Extra events: `update:documentAttachment` (for `v-model`), `add(added)`, `remove(attachment, index)`, `error(errors)`.
+- Slots: `item` (replace a whole card), `actions` (add buttons to a card), `empty`.
 
 **Styling.** The easiest way to re-theme is to set CSS variables on the component or any parent:
 
 ```css
 .hu-uploader {
-  --hu-primary: #7c3aed;
+  --hu-primary: #7c3aed;     /* links, focus, drop area */
+  --hu-button-bg: #7c3aed;   /* Insert / Add buttons (or use btnColor) */
+  --hu-chip: #7c3aed;        /* size chips */
   --hu-radius: 16px;
-  --hu-thumb-size: 96px;
+  --hu-media-height: 160px;  /* preview height in the thumbnail view */
 }
 ```
 
-Add the `hu-dark` class for the dark preset. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
+Add the `hu-dark` class for the dark preset. Built-in styles are single `hu-*` class selectors, so they survive global resets (Tailwind preflight, Vuetify) and are easy to override with your own classes. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
 
-**Build your own UI.** `useUploader(filesRef, options)` gives you `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HandyDropzone` and `HandyFileList` are available as separate building blocks.
+**Build your own UI.** `useUploader(filesRef, options)` gives you `stage`, `commit`, `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HandyDropzone`, `HandyFileList`, `HandyDialog` and `HandyFileIcon` are available as separate building blocks.
 
 ## 🚀 Quick Start (Vuetify components)
 
