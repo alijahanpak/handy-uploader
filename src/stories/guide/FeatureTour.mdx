@@ -1,0 +1,68 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Guide/Feature Tour" />
+
+# Feature Tour
+
+Every feature of `HandyUploader`, and where to see it. Links open the framework-free version; each story also exists under **Vue + Vuetify** unless marked *(any CSS only)*.
+
+## Adding files
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| Insert dialog | Click **Insert File**, then pick files or **drag them into the dialog** | [Playground](?path=/story/vue-any-css-handyuploader--playground) |
+| Name, description and tags before adding | `change-file-name`, `add-file-description`, `add-file-tag` + `tags` | [Playground](?path=/story/vue-any-css-handyuploader--playground) |
+| File count badge | `badge-counter` (red when the limit is reached) | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+
+## Validation
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| Maximum size per file (bytes) | `:max-file-size="2000000"` | [Restricted File Types](?path=/story/vue-any-css-handyuploader--restricted-file-types) |
+| Maximum number of files | `:max-file-count="5"` | [Restricted File Types](?path=/story/vue-any-css-handyuploader--restricted-file-types) |
+| Accepted types (also for dropped files) | `file-accept=".pdf,image/*"` | [Restricted File Types](?path=/story/vue-any-css-handyuploader--restricted-file-types) |
+
+Rejected files show a message, and the other files in the same selection are still added. Without Vuetify, the `error` event also reports them.
+
+## Previews
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| Image previews | on by default (`thumb`) | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+| **Video thumbnails** | automatic. A frame is captured from MP4, WebM, MOV, … | Add a video in the [Playground](?path=/story/vue-any-css-handyuploader--playground) |
+| File-type icons | shown for documents, spreadsheets, archives, … | [Minimal Features](?path=/story/vue-any-css-handyuploader--minimal-features) |
+
+## Images
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| **Compression** | `image-compressor` + `:image-compress-level="0.7"`. JPEG, PNG and WebP are re-encoded as JPEG and kept only when smaller | [With Image Compression](?path=/story/vue-any-css-handyuploader--with-image-compression) |
+
+## Layouts and style
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| Thumbnail view | `file-uploader-type="thumbnail"`, `:cols` | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+| Simple view | `file-uploader-type="simple"` | [Simple View](?path=/story/vue-any-css-handyuploader--simple-view) |
+| Table view | `file-uploader-type="table"`, `table-fixed-header`, `:table-height` | [Table View](?path=/story/vue-any-css-handyuploader--table-view) |
+| Card styles | `card-type="outlined" \| "raised" \| "shaped" \| "tile"` | [Outlined](?path=/story/vue-any-css-handyuploader--outlined-cards), [Raised](?path=/story/vue-any-css-handyuploader--raised-cards) |
+| Dark mode *(any CSS only)* | `class="hu-dark"` | [Dark Mode](?path=/story/vue-any-css-handyuploader--dark-mode) |
+| Your own colours and fonts *(any CSS only)* | `--hu-*` CSS variables | [Custom Theme](?path=/story/vue-any-css-handyuploader--custom-theme) |
+
+## Managing files
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| Edit name, description, tags | pencil button | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+| Delete with confirmation | trash button | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+| Show tags and description | arrow on the card | [Thumbnail View](?path=/story/vue-any-css-handyuploader--thumbnail-view) |
+| Permissions | `insert-permission`, `edit-permission`, `delete-permission` | [Read Only Mode](?path=/story/vue-any-css-handyuploader--read-only-mode) |
+| Your own buttons *(any CSS only)* | `#actions` slot | [Custom Actions](?path=/story/vue-any-css-handyuploader--custom-actions) |
+
+## Languages
+
+| Feature | How | Try it |
+| --- | --- | --- |
+| 5 built-in languages | `lang="en" \| "fa" \| "fr" \| "ch" \| "ar"` | [French](?path=/story/vue-any-css-handyuploader--french-language) |
+| Right-to-left | `rtl-support` (automatic for `fa` and `ar` in the any-CSS version) | [RTL Support](?path=/story/vue-any-css-handyuploader--rtl-support) |
+| Your own texts or languages | `:custom-lang` | README → Internationalization |

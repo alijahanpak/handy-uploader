@@ -1,0 +1,38 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Guide/Framework Support" />
+
+# Framework Support
+
+| Framework | Status | How |
+| --- | --- | --- |
+| **Vue 3** (any CSS) | ✅ Supported | `import { HandyUploader } from 'handy-uploader'` |
+| **Vue 3 + Vuetify 3** | ✅ Supported | `import { HandyUploader } from 'handy-uploader/vuetify'` |
+| **React, Svelte, Angular, plain HTML** | 🛠️ Planned | A Web Component, `<handy-uploader>`, is planned for a 3.x release |
+
+## Why Vue only, for now?
+
+Since 3.0, the uploader is built in two layers:
+
+1. **A framework-free core:** all the logic. Reading files, validation, compression, video thumbnails, translations. It has no Vue dependency.
+2. **A thin UI layer:** today, Vue components.
+
+The planned Web Component adds a second UI layer on top of the same core, so it behaves exactly like the Vue version (same features, same CSS variables) and works in any framework.
+
+## Using the core today
+
+If you need the logic in another framework now, the core functions are already available:
+
+```ts
+import { readFiles, prepareAttachments } from 'handy-uploader'
+
+const staged = await readFiles(input.files)
+const { accepted, errors } = await prepareAttachments(staged, {
+  currentCount: 0,
+  maxFileCount: 10,
+  maxFileSize: 5 * 1024 * 1024,
+  imageCompressor: true
+})
+```
+
+See [Build Your Own UI](?path=/docs/guide-build-your-own-ui--docs), level 4, for the full list. Note that importing `handy-uploader` currently also requires `vue` to be installed.

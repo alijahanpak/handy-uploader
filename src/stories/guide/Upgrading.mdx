@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Guide/Upgrading from 2.x" />
+
+# Upgrading from 2.x
+
+## If you use Vuetify: change one import
+
+```diff
+- import { HandyUploader, ThumbnailUploader } from 'handy-uploader'
++ import { HandyUploader, ThumbnailUploader } from 'handy-uploader/vuetify'
+```
+
+Props, events and appearance are unchanged. Types, utilities and translations are available from both imports.
+
+## If you want to drop Vuetify
+
+The new `HandyUploader` has the same props and events:
+
+```diff
+- import { HandyUploader } from 'handy-uploader/vuetify'
++ import { HandyUploader } from 'handy-uploader'
++ import 'handy-uploader/style.css'
+```
+
+Small differences: tags are picked with toggle chips instead of an autocomplete, errors appear above the list instead of in a snackbar, and the edit button is hidden when nothing is editable.
+
+## Behaviour changes (both versions)
+
+| What | 2.x | 3.0 | Action needed |
+| --- | --- | --- | --- |
+| `maxFileSize` | compared in kilobytes, so about **1000× looser** than documented | enforced **in bytes**, as documented | If you tuned the value to the old behaviour, **divide it by 1000** |
+| `imageCompressor` | had no effect | works: JPEG/PNG/WebP become a smaller `.jpg` | Check your backend accepts the `.jpg` result |
+| `file.size` | sometimes a string | always a number (bytes) | Remove any `parseInt` workarounds |
+| Names like `my.report.pdf` | saved as `my.pdf` | kept whole | None |
+| SVG previews | broken | fixed | None |
+| Package format | ES + UMD | ES (`.mjs`) + CommonJS (`.cjs`) | Only matters if you loaded it with a `<script>` tag |
+
+## Deprecated
+
+`useFileUpload` and `useErrorHandler` still work, but log a warning and will be removed in the next major version. Use [`useUploader`](?path=/docs/guide-build-your-own-ui--docs) instead.
