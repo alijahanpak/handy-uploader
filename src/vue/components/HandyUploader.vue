@@ -224,7 +224,8 @@ import HandyIcon from './HandyIcon.vue'
 const props = withDefaults(
   defineProps<{
     documentAttachment?: DocumentAttachment[]
-    lang?: LanguageCode
+    /** A built-in language code, or a key you added with customLang. */
+    lang?: LanguageCode | (string & {})
     /** Maximum size per file, in bytes. */
     maxFileSize?: number
     fileUploaderType?: FileUploaderType

@@ -1,3 +1,4 @@
+import { warnDeprecated } from './deprecation';
 import { ref, reactive } from 'vue';
 
 export interface ErrorInfo {
@@ -18,7 +19,13 @@ export interface ErrorHandlerOptions {
   logToConsole?: boolean;
 }
 
+/**
+ * @deprecated Use the `errors` returned by `useUploader` (or the `error` event of
+ * HandyUploader) instead. `useErrorHandler` will be removed in the next major version.
+ */
 export function useErrorHandler(options: ErrorHandlerOptions = {}) {
+  warnDeprecated('useErrorHandler', 'the errors from useUploader');
+
   const {
     maxErrors = 10,
     autoRemoveTimeout = 5000,

@@ -3,6 +3,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { reactive } from 'vue'
 import type { DocumentAttachment } from '../../types'
 import HandyUploader from './HandyUploader.vue'
+import { languages } from '../../lib/language'
 
 const file = (name: string, size = 10, type = '') => new File(['x'.repeat(size)], name, { type })
 
@@ -261,5 +262,13 @@ describe('HandyUploader (no Vuetify)', () => {
     await pick(['3.txt', '4.txt']) // before the first read has finished
     await settle(wrapper)
     expect(wrapper.findAll('.hu-staged__item')).toHaveLength(3)
+  })
+
+  it('supports a custom language added through customLang', () => {
+    const de = { ...languages.en, insertFile: 'Datei hinzufügen' }
+    const wrapper = mount(HandyUploader, {
+      props: { documentAttachment: [], customLang: { ...languages, de }, lang: 'de' }
+    })
+    expect(wrapper.find('.hu-toolbar button').text()).toContain('Datei hinzufügen')
   })
 })

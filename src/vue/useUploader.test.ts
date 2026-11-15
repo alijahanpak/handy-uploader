@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import type { DocumentAttachment } from '../types'
 import { useUploader } from './useUploader'
@@ -78,5 +78,20 @@ describe('useUploader', () => {
 
     clear()
     expect(list.value).toEqual([])
+  })
+})
+
+describe('deprecated composables', () => {
+  it('still work and warn once', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { useFileUpload } = await import('../composables/useFileUpload')
+    const { useErrorHandler } = await import('../composables/useErrorHandler')
+    useFileUpload(ref([]))
+    useFileUpload(ref([]))
+    expect(useErrorHandler().hasErrors()).toBe(false)
+    const messages = warn.mock.calls.map((c) => String(c[0]))
+    expect(messages.filter((m) => m.includes('useFileUpload() is deprecated'))).toHaveLength(1)
+    expect(messages.filter((m) => m.includes('useErrorHandler() is deprecated'))).toHaveLength(1)
+    warn.mockRestore()
   })
 })
