@@ -15,16 +15,16 @@ import type {
 
 // A file the app already has (e.g. loaded from a server).
 const saved: DocumentAttachment = {
-    file: {
-      name: 'welcome.txt',
-      format: 'txt',
-      base64: '',
-      size: 12,
-      tags: [],
-      description: '',
-      showDetailState: false
-    }
+  file: {
+    name: 'welcome.txt',
+    format: 'txt',
+    base64: '',
+    size: 12,
+    tags: [],
+    description: '',
+    showDetailState: false
   }
+}
 
 @Component({
   selector: 'app-root',
@@ -45,7 +45,9 @@ const saved: DocumentAttachment = {
     ></handy-uploader>
 
     <p id="state">{{ files().length }} files{{ names() ? ': ' + names() : '' }}</p>
-    <button id="add-sample" type="button" (click)="addSample()">Add sample.txt (el.addFiles)</button>
+    <button id="add-sample" type="button" (click)="addSample()">
+      Add sample.txt (el.addFiles)
+    </button>
     <button id="clear" type="button" (click)="files.set([])">Clear (files = [])</button>
   `
 })

@@ -43,9 +43,6 @@ const PROPS: Record<string, Kind> = {
   customLang: 'object'
 }
 
-/** Every prop of the element, i.e. every JS property that can be set on it. */
-export const PROP_NAMES = ['files', ...Object.keys(PROPS)]
-
 const RUNTIME_TYPES: Record<Kind, PropType<unknown>> = {
   string: String,
   number: [Number, String],

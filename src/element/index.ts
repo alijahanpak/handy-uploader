@@ -6,7 +6,7 @@
 // variables and your own CSS apply exactly as with the Vue component.
 import { defineCustomElement } from 'vue'
 import themeCss from '../vue/theme.css?inline'
-import HandyUploaderElementComponent, { PROP_NAMES } from './HandyUploaderElement'
+import HandyUploaderElementComponent from './HandyUploaderElement'
 
 import type {
   HandyUploaderElement as HandyUploaderElementType,
@@ -29,6 +29,9 @@ const VueHandyUploaderElement = defineCustomElement(HandyUploaderElementComponen
   shadowRoot: false
 })
 
+// Every prop of the component, i.e. every JS property that can be set on the element.
+const PROP_NAMES = Object.keys(HandyUploaderElementComponent.props)
+
 /** The custom element class behind <handy-uploader>. */
 export const HandyUploaderElement = class extends VueHandyUploaderElement {
   constructor() {
@@ -39,6 +42,9 @@ export const HandyUploaderElement = class extends VueHandyUploaderElement {
     // into the string "[object Object]". So every prop is a property from the start: a value set
     // before connecting is stored as a plain property, which Vue picks up on connect (and then
     // replaces with its own accessor). Unset props stay out of Object.keys, so attributes win.
+    // Per-instance properties (not prototype accessors calling Vue's private _getProp/_setProp)
+    // rely only on Vue reading pre-set own properties on connect, which the test "hands values
+    // set before connecting over to Vue" guards against Vue changing.
     for (const name of PROP_NAMES) {
       if (name in this) continue // e.g. `lang` (native) or a value set before the upgrade
       Object.defineProperty(this, name, {

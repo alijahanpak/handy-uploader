@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import type { DocumentAttachment } from '../types'
 import './index'
 import { defineHandyUploader } from './index'
+import HandyUploaderElementComponent from './HandyUploaderElement'
 import type { HandyUploaderElement } from './types'
 
 const file = (name: string, size = 10) => new File(['x'.repeat(size)], name)
@@ -205,12 +206,15 @@ describe('<handy-uploader> properties before it is connected', () => {
   // before the element is inserted into the page.
   it('has its props as properties right after it is created', () => {
     const el = document.createElement('handy-uploader')
-    for (const name of ['files', 'maxFileCount', 'fileUploaderType', 'tags', 'customLang']) {
-      expect(name in el).toBe(true)
-    }
+    const names = Object.keys(HandyUploaderElementComponent.props)
+    expect(names).toContain('files')
+    for (const name of names) expect(name in el, name).toBe(true)
   })
 
-  it('uses files and options set before it was connected', async () => {
+  // Guards the Vue behaviour the fix relies on: VueElement reads own properties that were set
+  // before it was connected (Object.keys(this) in _resolveProps). If a Vue upgrade changes
+  // that, this test fails.
+  it('hands values set before connecting over to Vue', async () => {
     const el = document.createElement('handy-uploader')
     el.files = [stored('a.pdf'), stored('b.pdf')]
     el.maxFileCount = 2
@@ -218,7 +222,8 @@ describe('<handy-uploader> properties before it is connected', () => {
     await nextTick()
     expect(el.querySelectorAll('.hu-card')).toHaveLength(2)
     expect(el.files.map((a) => a.file.name)).toEqual(['a.pdf', 'b.pdf'])
-    expect((el.querySelector('.hu-toolbar button') as HTMLButtonElement).disabled).toBe(true) // limit 2 reached
+    // limit 2 reached
+    expect((el.querySelector('.hu-toolbar button') as HTMLButtonElement).disabled).toBe(true)
     expect(el.getAttribute('files')).toBeNull() // not turned into an attribute
 
     el.files = [stored('c.pdf')] // and still a live property after connecting

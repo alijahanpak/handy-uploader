@@ -7,9 +7,6 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "handy-uploader": "file:../.handy-uploader.tgz"
-  },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "svelte": "^5.28.2",

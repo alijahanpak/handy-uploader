@@ -2,10 +2,10 @@
 // Builds handy-uploader, installs the packed tarball into every app in examples/, builds and
 // serves each app, and checks <handy-uploader> in a real Chromium:
 //
-//   first render with one saved file (files property) ⇒ 1 card, app state "1 files: welcome.txt"
-//   "Clear" button (app sets its state to [])          ⇒ 0 cards (files property reached the element)
-//   Insert → pick report.pdf + notes.txt → Add         ⇒ 2 cards, and the app's own state says so
-//   "Add sample" button (el.addFiles)                  ⇒ 3 cards, app state updated
+//   first render with one saved file (`files`) ⇒ 1 card, app state "1 files: welcome.txt"
+//   "Clear" (app sets its state to [])         ⇒ 0 cards (the `files` property reached it)
+//   Insert → report.pdf + notes.txt → Add      ⇒ 2 cards, and the app's own state says so
+//   "Add sample" (el.addFiles)                 ⇒ 3 cards, app state updated
 //   no page errors, no console errors
 //
 // Usage:
@@ -66,19 +66,40 @@ function run(cmd, cmdArgs, cwd) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 1. Build and pack the library, exactly as it would be published.
-if (!flags.has('--skip-build')) {
-  log('Building the library (npm run build)')
-  run('npm', ['run', 'build'], root)
+// 1. Fail fast: make sure Chromium starts before spending time on builds.
+const executablePath = process.env.CHROMIUM_PATH || undefined
+let browser
+try {
+  browser = await chromium.launch({ executablePath, headless: !flags.has('--headed') })
+} catch (err) {
+  console.error(
+    `\nCould not start Chromium: ${err.message.split('\n')[0]}\n` +
+      'Set CHROMIUM_PATH to a Chrome/Chromium binary, ' +
+      'or run `npx playwright-core install chromium`.'
+  )
+  process.exit(1)
 }
-log('Packing the library (npm pack)')
-const packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hu-pack-'))
-const packOut = run('npm', ['pack', '--json', '--pack-destination', packDir], root)
-// The `prepare` script may print before the JSON.
-const packed = JSON.parse(packOut.slice(packOut.indexOf('[\n')))[0]
-fs.copyFileSync(path.join(packDir, packed.filename), tarball)
-fs.rmSync(packDir, { recursive: true, force: true })
-console.log(`  ${packed.filename} → examples/.handy-uploader.tgz (${packed.entryCount} files)`)
+
+// ---------------------------------------------------------------------------------------------
+// 2. Build and pack the library, exactly as it would be published.
+try {
+  if (!flags.has('--skip-build')) {
+    log('Building the library (npm run build)')
+    run('npm', ['run', 'build'], root)
+  }
+  log('Packing the library (npm pack)')
+  const packDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hu-pack-'))
+  const packOut = run('npm', ['pack', '--json', '--pack-destination', packDir], root)
+  // The `prepare` script may print before the JSON.
+  const packed = JSON.parse(packOut.slice(packOut.indexOf('[\n')))[0]
+  fs.copyFileSync(path.join(packDir, packed.filename), tarball)
+  fs.rmSync(packDir, { recursive: true, force: true })
+  console.log(`  ${packed.filename} → examples/.handy-uploader.tgz (${packed.entryCount} files)`)
+} catch (err) {
+  await browser.close()
+  console.error(`\n${err.message}`)
+  process.exit(1)
+}
 
 // ---------------------------------------------------------------------------------------------
 // A tiny static file server (SPA fallback to index.html), so every example is served the same.
@@ -95,9 +116,14 @@ const MIME = {
 }
 function serve(dir) {
   const server = http.createServer((req, res) => {
-    const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+    let urlPath
+    try {
+      urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname)
+    } catch {
+      return res.writeHead(400).end()
+    }
     let file = path.join(dir, urlPath)
-    if (!file.startsWith(dir)) return res.writeHead(403).end()
+    if (file !== dir && !file.startsWith(dir + path.sep)) return res.writeHead(403).end()
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html')
     if (!fs.existsSync(file)) file = path.join(dir, 'index.html')
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] ?? 'application/octet-stream' })
@@ -113,8 +139,15 @@ function serve(dir) {
 // ---------------------------------------------------------------------------------------------
 // The browser check, the same for every example.
 const PDF = Buffer.from(
-  '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
-    '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n'
+  [
+    '%PDF-1.4',
+    '1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj',
+    '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj',
+    '3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj',
+    'trailer<</Root 1 0 R>>',
+    '%%EOF',
+    ''
+  ].join('\n')
 )
 const TXT = Buffer.from('Some notes\n')
 
@@ -201,19 +234,7 @@ async function checkInBrowser(browser, url) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// 2. Per example: install the tarball, build, serve, check.
-const executablePath = process.env.CHROMIUM_PATH || undefined
-let browser
-try {
-  browser = await chromium.launch({ executablePath, headless: !flags.has('--headed') })
-} catch (err) {
-  console.error(
-    `\nCould not start Chromium: ${err.message.split('\n')[0]}\n` +
-      'Set CHROMIUM_PATH to a Chrome/Chromium binary, or run `npx playwright-core install chromium`.'
-  )
-  process.exit(1)
-}
-
+// 3. Per example: install, build, serve, check.
 const distElement = fs.readFileSync(path.join(root, 'dist/element.mjs'))
 const results = []
 for (const name of examples) {
@@ -223,11 +244,11 @@ for (const name of examples) {
   results.push(result)
   let server
   try {
-    log(`${name}: npm install`)
-    // A fresh install of the new tarball: the lockfile pins the old tarball's integrity.
-    fs.rmSync(path.join(dir, 'package-lock.json'), { force: true })
-    fs.rmSync(path.join(dir, 'node_modules/handy-uploader'), { recursive: true, force: true })
-    run('npm', ['install', '--no-audit', '--no-fund'], dir)
+    // Framework versions come from the committed lockfile; the library is the fresh tarball,
+    // installed without touching package.json or the lockfile.
+    log(`${name}: npm ci + npm install --no-save <tarball>`)
+    run('npm', ['ci', '--no-audit', '--no-fund'], dir)
+    run('npm', ['install', '--no-save', '--no-audit', '--no-fund', tarball], dir)
     const installed = fs.readFileSync(
       path.join(dir, 'node_modules/handy-uploader/dist/element.mjs')
     )
@@ -273,6 +294,7 @@ for (const r of results) {
 }
 const failed = results.filter((r) => r.status !== 'PASS').length
 console.log(
-  `\n${failed ? `${failed} of ${results.length} failed` : `All ${results.length} passed`} in ${secs(Date.now() - started)}`
+  `\n${failed ? `${failed} of ${results.length} failed` : `All ${results.length} passed`}` +
+    ` in ${secs(Date.now() - started)}`
 )
 process.exit(failed ? 1 : 0)

@@ -25,13 +25,22 @@ npm run test:examples -- react-19      # only some
 npm run test:examples -- --skip-build  # reuse the current dist/
 ```
 
-`scripts/test-examples.mjs` builds the library, packs it with `npm pack`, installs the tarball
-into every example (`"handy-uploader": "file:../.handy-uploader.tgz"`, as a real install would),
-builds each example, serves it and drives Chromium through the uploader: the saved file shows,
-clearing the app state empties the uploader, two files added through the Insert dialog show as
-two cards and in the app's own state, and `addFiles` adds a third. Any page or console error
-fails the example.
+`scripts/test-examples.mjs` builds the library, packs it with `npm pack`, installs each example's
+pinned dependencies from its committed lockfile (`npm ci`) and then the packed library on top
+(`npm install --no-save ../.handy-uploader.tgz`, as a real install would, without touching
+`package.json` or the lockfile), builds each example, serves it and drives Chromium through the
+uploader: the saved file shows, clearing the app state empties the uploader, two files added
+through the Insert dialog show as two cards and in the app's own state, and `addFiles` adds a
+third. Any page or console error fails the example.
 
-To run an example by hand, run `npm run test:examples` once (it creates the tarball), then
-`npm run dev` in the example's folder (for `plain-html`, serve the folder with any static server).
-Lockfiles are not committed, because the tarball's hash changes with every build.
+## Running an example by hand
+
+`handy-uploader` is deliberately not in the examples' `package.json`, so the lockfiles stay
+stable. Run `npm run test:examples` once (it creates `examples/.handy-uploader.tgz`), then in
+the example's folder:
+
+```bash
+npm ci
+npm install --no-save ../.handy-uploader.tgz   # or the published one: npm install handy-uploader
+npm run dev                                    # every example has a dev script
+```

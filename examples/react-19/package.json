@@ -8,7 +8,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "handy-uploader": "file:../.handy-uploader.tgz",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

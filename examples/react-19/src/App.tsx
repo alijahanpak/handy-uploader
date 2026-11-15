@@ -4,16 +4,16 @@ import type { DocumentAttachment, HandyUploaderElement } from 'handy-uploader/el
 
 // A file the app already has (e.g. loaded from a server).
 const saved: DocumentAttachment = {
-    file: {
-      name: 'welcome.txt',
-      format: 'txt',
-      base64: '',
-      size: 12,
-      tags: [],
-      description: '',
-      showDetailState: false
-    }
+  file: {
+    name: 'welcome.txt',
+    format: 'txt',
+    base64: '',
+    size: 12,
+    tags: [],
+    description: '',
+    showDetailState: false
   }
+}
 
 export default function App() {
   const ref = useRef<HandyUploaderElement>(null)

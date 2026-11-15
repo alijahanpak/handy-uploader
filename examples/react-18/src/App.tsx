@@ -8,16 +8,16 @@ import type {
 
 // A file the app already has (e.g. loaded from a server).
 const saved: DocumentAttachment = {
-    file: {
-      name: 'welcome.txt',
-      format: 'txt',
-      base64: '',
-      size: 12,
-      tags: [],
-      description: '',
-      showDetailState: false
-    }
+  file: {
+    name: 'welcome.txt',
+    format: 'txt',
+    base64: '',
+    size: 12,
+    tags: [],
+    description: '',
+    showDetailState: false
   }
+}
 
 export default function App() {
   const ref = useRef<HandyUploaderElement>(null)
@@ -33,8 +33,7 @@ export default function App() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const onChange = (event: CustomEvent<HandyUploaderChangeDetail>) =>
-      setFiles(event.detail.files)
+    const onChange = (event: CustomEvent<HandyUploaderChangeDetail>) => setFiles(event.detail.files)
     el.addEventListener('hu-change', onChange)
     return () => el.removeEventListener('hu-change', onChange)
   }, [])
