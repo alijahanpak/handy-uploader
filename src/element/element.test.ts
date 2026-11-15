@@ -199,3 +199,30 @@ describe('<handy-uploader> review fixes', () => {
     expect(events).toEqual(['add', 'remove'])
   })
 })
+
+describe('<handy-uploader> properties before it is connected', () => {
+  // React 19 and Svelte 5 set a value as a property only if `name in el`, and they set it
+  // before the element is inserted into the page.
+  it('has its props as properties right after it is created', () => {
+    const el = document.createElement('handy-uploader')
+    for (const name of ['files', 'maxFileCount', 'fileUploaderType', 'tags', 'customLang']) {
+      expect(name in el).toBe(true)
+    }
+  })
+
+  it('uses files and options set before it was connected', async () => {
+    const el = document.createElement('handy-uploader')
+    el.files = [stored('a.pdf'), stored('b.pdf')]
+    el.maxFileCount = 2
+    document.body.append(el)
+    await nextTick()
+    expect(el.querySelectorAll('.hu-card')).toHaveLength(2)
+    expect(el.files.map((a) => a.file.name)).toEqual(['a.pdf', 'b.pdf'])
+    expect((el.querySelector('.hu-toolbar button') as HTMLButtonElement).disabled).toBe(true) // limit 2 reached
+    expect(el.getAttribute('files')).toBeNull() // not turned into an attribute
+
+    el.files = [stored('c.pdf')] // and still a live property after connecting
+    await nextTick()
+    expect(el.querySelectorAll('.hu-card')).toHaveLength(1)
+  })
+})

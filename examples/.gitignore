@@ -1,0 +1,7 @@
+node_modules
+dist
+.angular
+# The examples install the packed library (see scripts/test-examples.mjs); its integrity hash
+# changes with every build, so lockfiles are not committed.
+package-lock.json
+.handy-uploader.tgz

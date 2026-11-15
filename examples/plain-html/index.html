@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>handy-uploader: plain HTML</title>
+    <!--
+      No build step: an import map points the package's 'handy-uploader/element' entry at the
+      installed file. From a CDN this would be e.g.
+      "https://cdn.jsdelivr.net/npm/handy-uploader@3/dist/element.mjs".
+    -->
+    <script type="importmap">
+      { "imports": { "handy-uploader/element": "./node_modules/handy-uploader/dist/element.mjs" } }
+    </script>
+  </head>
+  <body>
+    <h1>handy-uploader in plain HTML</h1>
+
+    <!-- Options as kebab-case attributes. -->
+    <handy-uploader
+      id="uploader"
+      max-file-count="5"
+      change-file-name
+      add-file-tag
+      tags="invoice, contract"
+    ></handy-uploader>
+
+    <p id="state"></p>
+    <button id="add-sample" type="button">Add sample.txt (el.addFiles)</button>
+    <button id="clear" type="button">Clear (el.files = [])</button>
+
+    <script type="module">
+      import 'handy-uploader/element' // registers <handy-uploader>
+
+      const el = document.getElementById('uploader')
+      const stateEl = document.getElementById('state')
+
+      // The page's own state: rendered from here, never read back from the element's DOM.
+      let files = []
+      function render() {
+        const names = files.map((a) => a.file.name).join(', ')
+        stateEl.textContent = `${files.length} files${names ? ': ' + names : ''}`
+      }
+      function setFiles(next) {
+        files = next
+        el.files = next // the file list is a JS property, not an attribute
+        render()
+      }
+
+      el.addEventListener('hu-change', (event) => {
+        files = event.detail.files
+        render()
+      })
+
+      document.getElementById('add-sample').addEventListener('click', () => {
+        el.addFiles([new File(['Hello from plain HTML'], 'sample.txt', { type: 'text/plain' })])
+      })
+      document.getElementById('clear').addEventListener('click', () => setFiles([]))
+
+      // A file the page already has (e.g. loaded from a server).
+      setFiles([
+        { file: { name: 'welcome.txt', format: 'txt', base64: '', size: 12, tags: [], description: '', showDetailState: false } }
+      ])
+    </script>
+  </body>
+</html>
