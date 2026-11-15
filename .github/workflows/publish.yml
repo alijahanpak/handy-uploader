@@ -42,6 +42,13 @@ jobs:
       - name: Build library
         run: npm run build
 
+      # npm Trusted Publishing (OIDC) needs npm >= 11.5.1; Node 22 ships npm 10.
+      # npm uses OIDC first and only falls back to NPM_TOKEN if no trusted
+      # publisher is configured, so the token below is a temporary fallback.
+      # See https://docs.npmjs.com/trusted-publishers
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@^11.5.1 && npm --version
+
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
