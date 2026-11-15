@@ -1,3 +1,4 @@
+import { warnDeprecated } from './deprecation';
 import { ref, computed, type Ref } from 'vue';
 import type { DocumentAttachment, FileData, ProcessedFile, SnackbarConfig } from '../types';
 import { 
@@ -18,10 +19,16 @@ export interface UseFileUploadOptions {
   fileAccept?: string;
 }
 
+/**
+ * @deprecated Use `useUploader` from 'handy-uploader' instead: it validates before reading,
+ * supports drag and drop, image compression and editing files before they are added.
+ * `useFileUpload` will be removed in the next major version.
+ */
 export function useFileUpload(
   documentAttachment: Ref<DocumentAttachment[]>,
   options: UseFileUploadOptions = {}
 ) {
+  warnDeprecated('useFileUpload', 'useUploader');
   const {
     maxFileSize = 5 * 1024 * 1024, // 5MB default
     maxFileCount = 10,

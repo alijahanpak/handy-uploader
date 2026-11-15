@@ -7,34 +7,25 @@
 
 ## 🚀 [Live Demo](https://illustrious-griffin-257b43.netlify.app)
 
-A comprehensive Vue 3 file uploader component library with advanced features including **automatic video thumbnail generation**, multiple upload styles, and extensive file type support.
+A Vue 3 file uploader with **automatic video thumbnails**, **image compression**, three layouts (thumbnail, simple, table), per-file names, descriptions and tags, and translations for 5 languages.
 
-## ✨ Key Features
+It comes in two flavours with **the same props and events**:
 
-### 🎥 **Video Thumbnail Generation**
-- **Automatic thumbnail extraction** from video files using Canvas API
-- Support for **MP4, AVI, MOV, WMV, FLV, WebM** formats
-- Real-time thumbnail display with play button overlay
-- No external dependencies required
+| Import | Needs | Styling |
+| --- | --- | --- |
+| `handy-uploader` | Vue 3 only | Plain CSS, works with any CSS framework (Tailwind, Bootstrap, your own) |
+| `handy-uploader/vuetify` | Vue 3 + Vuetify 3 | Vuetify components |
 
-### 📁 **Comprehensive File Support**
-- **Images**: JPG, JPEG, PNG, GIF, BMP, SVG, WebP, TIFF
-- **Videos**: MP4, AVI, MOV, WMV, FLV, WebM
-- **Documents**: PDF, DOC, DOCX, TXT, RTF, ODT
-- **Spreadsheets**: XLS, XLSX, CSV, ODS
-- **Presentations**: PPT, PPTX, ODP
-- **Archives**: ZIP, RAR, 7Z, TAR, GZ
-- **Audio**: MP3, WAV, FLAC, AAC, OGG
+## ✨ Features
 
-### 🎨 **Multiple Upload Styles**
-- **ThumbnailUploader**: Grid-based layout with file previews
-- **TableUploader**: Table-based layout for detailed file information
-- **SimpleUploader**: Minimalist drag-and-drop interface
-
-### 🌍 **Internationalization**
-- **8 languages**: English, Chinese, Spanish, French, German, Japanese, Korean, Arabic
-- RTL support for Arabic
-- Easy language switching
+- **Video thumbnails:** a frame is captured automatically for MP4, WebM, MOV and other formats the browser can play.
+- **Image compression:** optional; JPEG, PNG and WebP are re-encoded as JPEG, and the smaller result is kept.
+- **Three views:** `thumbnail` (preview cards), `simple` (compact cards) and `table`.
+- **File details:** rename files, and add descriptions and tags before or after upload.
+- **Validation:** file size, file count and accepted types, including for drag-and-dropped files.
+- **Permissions:** turn insert, edit and delete on or off.
+- **Languages:** English, Persian, French, Chinese and Arabic, with right-to-left layout for Persian and Arabic. You can also add your own translations.
+- **TypeScript:** full type declarations.
 
 ## 📦 Installation
 
@@ -42,25 +33,11 @@ A comprehensive Vue 3 file uploader component library with advanced features inc
 npm install handy-uploader
 ```
 
-```bash
-yarn add handy-uploader
-```
+For the Vuetify flavour, also install `vuetify@^3` (and `@mdi/font` for its icons).
 
-```bash
-pnpm add handy-uploader
-```
+## 🚀 Quick Start
 
-## 🧩 `HandyUploader` (works with any CSS)
-
-`HandyUploader` is plain HTML and CSS, so it works in any Vue 3 app with any CSS framework (Tailwind, Bootstrap, your own) or none. It only needs `vue`.
-
-It has **the same props and events as the Vuetify version** (thumbnail, simple and table views, the insert dialog with name, description and tags, the edit dialog, delete confirmation, permissions, card styles). Switching from Vuetify is a one-line change:
-
-```diff
-- import { HandyUploader } from 'handy-uploader/vuetify'
-+ import { HandyUploader } from 'handy-uploader'
-+ import 'handy-uploader/style.css'
-```
+### Without Vuetify (any CSS framework)
 
 ```vue
 <script setup lang="ts">
@@ -75,8 +52,8 @@ const files = ref<DocumentAttachment[]>([])
   <HandyUploader
     v-model:document-attachment="files"
     file-uploader-type="thumbnail"
-    file-accept="image/*,.pdf"
-    :max-file-size="5 * 1024 * 1024"
+    file-accept="image/*,video/*,.pdf"
+    :max-file-size="10 * 1024 * 1024"
     :max-file-count="10"
     change-file-name
     add-file-description
@@ -86,381 +63,207 @@ const files = ref<DocumentAttachment[]>([])
 </template>
 ```
 
-All props of the Vuetify version are supported; see the [API Reference](#️-api-reference). Additions:
+### With Vuetify
 
-- Files can also be **dragged and dropped** into the insert dialog. `fileAccept` is checked for dropped files too.
-- `btnColor` accepts Vuetify colour names (`primary`, `info`, `success`…) or any CSS colour.
-- Extra events: `update:documentAttachment` (for `v-model`), `add(added)`, `remove(attachment, index)`, `error(errors)`.
-- Slots: `item` (replace a whole card), `actions` (add buttons to a card), `empty`.
+```ts
+// main.ts
+import { createApp } from 'vue'
+import { createVuetify } from 'vuetify'
+import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
+import App from './App.vue'
 
-**Styling.** The easiest way to re-theme is to set CSS variables on the component or any parent:
+createApp(App).use(createVuetify()).mount('#app')
+```
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { HandyUploader } from 'handy-uploader/vuetify'
+import type { DocumentAttachment } from 'handy-uploader/vuetify'
+
+const files = ref<DocumentAttachment[]>([])
+</script>
+
+<template>
+  <HandyUploader v-model:document-attachment="files" file-uploader-type="table" />
+</template>
+```
+
+Switching between the two is a one-line change, because the props are the same.
+
+## ⚙️ API Reference
+
+### `HandyUploader` props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `documentAttachment` | `DocumentAttachment[]` | `[]` | The files. Use with `v-model:document-attachment`, or pass an array. The component updates the array you pass in, as the Vuetify version always has. |
+| `fileUploaderType` | `'thumbnail' \| 'simple' \| 'table'` | `'thumbnail'` | Layout. |
+| `maxFileSize` | `number` | `5242880` | Maximum size per file, **in bytes** (5 MB). |
+| `maxFileCount` | `number` | `10` | Maximum number of files. |
+| `fileAccept` | `string` | `''` | Accepted types, in the same format as the HTML `accept` attribute, e.g. `"image/*,.pdf"`. Empty means everything. |
+| `imageCompressor` | `boolean` | `false` | Compress JPEG, PNG and WebP images (re-encoded as JPEG, kept only when smaller). |
+| `imageCompressLevel` | `number` | `0.8` | JPEG quality, from 0 to 1. |
+| `thumb` | `boolean` | `true` | Show image previews and video thumbnails. When off, file-type icons are shown instead. |
+| `cols` | `number` | `3` | Thumbnail view: card width out of 12 columns (3 = four per row, 4 = three per row). |
+| `cardType` | `'default' \| 'outlined' \| 'raised' \| 'shaped' \| 'tile'` | `'default'` | Card style. |
+| `badgeCounter` | `boolean` | `true` | Show the file count on the Insert button. |
+| `btnColor` | `string` | `'info'` | Button colour: a Vuetify colour name (`primary`, `info`, `success`, …) or, without Vuetify, any CSS colour. |
+| `changeFileName` | `boolean` | `false` | Let users rename files. |
+| `addFileDescription` | `boolean` | `false` | Let users add a description. |
+| `addFileTag` | `boolean` | `false` | Let users pick tags from `tags`. |
+| `tags` | `string[]` | `[]` | Tags users can choose from. |
+| `insertPermission` | `boolean` | `true` | Show the Insert button. |
+| `editPermission` | `boolean` | `true` | Show the edit button. |
+| `deletePermission` | `boolean` | `true` | Show the delete button. Deleting always asks for confirmation. |
+| `tableThumbColumn` | `boolean` | `true` | Table view: show the preview column. |
+| `tableFixedHeader` | `boolean` | `true` | Table view: keep the header visible while scrolling. |
+| `tableHeight` | `number` | `400` | Table view: height in pixels when the header is fixed. |
+| `lang` | `string` | `'en'` | Interface language: `en`, `fa`, `fr`, `ch`, `ar`, or a key you add with `customLang`. |
+| `customLang` | `LanguageCollection \| null` | `null` | Your own translations (see [Internationalization](#-internationalization)). |
+| `rtlSupport` | `boolean` | `false` | Right-to-left layout. Without Vuetify it is also turned on automatically for `fa` and `ar`. With Vuetify, use Vuetify's own RTL setting (`createVuetify({ locale: { rtl: … } })`). |
+
+### Events
+
+| Event | Payload | Description |
+| --- | --- | --- |
+| `updateDocumentAttachment` | `DocumentAttachment[]` | The file list changed (added, edited or removed). |
+| `update:documentAttachment` | `DocumentAttachment[]` | Same as above, for `v-model:document-attachment`. *(Not in the Vuetify flavour.)* |
+| `add` | `DocumentAttachment[]` | Files were added. *(Not in the Vuetify flavour.)* |
+| `remove` | `(attachment, index)` | A file was removed. *(Not in the Vuetify flavour.)* |
+| `error` | `AttachmentError[]` | Files were rejected (`fileType`, `maxFileSize`, `maxFileCount`, `invalidFormat`). *(Not in the Vuetify flavour.)* |
+
+When a prop changes, the component also emits a matching `update…` event (e.g. `updateCardType`, `updateLang`), as the 2.x versions did.
+
+### Slots (without Vuetify)
+
+| Slot | Props | Use |
+| --- | --- | --- |
+| `item` | `{ attachment, index, remove }` | Replace a whole card. |
+| `actions` | `{ attachment, index }` | Add your own buttons to each card or row. |
+| `empty` | – | Content to show when there are no files. |
+
+### Data types
+
+```ts
+interface DocumentAttachment {
+  file: FileData
+}
+
+interface FileData {
+  name: string              // with extension, e.g. "report.pdf"
+  format: string            // extension, e.g. "pdf"; "jpg" after compression
+  base64: string            // file contents, without the "data:…;base64," prefix
+  size: number              // bytes
+  tags: string[]
+  description: string | null
+  showDetailState: boolean
+}
+```
+
+## 🎨 Styling (without Vuetify)
+
+Import the default theme once:
+
+```ts
+import 'handy-uploader/style.css'
+```
+
+The easiest way to re-theme is with CSS variables, on the component or any parent:
 
 ```css
 .hu-uploader {
   --hu-primary: #7c3aed;     /* links, focus, drop area */
   --hu-button-bg: #7c3aed;   /* Insert / Add buttons (or use btnColor) */
   --hu-chip: #7c3aed;        /* size chips */
-  --hu-radius: 16px;
+  --hu-radius: 16px;         /* card corners */
   --hu-media-height: 160px;  /* preview height in the thumbnail view */
+  --hu-font: inherit;
 }
 ```
 
-Add the `hu-dark` class for the dark preset. Built-in styles are single `hu-*` class selectors, so they survive global resets (Tailwind preflight, Vuetify) and are easy to override with your own classes. You can also skip `style.css` entirely and style the `hu-*` classes yourself.
+- Add the `hu-dark` class (on the component or a parent) for the dark preset.
+- Built-in styles are single `hu-*` class selectors. They survive global resets such as Tailwind's preflight, and are easy to override with your own classes.
+- Or skip `style.css` entirely and style the `hu-*` classes yourself.
 
-**Build your own UI.** `useUploader(filesRef, options)` gives you `stage`, `commit`, `add`, `remove`, `update`, `clear`, `errors` and `isProcessing` with no markup at all. `HandyDropzone`, `HandyFileList`, `HandyDialog` and `HandyFileIcon` are available as separate building blocks.
+The default theme uses `color-mix()` and `:has()` (Chrome/Edge 111+, Firefox 121+, Safari 16.4+). In older browsers it still works, with simpler focus and badge styling.
 
-## 🚀 Quick Start (Vuetify components)
+## 🧱 Building your own UI
 
-The original Vuetify 3 components are imported from `handy-uploader/vuetify`.
+Everything `HandyUploader` uses is exported:
 
-### 1. Install Dependencies
+- **`useUploader(filesRef, options)`:** the upload logic with no markup. It provides `add`, `stage` + `commit` (read files, let users edit them, then add), `remove`, `update`, `clear`, `errors` and `isProcessing`.
+- **Components:** `HandyDropzone`, `HandyFileList`, `HandyDialog` and `HandyFileIcon`.
+- **Framework-agnostic helpers:** `readFiles`, `prepareAttachments`, `compressDataUrl`, `generateVideoThumbnail`, `matchesAccept`, `formatBytes` and more. These have no Vue dependency.
 
-Make sure you have the required peer dependencies:
+```ts
+import { ref } from 'vue'
+import { useUploader, type DocumentAttachment } from 'handy-uploader'
 
-```bash
-npm install vue@^3.0.0 vuetify@^3.0.0
-```
-
-### 2. Import and Use
-
-```vue
-<template>
-  <div>
-    <!-- Thumbnail Uploader with Video Support -->
-    <ThumbnailUploader
-      :max-file-size="10485760"
-      :max-file-count="5"
-      :accepted-file-types="['image/*', 'video/*']"
-      :language="'en'"
-      @files-selected="handleFilesSelected"
-    />
-  </div>
-</template>
-
-<script setup lang="ts">
-import { ThumbnailUploader } from 'handy-uploader/vuetify'
-import type { FileData } from 'handy-uploader'
-
-const handleFilesSelected = (files: FileData[]) => {
-  console.log('Selected files:', files)
-  // Each file includes base64 data and video thumbnails are auto-generated
-}
-</script>
-```
-
-### 3. Setup Vuetify (Required)
-
-```typescript
-// main.ts
-import { createApp } from 'vue'
-import { createVuetify } from 'vuetify'
-import 'vuetify/styles'
-import '@mdi/font/css/materialdesignicons.css'
-
-const vuetify = createVuetify()
-const app = createApp(App)
-
-app.use(vuetify)
-app.mount('#app')
-```
-
-## 📖 Component Usage
-
-### ThumbnailUploader (Recommended)
-
-Perfect for media files with automatic video thumbnail generation:
-
-```vue
-<template>
-  <ThumbnailUploader
-    :max-file-size="52428800"
-    :max-file-count="10"
-    :accepted-file-types="['image/*', 'video/*', 'application/pdf']"
-    :language="'en'"
-    :theme="'light'"
-    @files-selected="onFilesSelected"
-    @file-removed="onFileRemoved"
-    @error="onError"
-  />
-</template>
-
-<script setup>
-import { ThumbnailUploader } from 'handy-uploader/vuetify'
-
-const onFilesSelected = (files) => {
-  // Video files will have thumbnails automatically generated
-  files.forEach(file => {
-    if (file.type === 'video') {
-      console.log('Video thumbnail:', file.thumbnail) // Base64 thumbnail
-    }
-  })
-}
-</script>
-```
-
-### TableUploader
-
-Great for document management with detailed file information:
-
-```vue
-<template>
-  <TableUploader
-    :max-file-size="104857600"
-    :max-file-count="20"
-    :language="'en'"
-    @files-selected="handleFiles"
-  />
-</template>
-```
-
-### SimpleUploader
-
-Minimal drag-and-drop interface:
-
-```vue
-<template>
-  <SimpleUploader
-    :max-file-size="5242880"
-    :accepted-file-types="['image/*']"
-    @files-selected="handleImages"
-  />
-</template>
-```
-
-## ⚙️ API Reference
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `maxFileSize` | `number` | `5242880` | Maximum file size in bytes (5MB) |
-| `maxFileCount` | `number` | `5` | Maximum number of files |
-| `acceptedFileTypes` | `string[]` | `['*']` | Accepted MIME types |
-| `language` | `string` | `'en'` | Language code |
-| `theme` | `string` | `'light'` | Theme variant |
-
-### Events
-
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `files-selected` | `FileData[]` | Emitted when files are selected |
-| `file-removed` | `FileData` | Emitted when a file is removed |
-| `error` | `Error` | Emitted on errors |
-
-### FileData Interface
-
-```typescript
-interface FileData {
-  id: string
-  name: string
-  size: number
-  type: string
-  format: string
-  base64?: string
-  thumbnail?: string  // Auto-generated for videos
-  lastModified: number
-}
-```
-
-## 🎯 Advanced Features
-
-### Video Thumbnail Generation
-
-The library automatically generates thumbnails for video files:
-
-```javascript
-// Thumbnails are generated automatically
-const videoFile = {
-  name: 'video.mp4',
-  type: 'video',
-  thumbnail: 'data:image/jpeg;base64,/9j/4AAQ...' // Auto-generated
-}
-```
-
-### File Type Detection
-
-Automatic file type detection and icon assignment:
-
-```javascript
-// Automatic type detection
-const file = {
-  name: 'document.pdf',
-  type: 'document',  // Auto-detected
-  icon: 'mdi-file-pdf-box',  // Auto-assigned
-  color: 'red'  // Auto-assigned
-}
-```
-
-### Image Compression
-
-Built-in image compression for large files:
-
-```vue
-<ThumbnailUploader
-  :compress-images="true"
-  :compression-quality="0.8"
-  :max-width="1920"
-  :max-height="1080"
-/>
+const files = ref<DocumentAttachment[]>([])
+const { add, remove, errors, isProcessing } = useUploader(files, {
+  maxFileSize: 5 * 1024 * 1024,
+  maxFileCount: 10,
+  accept: 'image/*',
+  imageCompressor: true
+})
+// <input type="file" multiple @change="add($event.target.files)">
 ```
 
 ## 🌍 Internationalization
 
-Supported languages:
+Built-in languages: `en` (English), `fa` (Persian, RTL), `fr` (French), `ch` (Chinese), `ar` (Arabic, RTL).
 
-```javascript
-const languages = [
-  'en', // English
-  'zh', // Chinese
-  'es', // Spanish
-  'fr', // French
-  'de', // German
-  'ja', // Japanese
-  'ko', // Korean
-  'ar'  // Arabic (RTL)
-]
+To change texts or add a language, pass `customLang`. Start from the built-in strings:
+
+```ts
+import { languageData } from 'handy-uploader'
+
+const customLang = {
+  ...languageData,
+  de: { ...languageData.en, insertFile: 'Datei hinzufügen', add: 'Hinzufügen' /* … */ }
+}
 ```
-
-## 🛠️ Technical Requirements
-
-### Peer Dependencies
-- **Vue**: ^3.0.0
-- **Vuetify**: ^3.0.0 (optional; only needed for `handy-uploader/vuetify`)
-
-### Browser Support
-- Chrome 88+
-- Firefox 85+
-- Safari 14+
-- Edge 88+
-
-The default `HandyUploader` theme uses `color-mix()` and `:has()`, which need Chrome/Edge 111+, Firefox 121+ and Safari 16.4+. In older browsers it still works, with simpler focus and badge styling.
-
-### Bundle Size
-- **Gzipped**: ~45KB
-- **Minified**: ~120KB
-
-## 🎨 Customization
-
-### Theming
-
-Works with Vuetify's theming system:
-
-```javascript
-// vuetify.config.js
-export default createVuetify({
-  theme: {
-    themes: {
-      light: {
-        primary: '#1976D2',
-        secondary: '#424242',
-        // Custom theme colors
-      }
-    }
-  }
-})
-```
-
-### Custom Styling
 
 ```vue
-<style scoped>
-.handy-uploader {
-  --uploader-border-radius: 12px;
-  --uploader-primary-color: #1976D2;
-  --uploader-background: #f5f5f5;
-}
-</style>
+<HandyUploader :custom-lang="customLang" lang="de" />
 ```
 
-## 📝 Examples
+## 🛠️ Requirements
 
-### Complete Example with All Features
+- **Vue** ^3.0.0
+- **Vuetify** ^3.0.0: optional, only for `handy-uploader/vuetify`
+- Modern browsers (Chrome, Edge, Firefox, Safari). Video thumbnails need a browser that can play the video format.
 
-```vue
-<template>
-  <div class="uploader-container">
-    <h2>File Upload with Video Thumbnails</h2>
-    
-    <ThumbnailUploader
-      :max-file-size="52428800"
-      :max-file-count="10"
-      :accepted-file-types="['image/*', 'video/*', 'application/pdf']"
-      :language="currentLanguage"
-      :theme="isDark ? 'dark' : 'light'"
-      :compress-images="true"
-      :compression-quality="0.8"
-      @files-selected="handleFilesSelected"
-      @file-removed="handleFileRemoved"
-      @error="handleError"
-    />
-    
-    <!-- Display selected files -->
-    <div v-if="selectedFiles.length" class="mt-4">
-      <h3>Selected Files:</h3>
-      <div v-for="file in selectedFiles" :key="file.id" class="file-item">
-        <img v-if="file.thumbnail" :src="file.thumbnail" alt="Thumbnail" width="100" />
-        <span>{{ file.name }} ({{ formatFileSize(file.size) }})</span>
-      </div>
-    </div>
-  </div>
-</template>
+Bundle size (minified, gzipped): `handy-uploader` about 10 KB JS + 3 KB CSS, plus about 6 KB of translations; `handy-uploader/vuetify` about 14 KB (Vue and Vuetify not included).
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { ThumbnailUploader, type FileData } from 'handy-uploader/vuetify'
+## ⬆️ Upgrading from 2.x
 
-const selectedFiles = ref<FileData[]>([])
-const currentLanguage = ref('en')
-const isDark = ref(false)
+- **Vuetify users:** change the import to `handy-uploader/vuetify`. Nothing else changes.
+- **`maxFileSize` is now enforced in bytes**, as documented. 2.x compared it in kilobytes, so limits were about 1000× looser. If you tuned the value to the old behaviour, divide it by 1000.
+- **`file.size` is always a number of bytes.** It used to be a string.
+- **The package ships ES modules and CommonJS.** The UMD build was removed.
 
-const handleFilesSelected = (files: FileData[]) => {
-  selectedFiles.value = files
-  console.log('Files with thumbnails:', files)
-}
-
-const handleFileRemoved = (file: FileData) => {
-  console.log('File removed:', file.name)
-}
-
-const handleError = (error: Error) => {
-  console.error('Upload error:', error)
-}
-
-const formatFileSize = (bytes: number) => {
-  return bytes > 1024 * 1024 
-    ? `${(bytes / 1024 / 1024).toFixed(2)} MB`
-    : `${(bytes / 1024).toFixed(2)} KB`
-}
-</script>
-```
+See [CHANGELOG.md](CHANGELOG.md) for details.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository and create a branch.
+2. `npm install`, then `npm run storybook` to work on the components.
+3. Run `npm test`, `npm run type-check` and `npm run lint` before opening a pull request.
+4. Add a changeset (`npx changeset`) describing your change.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/alijahanpak/vue-file-uploader)
-- [npm Package](https://www.npmjs.com/package/handy-uploader)
-- [Documentation](https://github.com/alijahanpak/vue-file-uploader#readme)
-- [Issues](https://github.com/alijahanpak/vue-file-uploader/issues)
-
-## 📊 Stats
+- [GitHub repository](https://github.com/alijahanpak/handy-uploader)
+- [npm package](https://www.npmjs.com/package/handy-uploader)
+- [Live demo (Storybook)](https://illustrious-griffin-257b43.netlify.app)
+- [Issues](https://github.com/alijahanpak/handy-uploader/issues)
 
 ![npm downloads](https://img.shields.io/npm/dm/handy-uploader.svg)
 ![GitHub stars](https://img.shields.io/github/stars/alijahanpak/handy-uploader.svg)
-![GitHub issues](https://img.shields.io/github/issues/alijahanpak/handy-uploader.svg)
-
----
-
-**Made with ❤️ for the Vue.js community**
