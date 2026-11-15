@@ -7,7 +7,8 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const isLib = mode === 'lib'
-  
+  const isElement = mode === 'element'
+
   return {
     plugins: [vue(), vueJsx()],
     resolve: {
@@ -35,6 +36,26 @@ export default defineConfig(({ mode }) => {
         },
         cssCodeSplit: false,
         emptyOutDir: true
+      }
+    }),
+    // 'handy-uploader/element': the <handy-uploader> Web Component. Self-contained (Vue is
+    // bundled, in production mode) so React, Svelte, Angular or plain HTML need nothing else.
+    // Runs after the lib build and must not empty dist/.
+    ...(isElement && {
+      define: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        __VUE_OPTIONS_API__: 'true',
+        __VUE_PROD_DEVTOOLS__: 'false',
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+      },
+      build: {
+        lib: {
+          entry: resolve(__dirname, 'src/element/index.ts'),
+          fileName: () => 'element.mjs',
+          formats: ['es']
+        },
+        minify: 'esbuild',
+        emptyOutDir: false
       }
     })
   }
