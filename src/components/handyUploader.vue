@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="12" md="12" xs="12">
         <InsertButton
+          v-if="props.insertPermission"
           :documentAttachment="props.documentAttachment"
           :selectedLang="uploader.selectedLang"
           :lang="props.lang"

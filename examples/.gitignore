@@ -1,5 +1,5 @@
 node_modules
 dist
 .angular
-# The packed library, created by scripts/test-examples.mjs
+# The packed library, created by the e2e examples setup (e2e/examples/examples.setup.ts)
 .handy-uploader.tgz

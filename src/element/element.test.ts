@@ -58,6 +58,18 @@ describe('<handy-uploader> Web Component', () => {
     expect(el.querySelector('.hu-uploader')).not.toBeNull()
   })
 
+  it('keeps its own attributes (id, class, data-*) off the inner markup', async () => {
+    const el = await mountEl(
+      '<handy-uploader id="docs" class="mine" title="Files" data-test="up" style="margin: 8px"></handy-uploader>'
+    )
+    const inner = el.querySelector('.hu-uploader')!
+    expect(inner.getAttribute('class')).toBe('hu-uploader')
+    for (const name of ['id', 'title', 'style', 'data-test', 'datatest']) {
+      expect(inner.hasAttribute(name)).toBe(false)
+    }
+    expect(document.querySelectorAll('#docs')).toHaveLength(1)
+  })
+
   it('reads string attributes as the right types', async () => {
     const el = await mountEl(
       '<handy-uploader file-uploader-type="table" max-file-count="1" badge-counter="false" lang="fr"></handy-uploader>'

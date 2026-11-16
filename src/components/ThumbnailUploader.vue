@@ -16,8 +16,8 @@
           class="mx-auto"
           max-width="344"
         >
-          <!-- Image Preview Section -->
-          <template v-if="isImageFile(attachment.file.name)">
+          <!-- Image Preview Section (with thumb off, images and videos get a file-type icon) -->
+          <template v-if="thumb && isImageFile(attachment.file.name)">
             <div style="height: 200px; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5; overflow: hidden;">
               <img
                 :src="getImageSrc(attachment.file)"
@@ -28,7 +28,7 @@
           </template>
 
           <!-- Video Preview Section -->
-          <template v-else-if="isVideoFile(attachment.file.name)">
+          <template v-else-if="thumb && isVideoFile(attachment.file.name)">
             <div style="height: 200px; background-color: #f5f5f5; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
               <img 
                 v-if="getVideoThumbnail(attachment.file)"
@@ -299,6 +299,7 @@ const handleEdit = (item: DocumentAttachment, index: number) => {
 // Auto-generate video thumbnails
 const generateThumbnailsForVideos = () => {
   videoThumbnails.retain(props.documentAttachment.map((a) => a.file));
+  if (!props.thumb) return;
   console.log('🎯 Generating thumbnails for videos, total attachments:', props.documentAttachment.length);
   
   const videoAttachments = props.documentAttachment.filter(attachment => isVideoFile(attachment.file.name));

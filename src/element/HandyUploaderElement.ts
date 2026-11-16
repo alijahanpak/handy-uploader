@@ -102,6 +102,10 @@ type InnerApi = {
 
 export default defineComponent({
   name: 'HandyUploaderElement',
+  // Vue hands every attribute of the host that is not a prop (id, class, style, title, data-*,
+  // aria-*) to the component as attrs. They belong to <handy-uploader> itself: falling through
+  // to the inner markup would duplicate ids, classes and styles (and mangle data-* names).
+  inheritAttrs: false,
   props: {
     /** The file list. Set it as a JS property (`el.files = [...]`); read it back the same way. */
     files: { type: Array as PropType<DocumentAttachment[]>, default: undefined },
