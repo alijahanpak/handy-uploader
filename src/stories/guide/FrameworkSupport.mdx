@@ -4,35 +4,165 @@ import { Meta } from '@storybook/blocks'
 
 # Framework Support
 
-| Framework | Status | How |
+Handy Uploader works in every framework. Pick the import that fits your app:
+
+| Framework | Status | Import |
 | --- | --- | --- |
 | **Vue 3** (any CSS) | ✅ Supported | `import { HandyUploader } from 'handy-uploader'` |
 | **Vue 3 + Vuetify 3** | ✅ Supported | `import { HandyUploader } from 'handy-uploader/vuetify'` |
-| **React, Svelte, Angular, plain HTML** | 🛠️ Planned | A Web Component, `<handy-uploader>`, is planned for a 3.x release |
+| **React 18 / 19** | ✅ Supported | `import 'handy-uploader/element'` |
+| **Svelte 5** | ✅ Supported | `import 'handy-uploader/element'` |
+| **Angular** | ✅ Supported | `import 'handy-uploader/element'` |
+| **Plain HTML / any other framework** | ✅ Supported | `import 'handy-uploader/element'` (or from a CDN) |
 
-## Why Vue only, for now?
+Every row is covered by browser tests on each pull request, using the
+[example apps](https://github.com/alijahanpak/handy-uploader/tree/master/examples).
 
-Since 3.0, the uploader is built in two layers:
+## The Web Component
 
-1. **A framework-free core:** all the logic. Reading files, validation, compression, video thumbnails, translations. It has no Vue dependency.
-2. **A thin UI layer:** today, Vue components.
+`handy-uploader/element` registers a `<handy-uploader>` element. It has the same features and
+options as the Vue component, because it is the Vue component, wrapped as a standard Web Component:
 
-The planned Web Component adds a second UI layer on top of the same core, so it behaves exactly like the Vue version (same features, same CSS variables) and works in any framework.
+- **Self-contained:** Vue is bundled inside, so nothing else needs to be installed (about 55 KB
+  gzipped). The default theme is added to the page automatically.
+- **No Shadow DOM:** the `--hu-*` CSS variables and your own CSS apply exactly as with the Vue
+  component. See [Styling & Theming](?path=/docs/guide-styling-theming--docs).
 
-## Using the core today
+Three rules cover every framework:
 
-If you need the logic in another framework now, the core functions are already available:
+1. **Options are attributes**, in kebab-case: `max-file-count="5"`, `change-file-name`,
+   `file-uploader-type="table"`, `tags="invoice, contract"`. Booleans also accept `"false"`.
+2. **The file list is the `files` property** (an array), not an attribute.
+3. **Changes come as DOM events** prefixed with `hu-`:
 
-```ts
-import { readFiles, prepareAttachments } from 'handy-uploader'
+| Event | `event.detail` | When |
+| --- | --- | --- |
+| `hu-change` | `{ files }` | The list changed (added, edited or removed) |
+| `hu-add` | `{ added }` | Files were added |
+| `hu-remove` | `{ attachment, index }` | A file was removed |
+| `hu-error` | `{ errors }` | Files were rejected (size, count or type) |
 
-const staged = await readFiles(input.files)
-const { accepted, errors } = await prepareAttachments(staged, {
-  currentCount: 0,
-  maxFileCount: 10,
-  maxFileSize: 5 * 1024 * 1024,
-  imageCompressor: true
-})
+The element also has methods: `el.addFiles(files)` (validates and adds; resolves with what was
+added), `el.removeAt(index)` and `el.openInsert()`. Call them once the element is on the page.
+
+Try it, with a live event log: [Web Component stories](?path=/docs/web-component-handy-uploader--docs).
+
+## React 19
+
+```tsx
+import { useState } from 'react'
+import 'handy-uploader/element'
+import type { DocumentAttachment } from 'handy-uploader/element'
+
+export default function App() {
+  const [files, setFiles] = useState<DocumentAttachment[]>([])
+  return (
+    <handy-uploader
+      files={files}
+      max-file-count={5}
+      change-file-name
+      tags="invoice, contract"
+      onhu-change={(event) => setFiles(event.detail.files)}
+    />
+  )
+}
 ```
 
-See [Build Your Own UI](?path=/docs/guide-build-your-own-ui--docs), level 4, for the full list. Note that importing `handy-uploader` currently also requires `vue` to be installed.
+For TypeScript, declare the element for JSX once, as in
+[examples/react-19/src/handy-uploader.d.ts](https://github.com/alijahanpak/handy-uploader/blob/master/examples/react-19/src/handy-uploader.d.ts).
+
+## React 18
+
+React 18 doesn't pass properties or custom events to custom elements, so use a ref:
+
+```tsx
+const ref = useRef<HandyUploaderElement>(null)
+
+useEffect(() => {
+  if (ref.current) ref.current.files = files
+}, [files])
+
+useEffect(() => {
+  const el = ref.current!
+  const onChange = (event: CustomEvent<HandyUploaderChangeDetail>) => setFiles(event.detail.files)
+  el.addEventListener('hu-change', onChange)
+  return () => el.removeEventListener('hu-change', onChange)
+}, [])
+
+return <handy-uploader ref={ref} max-file-count={5} />
+```
+
+## Svelte 5
+
+```svelte
+<script>
+  import 'handy-uploader/element'
+  let files = $state.raw([])
+</script>
+
+<handy-uploader
+  files={files}
+  max-file-count="5"
+  onhu-change={(event) => (files = event.detail.files)}
+></handy-uploader>
+```
+
+## Angular
+
+```ts
+import { CUSTOM_ELEMENTS_SCHEMA, Component, signal } from '@angular/core'
+import 'handy-uploader/element'
+import type { DocumentAttachment, HandyUploaderChangeDetail } from 'handy-uploader/element'
+
+@Component({
+  selector: 'app-root',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `<handy-uploader
+    [files]="files()"
+    max-file-count="5"
+    (hu-change)="onChange($event)"
+  ></handy-uploader>`
+})
+export class AppComponent {
+  readonly files = signal<DocumentAttachment[]>([])
+  onChange(event: Event) {
+    this.files.set((event as CustomEvent<HandyUploaderChangeDetail>).detail.files)
+  }
+}
+```
+
+## Plain HTML (no build step)
+
+```html
+<handy-uploader id="uploader" max-file-count="5" change-file-name></handy-uploader>
+
+<script type="module">
+  import 'https://cdn.jsdelivr.net/npm/handy-uploader@3/dist/element.mjs'
+
+  const el = document.getElementById('uploader')
+  el.files = []
+  el.addEventListener('hu-change', (event) => console.log(event.detail.files))
+</script>
+```
+
+## Other tag names and themes
+
+```ts
+import { defineHandyUploader } from 'handy-uploader/element'
+
+// Register under another tag name, without the default theme:
+defineHandyUploader('my-uploader', { styles: false })
+```
+
+## How it is built
+
+The uploader has two layers:
+
+1. **A framework-free core:** all the logic. Reading files, validation, compression, video
+   thumbnails, translations. It has no Vue dependency.
+2. **UI layers on top:** the Vue component, the Vuetify components, and the Web Component (the Vue
+   component, packaged with Vue as a standard custom element).
+
+Because every flavour uses the same core, they all behave the same way. If you want only the logic,
+with your own UI in any framework, see [Build Your Own UI](?path=/docs/guide-build-your-own-ui--docs),
+level 4.
