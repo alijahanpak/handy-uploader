@@ -1,5 +1,11 @@
 # handy-uploader
 
+## 3.1.1
+
+### Patch Changes
+
+- f518381: In the Vuetify version, files that don't match `fileAccept` (for example dropped files) are now rejected with a message instead of being added.
+
 ## 3.1.0
 
 ### Minor Changes
