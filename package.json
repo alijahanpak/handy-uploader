@@ -1,7 +1,7 @@
 {
   "name": "handy-uploader",
   "version": "3.0.0",
-  "description": "A Vue 3 file uploader with video thumbnails, image compression and i18n. Works with any CSS framework; Vuetify components available from handy-uploader/vuetify.",
+  "description": "A file uploader for Vue, React, Svelte, Angular and plain HTML, with video thumbnails, image compression and i18n. Vue component, Vuetify components and a <handy-uploader> Web Component.",
   "main": "dist/handy-uploader.cjs",
   "module": "dist/handy-uploader.mjs",
   "types": "dist/lib/index.d.ts",
@@ -27,17 +27,22 @@
     "dist"
   ],
   "keywords": [
+    "file-upload",
+    "uploader",
     "vue",
     "vue3",
-    "uploader",
-    "file-upload",
-    "video-thumbnail",
-    "drag-drop",
     "vuetify",
-    "typescript",
-    "component-library"
+    "react",
+    "svelte",
+    "angular",
+    "web-component",
+    "custom-element",
+    "video-thumbnail",
+    "image-compression",
+    "drag-drop",
+    "typescript"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Ali Jahanpak (https://github.com/alijahanpak)",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -3,18 +3,20 @@
 [![npm version](https://badge.fury.io/js/handy-uploader.svg)](https://badge.fury.io/js/handy-uploader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D.svg)](https://vuejs.org/)
+[![Web Component](https://img.shields.io/badge/Web_Component-React_·_Svelte_·_Angular_·_HTML-29abe2.svg)](#web-component-react-svelte-angular-plain-html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 [Live Demo](https://illustrious-griffin-257b43.netlify.app)
+## 🚀 [Live Demo](https://alijahanpak.github.io/handy-uploader/)
 
-A Vue 3 file uploader with **automatic video thumbnails**, **image compression**, three layouts (thumbnail, simple, table), per-file names, descriptions and tags, and translations for 5 languages.
+A file uploader for **Vue, React, Svelte, Angular and plain HTML**, with **automatic video thumbnails**, **image compression**, three layouts (thumbnail, simple, table), per-file names, descriptions and tags, and translations for 5 languages.
 
-It comes in two flavours with **the same props and events**:
+It comes in three flavours with **the same options**:
 
-| Import | Needs | Styling |
-| --- | --- | --- |
-| `handy-uploader` | Vue 3 only | Plain CSS, works with any CSS framework (Tailwind, Bootstrap, your own) |
-| `handy-uploader/vuetify` | Vue 3 + Vuetify 3 | Vuetify components |
+| Import | Use it in | Needs | Styling |
+| --- | --- | --- | --- |
+| `handy-uploader` | Vue 3 | Vue 3 | Plain CSS, works with any CSS framework (Tailwind, Bootstrap, your own) |
+| `handy-uploader/vuetify` | Vue 3 + Vuetify | Vue 3 + Vuetify 3 | Vuetify components |
+| `handy-uploader/element` | React, Svelte, Angular, plain HTML, any framework | Nothing (self-contained) | Same plain CSS, injected automatically |
 
 ## ✨ Features
 
@@ -33,7 +35,7 @@ It comes in two flavours with **the same props and events**:
 npm install handy-uploader
 ```
 
-For the Vuetify flavour, also install `vuetify@^3` (and `@mdi/font` for its icons).
+For the Vuetify flavour, also install `vuetify@^3` (and `@mdi/font` for its icons). The Web Component needs nothing else: Vue is bundled inside it.
 
 ## 🚀 Quick Start
 
@@ -92,25 +94,133 @@ const files = ref<DocumentAttachment[]>([])
 
 Switching between the two is a one-line change, because the props are the same.
 
+### Web Component (React, Svelte, Angular, plain HTML)
+
+Importing `handy-uploader/element` registers a `<handy-uploader>` element and adds the default theme to the page. Three rules cover every framework:
+
+- **Options are attributes** in kebab-case: `max-file-count="5"`, `change-file-name`, `tags="invoice, contract"`. Booleans accept `"false"`.
+- **The file list is the `files` property** (an array), not an attribute.
+- **Changes come as DOM events** prefixed with `hu-`: `hu-change` (`event.detail.files`), `hu-add`, `hu-remove` and `hu-error`.
+
+**React 19**
+
+```tsx
+import { useState } from 'react'
+import 'handy-uploader/element'
+import type { DocumentAttachment } from 'handy-uploader/element'
+
+export default function App() {
+  const [files, setFiles] = useState<DocumentAttachment[]>([])
+  return (
+    <handy-uploader
+      files={files}
+      max-file-count={5}
+      change-file-name
+      tags="invoice, contract"
+      onhu-change={(event) => setFiles(event.detail.files)}
+    />
+  )
+}
+```
+
+For TypeScript, declare the element in JSX once; see [examples/react-19/src/handy-uploader.d.ts](examples/react-19/src/handy-uploader.d.ts).
+
+**React 18** doesn't pass properties or custom events to custom elements, so use a ref:
+
+```tsx
+const ref = useRef<HandyUploaderElement>(null)
+useEffect(() => {
+  if (ref.current) ref.current.files = files
+}, [files])
+useEffect(() => {
+  const el = ref.current!
+  const onChange = (event: CustomEvent<HandyUploaderChangeDetail>) => setFiles(event.detail.files)
+  el.addEventListener('hu-change', onChange)
+  return () => el.removeEventListener('hu-change', onChange)
+}, [])
+// <handy-uploader ref={ref} max-file-count={5} />
+```
+
+**Svelte 5**
+
+```svelte
+<script>
+  import 'handy-uploader/element'
+  let files = $state.raw([])
+</script>
+
+<handy-uploader
+  files={files}
+  max-file-count="5"
+  onhu-change={(event) => (files = event.detail.files)}
+></handy-uploader>
+```
+
+**Angular** (standalone component)
+
+```ts
+import { CUSTOM_ELEMENTS_SCHEMA, Component, signal } from '@angular/core'
+import 'handy-uploader/element'
+import type { DocumentAttachment, HandyUploaderChangeDetail } from 'handy-uploader/element'
+
+@Component({
+  selector: 'app-root',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `<handy-uploader
+    [files]="files()"
+    max-file-count="5"
+    (hu-change)="onChange($event)"
+  ></handy-uploader>`
+})
+export class AppComponent {
+  readonly files = signal<DocumentAttachment[]>([])
+  onChange(event: Event) {
+    this.files.set((event as CustomEvent<HandyUploaderChangeDetail>).detail.files)
+  }
+}
+```
+
+**Plain HTML** (no build step)
+
+```html
+<handy-uploader id="uploader" max-file-count="5" change-file-name></handy-uploader>
+
+<script type="module">
+  import 'https://cdn.jsdelivr.net/npm/handy-uploader@3/dist/element.mjs'
+
+  const el = document.getElementById('uploader')
+  el.files = []
+  el.addEventListener('hu-change', (event) => console.log(event.detail.files))
+</script>
+```
+
+The element also has methods for your own drop zones or paste handling: `el.addFiles(files)` (validates and adds, resolves with what was added), `el.removeAt(index)` and `el.openInsert()`. Call them once the element is on the page. Use `defineHandyUploader('my-uploader', { styles: false })` to register it under another tag name or without the default theme.
+
+Complete, tested apps for each framework are in [examples/](examples/).
+
 ## 🧭 Framework Support
 
-| Framework | Status |
+| Framework | Use |
 | --- | --- |
 | **Vue 3** (any CSS) | ✅ `handy-uploader` |
 | **Vue 3 + Vuetify 3** | ✅ `handy-uploader/vuetify` |
-| **React, Svelte, Angular, plain HTML** | 🛠️ Planned as a Web Component (`<handy-uploader>`) in a 3.x release |
+| **React 18 / 19** | ✅ `handy-uploader/element` |
+| **Svelte 5** | ✅ `handy-uploader/element` |
+| **Angular** | ✅ `handy-uploader/element` |
+| **Plain HTML / any other framework** | ✅ `handy-uploader/element` |
 
-The upload logic (reading files, validation, compression, video thumbnails) lives in a framework-free core that is already exported; see [Building your own UI](#-building-your-own-ui).
+Every one of these is covered by browser tests on each pull request. The upload logic (reading files, validation, compression, video thumbnails) lives in a framework-free core that is also exported; see [Building your own UI](#-building-your-own-ui).
 
 ## 📚 Documentation
 
-The [live demo](https://illustrious-griffin-257b43.netlify.app) is a Storybook with guides and an interactive example of every feature:
+The [live demo](https://alijahanpak.github.io/handy-uploader/) is a Storybook with guides and an interactive example of every feature:
 
-- [Getting Started](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-getting-started--docs)
-- [Feature Tour](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-feature-tour--docs): every feature, with a link to try it
-- [Styling & Theming](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-styling-theming--docs)
-- [Build Your Own UI](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-build-your-own-ui--docs)
-- [Upgrading from 2.x](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-upgrading-from-2-x--docs)
+- [Getting Started](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-getting-started--docs)
+- [Feature Tour](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-feature-tour--docs): every feature, with a link to try it
+- [Styling & Theming](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-styling-theming--docs)
+- [Build Your Own UI](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-build-your-own-ui--docs)
+- [Upgrading from 2.x](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-upgrading-from-2-x--docs)
+- [Web Component](https://alijahanpak.github.io/handy-uploader/?path=/docs/web-component-handy-uploader--docs): `<handy-uploader>` with a live event log
 
 ## ⚙️ API Reference
 
@@ -252,11 +362,11 @@ const customLang = {
 
 ## 🛠️ Requirements
 
-- **Vue** ^3.0.0
+- **Vue** ^3.0.0: for `handy-uploader` and `handy-uploader/vuetify` (the Web Component includes its own)
 - **Vuetify** ^3.0.0: optional, only for `handy-uploader/vuetify`
 - Modern browsers (Chrome, Edge, Firefox, Safari). Video thumbnails need a browser that can play the video format.
 
-Bundle size (minified, gzipped): `handy-uploader` about 10 KB JS + 3 KB CSS, plus about 6 KB of translations; `handy-uploader/vuetify` about 14 KB (Vue and Vuetify not included).
+Bundle size (minified, gzipped): `handy-uploader` about 10 KB JS + 3 KB CSS, plus about 6 KB of translations; `handy-uploader/vuetify` about 14 KB (Vue and Vuetify not included); `handy-uploader/element` about 55 KB, everything included.
 
 ## ⬆️ Upgrading from 2.x
 
@@ -284,7 +394,7 @@ MIT. See [LICENSE](LICENSE).
 
 - [GitHub repository](https://github.com/alijahanpak/handy-uploader)
 - [npm package](https://www.npmjs.com/package/handy-uploader)
-- [Live demo (Storybook)](https://illustrious-griffin-257b43.netlify.app)
+- [Live demo (Storybook)](https://alijahanpak.github.io/handy-uploader/)
 - [Issues](https://github.com/alijahanpak/handy-uploader/issues)
 
 ![npm downloads](https://img.shields.io/npm/dm/handy-uploader.svg)

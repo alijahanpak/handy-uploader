@@ -6,7 +6,7 @@ const theme = create({
   brandTitle: 'Handy Uploader',
   brandUrl: 'https://github.com/alijahanpak/handy-uploader',
   brandTarget: '_blank',
-  brandImage: '/logo.png'
+  brandImage: 'logo.png'
 })
 
 addons.setConfig({
