@@ -196,11 +196,6 @@ for (const flavour of flavours) {
     })
 
     test('rejects files not matching fileAccept with a message', async ({ page }) => {
-      test.fixme(
-        !hu,
-        'Vuetify flavour: fileAccept only sets the input’s accept attribute; files that bypass ' +
-          'the picker (drop, setInputFiles) are added anyway, without the documented message.'
-      )
       const uploader = await flavour.open(page, 'restricted-file-types')
       await uploader.pick([txt('notes.txt'), png('photo.png')])
       await expect(uploader.error).toContainText('notes.txt: File type is not allowed')

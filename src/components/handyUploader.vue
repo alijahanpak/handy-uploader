@@ -346,7 +346,13 @@ import type {
   FileUploaderType,
   LanguageCollection
 } from "@/types";
-import { readFiles, prepareAttachments, joinFileName, type AttachmentError } from "@/core";
+import {
+  readFiles,
+  prepareAttachments,
+  filterByAccept,
+  joinFileName,
+  type AttachmentError
+} from '@/core'
 import { validateHandyUploaderProps } from "@/utils/propValidation";
 
 interface Props {
@@ -478,8 +484,16 @@ watch(
     // Each selection gets a token; a slower, older read must not overwrite a newer state.
     const token = ++readToken;
     if (newValue && newValue.length > 0) {
+      // The accept attribute only filters the picker; dropped or scripted files bypass it.
+      const { accepted, errors } = filterByAccept(newValue, props.fileAccept)
+      const lastError = errors[errors.length - 1]
+      if (lastError) showSnackBarAlert(attachmentErrorMessage(lastError), 'red')
+      if (accepted.length === 0) {
+        uploader.tempAttachment = [] // show the file input again
+        return
+      }
       uploader.btnLoader = true; // blocks "Add" until the files are read
-      const staged = await readFiles(newValue);
+      const staged = await readFiles(accepted)
       if (token !== readToken || !uploader.insertDocumentDialog) return;
       uploader.tempAttachmentChanged = staged;
       uploader.btnLoader = false;
@@ -588,6 +602,8 @@ const attachmentErrorMessage = (error: AttachmentError): string => {
       return `${t.maxFileCountAlert} ${props.maxFileCount}`;
     case "maxFileSize":
       return `${t.maxFileSizeAlert} ${Number((props.maxFileSize / (1024 * 1024)).toFixed(1))} ${t.size.mb}`;
+    case 'fileType':
+      return `${error.fileName}: ${t.fileTypeAlert ?? 'File type is not allowed'}`
     default:
       return "File could not be processed due to an invalid format.";
   }
@@ -610,7 +626,7 @@ const uploadFieldChange = async () => {
   }
   // Only the last alert was ever visible (each one replaced the previous), so show that one.
   const lastError = errors[errors.length - 1];
-  if (lastError) showSnackBarAlert(attachmentErrorMessage(lastError), "red");
+  if (lastError) showSnackBarAlert(attachmentErrorMessage(lastError), 'red');
 
   uploader.documentAttachmentAPI = [];
   uploader.tempAttachmentChanged = [];

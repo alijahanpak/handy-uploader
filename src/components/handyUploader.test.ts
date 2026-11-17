@@ -1,7 +1,7 @@
 // The Vuetify HandyUploader ('handy-uploader/vuetify'). Only the Insert button is tested here;
 // the rest is covered by the e2e tests (e2e/components), which run it in a real browser.
-import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import type { DocumentAttachment } from '../types'
@@ -13,6 +13,11 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 } as unknown as typeof ResizeObserver
+// Vuetify's snackbar positions itself with visualViewport, which jsdom doesn't have either.
+globalThis.visualViewport ??= Object.assign(new EventTarget(), {
+  width: 1024,
+  height: 768
+}) as unknown as VisualViewport
 
 const stored = (name: string): DocumentAttachment => ({
   file: {
@@ -97,4 +102,34 @@ describe('Vuetify HandyUploader: thumb', () => {
       expect(off.find('img, .v-img').exists()).toBe(false)
     })
   }
+})
+
+describe('Vuetify HandyUploader: fileAccept', () => {
+  it('rejects files that bypass the picker with a message and stages only the others', async () => {
+    const wrapper = mount(HandyUploader, {
+      props: { documentAttachment: [], lang: 'en', fileAccept: '.pdf,image/*' },
+      global: { plugins: [createVuetify({ components })] },
+      attachTo: document.body
+    })
+    await insertButton(wrapper)!.trigger('click')
+    await flushPromises()
+
+    // Set the files the way a drop or a script does, so the accept attribute doesn't apply.
+    const input = document.querySelector<HTMLInputElement>('.v-dialog input[type=file]')!
+    const files = [
+      new File(['text'], 'notes.txt', { type: 'text/plain' }),
+      new File(['%PDF'], 'doc.pdf', { type: 'application/pdf' })
+    ]
+    Object.defineProperty(input, 'files', { value: files })
+    input.dispatchEvent(new Event('change'))
+    await vi.waitFor(() => {
+      expect(document.querySelectorAll('.v-dialog .v-list-item')).toHaveLength(1)
+    })
+
+    expect(document.querySelector('.v-dialog .v-list-item')!.textContent).toContain('doc.pdf')
+    expect(document.querySelector('.v-snackbar')!.textContent).toContain(
+      'notes.txt: File type is not allowed'
+    )
+    wrapper.unmount()
+  })
 })
