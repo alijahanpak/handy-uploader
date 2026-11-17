@@ -6,7 +6,7 @@
 [![Web Component](https://img.shields.io/badge/Web_Component-React_·_Svelte_·_Angular_·_HTML-29abe2.svg)](#web-component-react-svelte-angular-plain-html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 [Live Demo](https://illustrious-griffin-257b43.netlify.app)
+## 🚀 [Live Demo](https://alijahanpak.github.io/handy-uploader/)
 
 A file uploader for **Vue, React, Svelte, Angular and plain HTML**, with **automatic video thumbnails**, **image compression**, three layouts (thumbnail, simple, table), per-file names, descriptions and tags, and translations for 5 languages.
 
@@ -213,14 +213,14 @@ Every one of these is covered by browser tests on each pull request. The upload 
 
 ## 📚 Documentation
 
-The [live demo](https://illustrious-griffin-257b43.netlify.app) is a Storybook with guides and an interactive example of every feature:
+The [live demo](https://alijahanpak.github.io/handy-uploader/) is a Storybook with guides and an interactive example of every feature:
 
-- [Getting Started](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-getting-started--docs)
-- [Feature Tour](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-feature-tour--docs): every feature, with a link to try it
-- [Styling & Theming](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-styling-theming--docs)
-- [Build Your Own UI](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-build-your-own-ui--docs)
-- [Upgrading from 2.x](https://illustrious-griffin-257b43.netlify.app/?path=/docs/guide-upgrading-from-2-x--docs)
-- [Web Component](https://illustrious-griffin-257b43.netlify.app/?path=/docs/web-component-handy-uploader--docs): `<handy-uploader>` with a live event log
+- [Getting Started](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-getting-started--docs)
+- [Feature Tour](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-feature-tour--docs): every feature, with a link to try it
+- [Styling & Theming](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-styling-theming--docs)
+- [Build Your Own UI](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-build-your-own-ui--docs)
+- [Upgrading from 2.x](https://alijahanpak.github.io/handy-uploader/?path=/docs/guide-upgrading-from-2-x--docs)
+- [Web Component](https://alijahanpak.github.io/handy-uploader/?path=/docs/web-component-handy-uploader--docs): `<handy-uploader>` with a live event log
 
 ## ⚙️ API Reference
 
@@ -394,7 +394,7 @@ MIT. See [LICENSE](LICENSE).
 
 - [GitHub repository](https://github.com/alijahanpak/handy-uploader)
 - [npm package](https://www.npmjs.com/package/handy-uploader)
-- [Live demo (Storybook)](https://illustrious-griffin-257b43.netlify.app)
+- [Live demo (Storybook)](https://alijahanpak.github.io/handy-uploader/)
 - [Issues](https://github.com/alijahanpak/handy-uploader/issues)
 
 ![npm downloads](https://img.shields.io/npm/dm/handy-uploader.svg)
