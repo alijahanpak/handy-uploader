@@ -1,5 +1,24 @@
 # handy-uploader
 
+## 3.1.0
+
+### Minor Changes
+
+- 8c54182: Add `<handy-uploader>`, a Web Component that works in any framework (React, Svelte, Angular and others) or in plain HTML. Import it from `handy-uploader/element`.
+
+  - **Self-contained:** Vue is bundled, so nothing else needs to be installed, and the default theme is injected automatically. It renders without Shadow DOM, so `--hu-*` CSS variables and your own CSS apply as usual.
+  - **Same features and options as the Vue `HandyUploader`.** Use kebab-case attributes (`file-uploader-type="table"`, `max-file-count="5"`, `tags="invoice, contract"`) or JS properties. The file list is the `files` property.
+  - **Events:** `hu-change` (`detail.files`), `hu-add`, `hu-remove` and `hu-error`. They are prefixed so they can't be confused with native `change` events from the inputs inside.
+  - TypeScript types without any Vue dependency, including `HTMLElementTagNameMap` support for `document.querySelector('handy-uploader')`.
+
+### Patch Changes
+
+- 3124fb8: Fixes in the Vuetify version (`handy-uploader/vuetify`), found by the new end-to-end tests:
+
+  - `insertPermission: false` now hides the Insert button (it was always shown).
+  - The Insert button is disabled once `maxFileCount` is reached.
+  - `thumb: false` now turns off image and video previews in the thumbnail view.
+
 ## 3.0.0
 
 ### Major Changes
